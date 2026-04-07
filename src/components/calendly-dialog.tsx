@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar, X } from "lucide-react";
 
-const CALENDLY_URL = "https://calendly.com/caliberwebstudio";
+const CALENDLY_URL = "https://calendly.com/caliberwebstudio/office-hours";
 
 interface CalendlyDialogProps {
   variant?: "default" | "ghost" | "outline";
