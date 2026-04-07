@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useState } from "react";
 
 const mockPages = [
-  { id: "1", name: "Homepage", path: "/", description: "The main landing page", changes: 3 },
-  { id: "3", name: "Services", path: "/services", description: "Web design, development, and AI services", changes: 5 },
-  { id: "6", name: "Pricing", path: "/pricing", description: "Monthly plans: Starter $197, Growth $397, Domination $697", changes: 4 },
-  { id: "4", name: "Case Studies", path: "/case-studies", description: "Portfolio of client work", changes: 0 },
-  { id: "2", name: "About", path: "/about", description: "About Caliber Web Studio and the team", changes: 1 },
-  { id: "5", name: "Blog", path: "/blog", description: "Articles on web design, AI, and business growth", changes: 2 },
-  { id: "7", name: "Contact", path: "/contact", description: "Contact form and business information", changes: 0 },
+  { id: "1", name: "Homepage", path: "/", url: "https://www.caliberwebstudio.com/", description: "The main landing page", changes: 3 },
+  { id: "3", name: "Services", path: "/services", url: "https://www.caliberwebstudio.com/services", description: "Web design, development, and AI services", changes: 5 },
+  { id: "6", name: "Pricing", path: "/pricing", url: "https://www.caliberwebstudio.com/pricing", description: "Monthly plans: Starter $197, Growth $397, Domination $697", changes: 4 },
+  { id: "4", name: "Case Studies", path: "/case-studies", url: "https://www.caliberwebstudio.com/case-studies", description: "Portfolio of client work", changes: 0 },
+  { id: "2", name: "About", path: "/about", url: "https://www.caliberwebstudio.com/about", description: "About Caliber Web Studio and the team", changes: 1 },
+  { id: "5", name: "Blog", path: "/blog", url: "https://www.caliberwebstudio.com/blog", description: "Articles on web design, AI, and business growth", changes: 2 },
+  { id: "7", name: "Contact", path: "/contact", url: "https://www.caliberwebstudio.com/contact", description: "Contact form and business information", changes: 0 },
 ];
 
 const gradients = [
