@@ -55,4 +55,5 @@ src/db/migrations/
 .vercel
 *.local
 
-.vercel
+# Scripts containing secrets
+add-stripe-env-to-vercel.ps1
