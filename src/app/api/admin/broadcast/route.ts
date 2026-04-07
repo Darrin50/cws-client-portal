@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
     // TODO: Queue notifications to be sent
     const broadcast = {
       id: `broadcast_${Date.now()}`,
-      ...validation.data,
-      targetAudience: validation.data.targetAudience || 'all',
+      ...validation.data!,
+      targetAudience: validation.data!.targetAudience || 'all',
       status: 'queued',
       createdAt: new Date().toISOString(),
     };

@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { commentsTable, analyticsSnapshotsTable } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
-interface HealthMetrics {
+export interface HealthMetrics {
   uptime?: number;
   pageSpeed?: number;
   seoScore?: number;

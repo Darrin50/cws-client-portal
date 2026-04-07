@@ -1,33 +1,29 @@
 import { db } from "@/db";
-import { faqArticles } from "@/db/schema";
+import { faqArticlesTable } from "@/db/schema";
 import { eq, and, count, desc } from "drizzle-orm";
 
 export async function getFaqArticles(category?: string) {
-  let query = db.select().from(faqArticles).where(eq(faqArticles.published, true));
+  const conditions: ReturnType<typeof eq>[] = [eq(faqArticlesTable.isPublished, true)];
 
   if (category) {
-    query = query.where(eq(faqArticles.category, category));
+    conditions.push(eq(faqArticlesTable.category, category as any));
   }
 
-  query = query.orderBy(desc(faqArticles.views));
+  const result = await db
+    .select()
+    .from(faqArticlesTable)
+    .where(and(...conditions))
+    .orderBy(desc(faqArticlesTable.helpfulCount));
 
-  return query;
+  return result;
 }
 
 export async function getFaqArticle(id: string) {
   const result = await db
     .select()
-    .from(faqArticles)
-    .where(eq(faqArticles.id, id))
+    .from(faqArticlesTable)
+    .where(eq(faqArticlesTable.id, id))
     .limit(1);
-
-  if (result?.[0]) {
-    // Increment views
-    await db
-      .update(faqArticles)
-      .set({ views: (result[0].views || 0) + 1 })
-      .where(eq(faqArticles.id, id));
-  }
 
   return result?.[0] || null;
 }
@@ -40,12 +36,12 @@ export async function createFaqArticle(data: {
   published?: boolean;
 }) {
   const result = await db
-    .insert(faqArticles)
+    .insert(faqArticlesTable)
     .values({
-      ...data,
-      views: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      title: data.title,
+      content: data.content,
+      category: data.category as any,
+      isPublished: data.published ?? false,
     })
     .returning();
 
@@ -63,12 +59,15 @@ export async function updateFaqArticle(
   }
 ) {
   const result = await db
-    .update(faqArticles)
+    .update(faqArticlesTable)
     .set({
-      ...data,
+      title: data.title,
+      content: data.content,
+      category: data.category as any,
+      isPublished: data.published,
       updatedAt: new Date(),
     })
-    .where(eq(faqArticles.id, id))
+    .where(eq(faqArticlesTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -76,8 +75,8 @@ export async function updateFaqArticle(
 
 export async function deleteFaqArticle(id: string) {
   const result = await db
-    .delete(faqArticles)
-    .where(eq(faqArticles.id, id))
+    .delete(faqArticlesTable)
+    .where(eq(faqArticlesTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -89,17 +88,17 @@ export async function markHelpful(id: string, helpful: boolean) {
     return null;
   }
 
-  const currentHelpful = article.helpful || 0;
-  const currentUnhelpful = article.unhelpful || 0;
+  const currentHelpful = article.helpfulCount || 0;
+  const currentUnhelpful = article.notHelpfulCount || 0;
 
   const result = await db
-    .update(faqArticles)
+    .update(faqArticlesTable)
     .set({
-      helpful: helpful ? currentHelpful + 1 : currentHelpful,
-      unhelpful: !helpful ? currentUnhelpful + 1 : currentUnhelpful,
+      helpfulCount: helpful ? currentHelpful + 1 : currentHelpful,
+      notHelpfulCount: !helpful ? currentUnhelpful + 1 : currentUnhelpful,
       updatedAt: new Date(),
     })
-    .where(eq(faqArticles.id, id))
+    .where(eq(faqArticlesTable.id, id))
     .returning();
 
   return result?.[0] || null;

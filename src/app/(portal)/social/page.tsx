@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 
 // Mock plan check
-const userPlan = "growth";
+const userPlan: string = "growth";
 const isGrowthPlus = userPlan !== "starter";
 
 type PostStatus = "draft" | "pending_approval" | "approved" | "published" | "rejected";
@@ -406,7 +406,7 @@ export default function SocialPage() {
               </Card>
             )}
             {filtered.map((post) => {
-              const PlatformIcon = platformIcons[post.platform];
+              const PlatformIcon = platformIcons[post.platform] as React.ElementType | undefined;
               const config = statusConfig[post.status];
               return (
                 <Card
@@ -415,9 +415,9 @@ export default function SocialPage() {
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                      <PlatformIcon
+                      {PlatformIcon && <PlatformIcon
                         className={`w-5 h-5 ${platformColors[post.platform]}`}
-                      />
+                      />}
                       <span className="text-sm text-slate-400 capitalize">
                         {post.platform}
                       </span>

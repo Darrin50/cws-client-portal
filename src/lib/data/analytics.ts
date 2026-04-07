@@ -1,10 +1,14 @@
 import { db } from "@/db";
-import { analyticsSnapshots, leads } from "@/db/schema";
+import { analyticsSnapshotsTable, leadsTable } from "@/db/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export interface DateRange {
   start: Date;
   end: Date;
+}
+
+function toDateString(date: Date): string {
+  return date.toISOString().split('T')[0]!;
 }
 
 export async function getAnalyticsSnapshots(
@@ -14,30 +18,34 @@ export async function getAnalyticsSnapshots(
 ) {
   const result = await db
     .select()
-    .from(analyticsSnapshots)
+    .from(analyticsSnapshotsTable)
     .where(
       and(
-        eq(analyticsSnapshots.organizationId, orgId),
-        eq(analyticsSnapshots.source, source),
-        gte(analyticsSnapshots.capturedAt, dateRange.start),
-        lte(analyticsSnapshots.capturedAt, dateRange.end)
+        eq(analyticsSnapshotsTable.organizationId, orgId),
+        eq(analyticsSnapshotsTable.source, source as any),
+        gte(analyticsSnapshotsTable.snapshotDate, toDateString(dateRange.start)),
+        lte(analyticsSnapshotsTable.snapshotDate, toDateString(dateRange.end))
       )
     )
-    .orderBy(analyticsSnapshots.capturedAt);
+    .orderBy(analyticsSnapshotsTable.snapshotDate);
 
   return result;
 }
 
 export async function getLeads(orgId: string, status?: string) {
-  let query = db.select().from(leads).where(eq(leads.organizationId, orgId));
+  const conditions = [eq(leadsTable.organizationId, orgId)];
 
   if (status) {
-    query = query.where(eq(leads.status, status));
+    conditions.push(eq(leadsTable.status, status as any));
   }
 
-  query = query.orderBy(desc(leads.createdAt));
+  const result = await db
+    .select()
+    .from(leadsTable)
+    .where(and(...conditions))
+    .orderBy(desc(leadsTable.createdAt));
 
-  return query;
+  return result;
 }
 
 export async function createLead(data: {
@@ -51,12 +59,15 @@ export async function createLead(data: {
   metadata?: Record<string, any>;
 }) {
   const result = await db
-    .insert(leads)
+    .insert(leadsTable)
     .values({
-      ...data,
+      organizationId: data.organizationId,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      formSource: data.source,
+      message: data.message,
       status: "new",
-      createdAt: new Date(),
-      updatedAt: new Date(),
     })
     .returning();
 
@@ -65,15 +76,15 @@ export async function createLead(data: {
 
 export async function updateLeadStatus(
   id: string,
-  status: "new" | "contacted" | "qualified" | "converted" | "rejected"
+  status: "new" | "contacted" | "converted" | "closed"
 ) {
   const result = await db
-    .update(leads)
+    .update(leadsTable)
     .set({
       status,
       updatedAt: new Date(),
     })
-    .where(eq(leads.id, id))
+    .where(eq(leadsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -85,15 +96,15 @@ export async function getTrafficData(
 ) {
   const result = await db
     .select()
-    .from(analyticsSnapshots)
+    .from(analyticsSnapshotsTable)
     .where(
       and(
-        eq(analyticsSnapshots.organizationId, orgId),
-        gte(analyticsSnapshots.capturedAt, dateRange.start),
-        lte(analyticsSnapshots.capturedAt, dateRange.end)
+        eq(analyticsSnapshotsTable.organizationId, orgId),
+        gte(analyticsSnapshotsTable.snapshotDate, toDateString(dateRange.start)),
+        lte(analyticsSnapshotsTable.snapshotDate, toDateString(dateRange.end))
       )
     )
-    .orderBy(analyticsSnapshots.capturedAt);
+    .orderBy(analyticsSnapshotsTable.snapshotDate);
 
   return result;
 }
@@ -101,9 +112,9 @@ export async function getTrafficData(
 export async function getSourcesData(orgId: string) {
   const result = await db
     .select()
-    .from(analyticsSnapshots)
-    .where(eq(analyticsSnapshots.organizationId, orgId))
-    .orderBy(desc(analyticsSnapshots.capturedAt));
+    .from(analyticsSnapshotsTable)
+    .where(eq(analyticsSnapshotsTable.organizationId, orgId))
+    .orderBy(desc(analyticsSnapshotsTable.snapshotDate));
 
   // Group by source and return latest snapshot per source
   const sourceMap = new Map();

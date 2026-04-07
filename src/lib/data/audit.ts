@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { auditLogs } from "@/db/schema";
+import { auditLogTable } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export interface AuditLogParams {
@@ -15,17 +15,15 @@ export interface AuditLogParams {
 
 export async function createAuditLog(params: AuditLogParams) {
   const result = await db
-    .insert(auditLogs)
+    .insert(auditLogTable)
     .values({
-      organizationId: params.organizationId || "",
+      organizationId: params.organizationId || null,
       userId: params.userId,
       action: params.action,
-      resourceType: params.resourceType,
-      resourceId: params.resourceId,
-      changes: params.changes || {},
+      entityType: params.resourceType,
+      entityId: params.resourceId || null,
+      details: params.changes ? { ...params.changes, userAgent: params.userAgent } : null,
       ipAddress: params.ipAddress,
-      userAgent: params.userAgent,
-      createdAt: new Date(),
     })
     .returning();
 
@@ -37,16 +35,15 @@ export async function getAuditLogs(
   limit: number = 100,
   offset: number = 0
 ) {
-  let query = db.select().from(auditLogs);
+  const conditions = orgId ? [eq(auditLogTable.organizationId, orgId)] : [];
 
-  if (orgId) {
-    query = query.where(eq(auditLogs.organizationId, orgId));
-  }
-
-  query = query
-    .orderBy(desc(auditLogs.createdAt))
+  const result = await db
+    .select()
+    .from(auditLogTable)
+    .where(conditions.length > 0 ? conditions[0] : undefined)
+    .orderBy(desc(auditLogTable.createdAt))
     .limit(limit)
     .offset(offset);
 
-  return query;
+  return result;
 }

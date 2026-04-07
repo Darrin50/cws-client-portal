@@ -1,39 +1,34 @@
 import { db } from "@/db";
-import { messages } from "@/db/schema";
-import { eq, and, count, desc } from "drizzle-orm";
+import { messagesTable } from "@/db/schema";
+import { eq, and, count, desc, isNull } from "drizzle-orm";
 
 export async function getMessages(orgId: string, cursor?: string, limit: number = 20) {
-  let query = db
+  const result = await db
     .select()
-    .from(messages)
-    .where(eq(messages.organizationId, orgId))
-    .orderBy(desc(messages.createdAt));
+    .from(messagesTable)
+    .where(eq(messagesTable.organizationId, orgId))
+    .orderBy(desc(messagesTable.createdAt))
+    .limit(limit);
 
-  // Implement cursor-based pagination if provided
-  if (cursor) {
-    const cursorDate = new Date(cursor);
-    // Additional filtering logic for cursor position
-  }
-
-  query = query.limit(limit);
-  return query;
+  return result;
 }
 
 export async function createMessage(data: {
   organizationId: string;
   senderId: string;
-  recipientId: string;
+  recipientId?: string;
   content: string;
   subject?: string;
   channel?: "in-app" | "email" | "sms";
 }) {
   const result = await db
-    .insert(messages)
+    .insert(messagesTable)
     .values({
-      ...data,
+      organizationId: data.organizationId,
+      senderId: data.senderId,
+      content: data.content,
+      isRead: false,
       readAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     })
     .returning();
 
@@ -42,12 +37,12 @@ export async function createMessage(data: {
 
 export async function markMessageRead(id: string) {
   const result = await db
-    .update(messages)
+    .update(messagesTable)
     .set({
+      isRead: true,
       readAt: new Date(),
-      updatedAt: new Date(),
     })
-    .where(eq(messages.id, id))
+    .where(eq(messagesTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -56,12 +51,12 @@ export async function markMessageRead(id: string) {
 export async function getUnreadCount(orgId: string, userId: string) {
   const result = await db
     .select({ count: count() })
-    .from(messages)
+    .from(messagesTable)
     .where(
       and(
-        eq(messages.organizationId, orgId),
-        eq(messages.recipientId, userId),
-        eq(messages.readAt, null)
+        eq(messagesTable.organizationId, orgId),
+        eq(messagesTable.senderId, userId),
+        isNull(messagesTable.readAt)
       )
     );
 

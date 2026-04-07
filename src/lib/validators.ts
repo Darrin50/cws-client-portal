@@ -17,7 +17,7 @@ export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export const updateCommentStatusSchema = z.object({
   organizationId: z.string().min(1),
   commentId: z.string().min(1),
-  status: z.enum(["open", "in-progress", "resolved"]),
+  status: z.enum(["new", "in_progress", "completed"]),
   resolutionNote: z.string().max(1000).optional(),
 });
 

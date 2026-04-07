@@ -115,7 +115,7 @@ function groupByDate(messages: Message[]) {
       currentDate = dateKey;
       groups.push({ label: formatDayLabel(msg.fullDate), messages: [] });
     }
-    groups[groups.length - 1].messages.push(msg);
+    groups[groups.length - 1]!.messages.push(msg);
   });
   return groups;
 }

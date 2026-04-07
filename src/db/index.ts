@@ -2,12 +2,25 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import * as schema from './schema';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set');
-}
+// Lazy initialization: the throw only happens at query time, not at module load.
+// This prevents Next.js build-time failures when DATABASE_URL is not in the build env.
+const getDb = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  return drizzle(neon(process.env.DATABASE_URL), { schema });
+};
 
-const sql = neon(process.env.DATABASE_URL);
+let _db: ReturnType<typeof getDb> | undefined;
 
-export const db = drizzle(sql, { schema });
+export const db: ReturnType<typeof getDb> = new Proxy(
+  {} as ReturnType<typeof getDb>,
+  {
+    get(_target, prop) {
+      if (!_db) _db = getDb();
+      return (_db as unknown as Record<string | symbol, unknown>)[prop];
+    },
+  }
+);
 
-export type Database = typeof db;
+export type Database = ReturnType<typeof getDb>;

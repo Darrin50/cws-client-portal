@@ -88,8 +88,8 @@ export default function NotificationsPage() {
   const handleToggle = (category: string, channel: Channel, value: boolean) => {
     setPreferences((prev) => ({
       ...prev,
-      [category]: { ...prev[category], [channel]: value },
-    }));
+      [category]: { ...(prev[category] as Record<Channel, boolean>), [channel]: value },
+    }) as Preferences);
   };
 
   const handleSave = async () => {
@@ -152,7 +152,7 @@ export default function NotificationsPage() {
                   {channels.map(({ key, label }) => (
                     <ToggleSwitch
                       key={key}
-                      checked={preferences[category][key]}
+                      checked={(preferences[category] as Record<Channel, boolean>)[key]}
                       onChange={(v) => handleToggle(category, key, v)}
                       label={`${category} ${label} notifications`}
                     />

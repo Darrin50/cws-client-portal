@@ -33,11 +33,11 @@ export async function sendMessage(
 
     // Send email notification if configured
     if (validated.channel === "email" || validated.channel === "in-app") {
-      await sendEmail({
-        to: validated.recipientEmail,
-        subject: validated.subject || "New message from CWS Portal",
-        react: null, // Email template would go here
-      });
+      await sendEmail(
+        validated.recipientEmail,
+        validated.subject || "New message from CWS Portal",
+        null // Email template would go here
+      );
     }
 
     // Log audit event

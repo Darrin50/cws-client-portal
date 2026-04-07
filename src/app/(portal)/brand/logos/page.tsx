@@ -84,12 +84,14 @@ function LogoSlot({
         </Button>
         {asset?.fileUrl && (
           <>
-            <Button variant="outline" className="w-full" size="sm" asChild>
-              <a href={asset.fileUrl} download={asset.fileName ?? slot.name}>
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </a>
-            </Button>
+            <a
+              href={asset.fileUrl}
+              download={asset.fileName ?? slot.name}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 h-9 px-3 w-full"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download
+            </a>
             <Button
               variant="outline"
               className="w-full text-red-400 hover:text-red-300"

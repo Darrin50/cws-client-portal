@@ -81,7 +81,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (month) {
-      const [year, monthNum] = month.split('-').map(Number);
+      const parts = month.split('-').map(Number);
+      const year = parts[0]!;
+      const monthNum = parts[1]!;
       const startDate = new Date(year, monthNum - 1, 1);
       const endDate = new Date(year, monthNum, 0, 23, 59, 59);
       conditions.push(gte(socialPostsTable.scheduledAt, startDate));

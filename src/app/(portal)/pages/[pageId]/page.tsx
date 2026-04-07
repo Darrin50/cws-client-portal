@@ -380,7 +380,7 @@ export default function PageDetailPage({
 }: {
   params: { pageId: string };
 }) {
-  const mockPage = mockPagesData[params.pageId] ?? mockPagesData["1"];
+  const mockPage = (mockPagesData[params.pageId] ?? mockPagesData["1"])!;
 
   const [newComment, setNewComment] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
@@ -399,7 +399,7 @@ export default function PageDetailPage({
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
-      setContainerWidth(entries[0].contentRect.width);
+      setContainerWidth(entries[0]?.contentRect.width ?? 0);
     });
     observer.observe(containerRef.current);
     setContainerWidth(containerRef.current.getBoundingClientRect().width);
