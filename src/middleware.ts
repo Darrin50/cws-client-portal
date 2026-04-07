@@ -1,7 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse, type NextRequest } from 'next/server';
-
-const isMarketingRoot = createRouteMatcher(['/']);
+import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
   '/login(.*)',
@@ -16,33 +14,23 @@ const isPublicRoute = createRouteMatcher([
   '/faq',
 ]);
 
-const isAdminRoute = createRouteMatcher(['/admin(.*)']);
-
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const authObject = await auth();
-  const { userId } = authObject;
-
-  // Protect admin routes - require authentication
-  if (isAdminRoute(req)) {
-    if (!userId) {
-      return authObject.redirectToSignIn();
+export default clerkMiddleware(async (auth, req) => {
+  // Redirect authenticated users from root to dashboard
+  if (req.nextUrl.pathname === '/') {
+    const { userId } = await auth();
+    if (userId) {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
+    return;
   }
 
-  // Redirect authenticated users from marketing root to dashboard
-  if (isMarketingRoot(req) && userId) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-
-  // Public routes can be accessed without auth
+  // Public routes pass through without auth check
   if (isPublicRoute(req)) {
     return;
   }
 
-  // Protect all other routes - require authentication
-  if (!userId) {
-    return authObject.redirectToSignIn();
-  }
+  // All other routes require authentication — auth.protect() handles the redirect
+  await auth.protect();
 });
 
 export const config = {
