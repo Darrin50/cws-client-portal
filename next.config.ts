@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
   },
+  redirects: async () => [
+    { source: '/sign-in', destination: '/login', permanent: false },
+    { source: '/sign-in/:path*', destination: '/login/:path*', permanent: false },
+    { source: '/sign-up', destination: '/signup', permanent: false },
+    { source: '/sign-up/:path*', destination: '/signup/:path*', permanent: false },
+  ],
   headers: async () => [
     {
       source: '/(.*)',
