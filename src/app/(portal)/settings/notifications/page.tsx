@@ -111,8 +111,8 @@ export default function NotificationsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">Notifications</h1>
-        <p className="text-slate-400 mt-2">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Notifications</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">
           Control how and when you receive updates from your CWS team
         </p>
       </div>
@@ -144,7 +144,7 @@ export default function NotificationsPage() {
               <div className="grid grid-cols-4 gap-4 items-center">
                 <div className="col-span-1">
                   <p className="font-semibold text-white text-sm">{category}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
                     {categoryDescriptions[category]}
                   </p>
                 </div>
@@ -195,23 +195,23 @@ export default function NotificationsPage() {
       {/* Channel Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {channels.map(({ key, label, icon: Icon, description }) => (
-          <Card key={key} className="p-5 bg-blue-900/10 border-blue-700">
+          <Card key={key} className="p-5 bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-700">
             <div className="flex items-center gap-2 mb-2">
-              <Icon className="w-4 h-4 text-blue-400" />
-              <h3 className="font-semibold text-white">{label}</h3>
+              <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <h3 className="font-semibold text-slate-900 dark:text-white">{label}</h3>
             </div>
-            <p className="text-sm text-slate-300">{description}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">{description}</p>
           </Card>
         ))}
       </div>
 
       {/* SMS notice */}
-      <div className="flex items-start gap-3 bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3">
-        <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-slate-400 leading-relaxed">
+      <div className="flex items-start gap-3 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+        <Info className="w-4 h-4 text-slate-500 dark:text-slate-400 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
           SMS notifications require a verified phone number on your account. You
           can add or update your phone number in{" "}
-          <a href="/settings/business" className="text-blue-400 hover:underline">
+          <a href="/settings/business" className="text-blue-600 dark:text-blue-400 hover:underline">
             Business Settings
           </a>
           . Standard message rates may apply.

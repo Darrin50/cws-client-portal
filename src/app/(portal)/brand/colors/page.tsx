@@ -26,18 +26,24 @@ function ColorSwatch({ color }: { color: ColorAsset }) {
     <Card className="overflow-hidden">
       <div className="h-32 w-full" style={{ backgroundColor: hex }} />
       <div className="p-4 space-y-3">
-        <h3 className="font-semibold text-white">{color.name}</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-white">{color.name}</h3>
         <div className="space-y-2 text-sm">
-          <div className="flex items-center justify-between bg-slate-700 rounded px-3 py-2">
-            <span className="font-mono text-slate-300">{hex}</span>
-            <button onClick={() => handleCopy(hex, "hex")} className="text-slate-400 hover:text-white transition-colors">
+          <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 rounded px-3 py-2">
+            <span className="font-mono text-slate-700 dark:text-slate-300">{hex}</span>
+            <button
+              onClick={() => handleCopy(hex, "hex")}
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
               {copied === "hex" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
           {rgb && (
-            <div className="flex items-center justify-between bg-slate-700 rounded px-3 py-2">
-              <span className="font-mono text-slate-300">{rgb}</span>
-              <button onClick={() => handleCopy(rgb, "rgb")} className="text-slate-400 hover:text-white transition-colors">
+            <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 rounded px-3 py-2">
+              <span className="font-mono text-slate-700 dark:text-slate-300">{rgb}</span>
+              <button
+                onClick={() => handleCopy(rgb, "rgb")}
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+              >
                 {copied === "rgb" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
@@ -89,15 +95,15 @@ export default function ColorsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white">Brand Colors</h1>
-        <p className="text-slate-400 mt-2">Complete color palette with hex and RGB values</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Brand Colors</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">Complete color palette with hex and RGB values</p>
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading…</p>
+        <p className="text-slate-600 dark:text-slate-400">Loading…</p>
       ) : colors.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-slate-400">No brand colors have been added yet. Contact your CWS team to add your palette.</p>
+          <p className="text-slate-600 dark:text-slate-400">No brand colors have been added yet. Contact your CWS team to add your palette.</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -108,18 +114,18 @@ export default function ColorsPage() {
       )}
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Color Usage Guidelines</h2>
-        <div className="space-y-4 text-sm text-slate-300">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Color Usage Guidelines</h2>
+        <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
           <div>
-            <h3 className="font-semibold text-white mb-2">Primary Color</h3>
+            <h3 className="font-semibold text-slate-800 dark:text-white mb-2">Primary Color</h3>
             <p>Use the primary brand color for buttons, links, and key interface elements.</p>
           </div>
           <div>
-            <h3 className="font-semibold text-white mb-2">Status Colors</h3>
+            <h3 className="font-semibold text-slate-800 dark:text-white mb-2">Status Colors</h3>
             <p>Use success/warning/danger colors only for status indicators and alerts.</p>
           </div>
           <div>
-            <h3 className="font-semibold text-white mb-2">Neutral Colors</h3>
+            <h3 className="font-semibold text-slate-800 dark:text-white mb-2">Neutral Colors</h3>
             <p>Neutral tones work best for text, dividers, and background fills.</p>
           </div>
         </div>
