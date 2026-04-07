@@ -12,8 +12,8 @@ import {
   Palette,
   MessageSquare,
   Settings,
-  BarChart2,
-  FileBarChart,
+  BarChart3,
+  FileText,
   Share2,
   Lock,
   Bell,
@@ -35,14 +35,15 @@ const navItems = [
 ]
 
 const lockedItems = [
-  { label: "Analytics", icon: BarChart2, tooltip: "Upgrade your plan to unlock Analytics" },
-  { label: "Reports", icon: FileBarChart, tooltip: "Upgrade your plan to unlock Reports" },
+  { label: "Analytics", icon: BarChart3, tooltip: "Upgrade your plan to unlock Analytics" },
+  { label: "Reports", icon: FileText, tooltip: "Upgrade your plan to unlock Reports" },
   { label: "Social Media", icon: Share2, tooltip: "Upgrade your plan to unlock Social Media" },
 ]
 
 interface ClientLayoutProps {
   children: React.ReactNode
   unreadNotifications?: number
+  unreadMessages?: number
   userInitials?: string
   userEmail?: string
   userName?: string
@@ -51,9 +52,10 @@ interface ClientLayoutProps {
 export function ClientLayout({
   children,
   unreadNotifications = 0,
-  userInitials = "DM",
-  userEmail = "darrin@business.com",
-  userName = "Darrin Mitchell",
+  unreadMessages = 2,
+  userInitials = "DS",
+  userEmail = "singerdarrin50.ds@gmail.com",
+  userName = "Darrin Singer",
 }: ClientLayoutProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -87,16 +89,21 @@ export function ClientLayout({
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10 flex-shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Caliber Web Studio"
-            width={140}
-            height={40}
-            className="object-contain"
-            priority
-          />
+        {/* Logo — icon + text side by side */}
+        <div className="px-4 py-5 border-b border-white/10 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="Caliber Web Studio"
+              width={36}
+              height={36}
+              className="object-contain flex-shrink-0"
+              priority
+            />
+            <span className="text-sm font-semibold text-white leading-tight">
+              Caliber Web Studio
+            </span>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -105,6 +112,7 @@ export function ClientLayout({
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/")
             const Icon = item.icon
+            const isMessages = item.label === "Messages"
             return (
               <Link
                 key={item.href}
@@ -119,7 +127,12 @@ export function ClientLayout({
                 style={!isActive ? { paddingLeft: "10px" } : undefined}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {isMessages && unreadMessages > 0 && (
+                  <span className="bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">
+                    {unreadMessages}
+                  </span>
+                )}
               </Link>
             )
           })}

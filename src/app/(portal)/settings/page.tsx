@@ -86,11 +86,11 @@ export default function SettingsPage() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-semibold flex-shrink-0">
-            DM
+            DS
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-slate-900">Darrin Mitchell</p>
-            <p className="text-sm text-slate-500">darrin@business.com</p>
+            <p className="font-semibold text-slate-900">Darrin Singer</p>
+            <p className="text-sm text-slate-500">singerdarrin50.ds@gmail.com</p>
           </div>
           <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full">
             Growth Plan
