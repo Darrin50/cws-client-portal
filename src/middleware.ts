@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
   '/login(.*)',
   '/signup(.*)',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
   '/api/stripe/webhook',
   '/api/auth/webhook',
   '/',
@@ -14,24 +16,30 @@ const isPublicRoute = createRouteMatcher([
   '/faq',
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  // Redirect authenticated users from root to dashboard
-  if (req.nextUrl.pathname === '/') {
-    const { userId } = await auth();
-    if (userId) {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
+export default clerkMiddleware(
+  async (auth, req) => {
+    // Redirect authenticated users from root to dashboard
+    if (req.nextUrl.pathname === '/') {
+      const { userId } = await auth();
+      if (userId) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
+      return;
     }
-    return;
-  }
 
-  // Public routes pass through without auth check
-  if (isPublicRoute(req)) {
-    return;
-  }
+    // Public routes pass through without auth check
+    if (isPublicRoute(req)) {
+      return;
+    }
 
-  // All other routes require authentication — auth.protect() handles the redirect
-  await auth.protect();
-});
+    // All other routes require authentication
+    await auth.protect();
+  },
+  {
+    signInUrl: '/login',
+    signUpUrl: '/signup',
+  }
+);
 
 export const config = {
   matcher: [
