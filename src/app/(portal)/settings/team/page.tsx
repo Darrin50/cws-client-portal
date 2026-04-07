@@ -261,8 +261,8 @@ export default function TeamPage() {
                         <span
                           className={`text-xs rounded px-2 py-0.5 border font-medium ${
                             member.role === "owner"
-                              ? "bg-teal-900/30 text-teal-300 border-teal-700"
-                              : "bg-blue-900/30 text-blue-300 border-blue-700"
+                              ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-700"
+                              : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700"
                           }`}
                         >
                           {member.role === "owner" ? "Owner" : "Member"}
