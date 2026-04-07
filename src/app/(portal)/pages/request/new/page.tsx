@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Upload, ArrowLeft } from "lucide-react";
@@ -52,13 +51,13 @@ export default function NewRequestPage() {
     <div className="space-y-8 max-w-2xl">
       {/* Header */}
       <div>
-        <Link href="/pages" className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-4">
+        <Link href="/pages" className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4">
           <ArrowLeft className="w-4 h-4" />
           Back to pages
         </Link>
-        <h1 className="text-3xl font-bold text-white">Submit a Request</h1>
-        <p className="text-slate-400 mt-2">
-          Tell us what changes or improvements you'd like to see
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Submit a Request</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">
+          Tell us what changes or improvements you&apos;d like to see
         </p>
       </div>
 
@@ -67,7 +66,7 @@ export default function NewRequestPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Page Selection */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
               Page (Optional)
             </label>
             <select
@@ -75,7 +74,7 @@ export default function NewRequestPage() {
               onChange={(e) =>
                 setFormData({ ...formData, pageId: e.target.value })
               }
-              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
             >
               <option value="">General request</option>
               <option value="1">Homepage</option>
@@ -89,15 +88,15 @@ export default function NewRequestPage() {
 
           {/* Priority */}
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
               Priority Level
             </label>
             <div className="flex gap-3">
               {(
                 [
-                  { value: "low", label: "Low", color: "text-green-400" },
-                  { value: "medium", label: "Medium", color: "text-yellow-400" },
-                  { value: "high", label: "High", color: "text-red-400" },
+                  { value: "low", label: "Low", color: "text-green-600 dark:text-green-400" },
+                  { value: "medium", label: "Medium", color: "text-yellow-600 dark:text-yellow-400" },
+                  { value: "high", label: "High", color: "text-red-600 dark:text-red-400" },
                 ] as const
               ).map((option) => (
                 <label key={option.value} className="flex items-center gap-2 cursor-pointer">
@@ -121,7 +120,7 @@ export default function NewRequestPage() {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-slate-700 dark:text-white mb-2">
               Description *
             </label>
             <Textarea
@@ -138,10 +137,10 @@ export default function NewRequestPage() {
 
           {/* File Upload */}
           <div>
-            <label className="block text-sm font-medium text-white mb-3">
+            <label className="block text-sm font-medium text-slate-700 dark:text-white mb-3">
               Attachments (Optional)
             </label>
-            <div className="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors cursor-pointer">
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors cursor-pointer">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -153,11 +152,11 @@ export default function NewRequestPage() {
                 onClick={() => fileInputRef.current?.click()}
                 className="space-y-2"
               >
-                <Upload className="w-8 h-8 text-slate-500 mx-auto" />
-                <p className="text-sm text-white font-medium">
+                <Upload className="w-8 h-8 text-slate-400 mx-auto" />
+                <p className="text-sm text-slate-700 dark:text-white font-medium">
                   Click to upload files
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   or drag and drop (PNG, JPG, PDF up to 10MB)
                 </p>
               </div>
@@ -169,9 +168,9 @@ export default function NewRequestPage() {
                 {files.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between bg-slate-700 rounded px-3 py-2"
+                    className="flex items-center justify-between bg-slate-100 dark:bg-slate-700 rounded px-3 py-2"
                   >
-                    <span className="text-sm text-white truncate">
+                    <span className="text-sm text-slate-900 dark:text-white truncate">
                       {file.name}
                     </span>
                     <button
@@ -179,7 +178,7 @@ export default function NewRequestPage() {
                       onClick={() =>
                         setFiles(files.filter((_, i) => i !== index))
                       }
-                      className="text-slate-400 hover:text-red-400 text-sm"
+                      className="text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 text-sm ml-3 flex-shrink-0"
                     >
                       Remove
                     </button>

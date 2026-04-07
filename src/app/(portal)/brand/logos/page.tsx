@@ -49,8 +49,8 @@ function LogoSlot({
 
   return (
     <Card className="p-6">
-      <h3 className="font-semibold text-white mb-1">{slot.name}</h3>
-      <p className="text-sm text-slate-400 mb-4">{slot.description}</p>
+      <h3 className="font-semibold text-slate-900 dark:text-white mb-1">{slot.name}</h3>
+      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{slot.description}</p>
 
       {asset?.fileUrl ? (
         <div className="mb-4 bg-slate-700 rounded-lg p-4 flex items-center justify-center min-h-32">
@@ -174,12 +174,12 @@ export default function LogosPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white">Logo Files</h1>
-        <p className="text-slate-400 mt-2">Manage your brand logos and visual identity marks</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Logo Files</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">Manage your brand logos and visual identity marks</p>
       </div>
 
       {loading ? (
-        <p className="text-slate-400">Loading…</p>
+        <p className="text-slate-600 dark:text-slate-400">Loading…</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {LOGO_SLOTS.map((slot) => (
@@ -194,9 +194,9 @@ export default function LogosPage() {
         </div>
       )}
 
-      <Card className="p-6 bg-blue-900/10 border-blue-700">
-        <h3 className="font-semibold text-white mb-3">Upload Guidelines</h3>
-        <ul className="space-y-2 text-sm text-slate-300">
+      <Card className="p-6 bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-700">
+        <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Upload Guidelines</h3>
+        <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
           <li><strong>Format:</strong> PNG, SVG, or PDF (SVG preferred for scalability)</li>
           <li><strong>Primary Logo:</strong> Minimum 200x100px, transparent background</li>
           <li><strong>Icon:</strong> Square format (100x100px minimum)</li>
