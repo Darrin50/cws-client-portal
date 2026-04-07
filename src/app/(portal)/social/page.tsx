@@ -176,7 +176,7 @@ function CalendarGrid({ posts }: { posts: SocialPost[] }) {
                 ? ""
                 : day === today
                 ? "bg-blue-600 text-white font-bold"
-                : "hover:bg-slate-700/50 text-slate-300"
+                : "hover:bg-slate-100 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300"
             }`}
           >
             {day !== null && (
@@ -226,11 +226,11 @@ function UpgradeCTA() {
         </div>
       </div>
 
-      <Card className="p-6 bg-blue-900/10 border-blue-700">
-        <h3 className="font-semibold text-white mb-3">
+      <Card className="p-6 bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-700">
+        <h3 className="font-semibold text-slate-900 dark:text-white mb-3">
           What&apos;s included in Growth+ Social
         </h3>
-        <ul className="grid grid-cols-2 gap-2 text-sm text-slate-300">
+        <ul className="grid grid-cols-2 gap-2 text-sm text-slate-700 dark:text-slate-300">
           {[
             "Content calendar view",
             "Post approval workflow",
@@ -291,8 +291,8 @@ export default function SocialPage() {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-white">Social Media Hub</h1>
-          <p className="text-slate-400 mt-2">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Social Media Hub</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-2">
             Manage and schedule social media content
           </p>
         </div>
@@ -305,8 +305,8 @@ export default function SocialPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Social Media Hub</h1>
-          <p className="text-slate-400 mt-1">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Social Media Hub</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
             Review, approve, and track your social content
           </p>
         </div>
@@ -365,9 +365,9 @@ export default function SocialPage() {
         <div className="lg:col-span-2 space-y-4">
           {/* Pending approval alert */}
           {pendingCount > 0 && (
-            <div className="bg-yellow-500/10 border border-yellow-700 rounded-lg px-4 py-3 flex items-center gap-3">
-              <Clock className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-              <p className="text-sm text-yellow-300">
+            <div className="bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-300 dark:border-yellow-700 rounded-lg px-4 py-3 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+              <p className="text-sm text-yellow-800 dark:text-yellow-300">
                 <strong>{pendingCount} post{pendingCount > 1 ? "s" : ""}</strong> waiting for your approval
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function SocialPage() {
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none ${
                   activeTab === tab.key
                     ? "bg-blue-600 text-white"
-                    : "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                    : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                 }`}
               >
                 {tab.label}

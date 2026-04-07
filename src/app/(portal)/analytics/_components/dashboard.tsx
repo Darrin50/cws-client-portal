@@ -340,7 +340,7 @@ export function AnalyticsDashboard() {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-64 flex items-center justify-center text-sm text-slate-400">
+            <div className="h-64 flex items-center justify-center text-sm text-slate-600 dark:text-slate-400">
               No traffic data yet
             </div>
           )}
@@ -419,7 +419,7 @@ export function AnalyticsDashboard() {
               </div>
             </>
           ) : (
-            <div className="h-48 flex items-center justify-center text-sm text-slate-400">
+            <div className="h-48 flex items-center justify-center text-sm text-slate-600 dark:text-slate-400">
               No source data yet
             </div>
           )}
@@ -490,7 +490,7 @@ export function AnalyticsDashboard() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-slate-400 py-6 text-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400 py-6 text-center">
             No page data yet
           </p>
         )}
@@ -571,7 +571,7 @@ export function AnalyticsDashboard() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-slate-400 py-6 text-center">
+          <p className="text-sm text-slate-600 dark:text-slate-400 py-6 text-center">
             No keyword data yet
           </p>
         )}

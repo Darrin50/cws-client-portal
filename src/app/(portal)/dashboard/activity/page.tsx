@@ -117,13 +117,13 @@ function ActivityItem({
   };
 
   return (
-    <div className="flex items-start gap-4 p-4 border-b border-slate-700 last:border-b-0 hover:bg-slate-700/30 transition-colors">
-      <div className="text-slate-400 mt-0.5">{iconMap[item.type as keyof typeof iconMap]}</div>
+    <div className="flex items-start gap-4 p-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+      <div className="text-slate-500 dark:text-slate-400 mt-0.5">{iconMap[item.type as keyof typeof iconMap]}</div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-white">{item.title}</p>
-            <p className="text-sm text-slate-400 mt-1">{item.description}</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{item.description}</p>
           </div>
           {statusMap[item.status as keyof typeof statusMap]}
         </div>
@@ -145,8 +145,8 @@ export default function ActivityPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">Activity Log</h1>
-        <p className="text-slate-400 mt-2">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Activity Log</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-2">
           View all updates and changes to your projects
         </p>
       </div>
@@ -175,14 +175,14 @@ export default function ActivityPage() {
 
       {/* Activity List */}
       <Card>
-        <div className="divide-y divide-slate-700">
+        <div className="divide-y divide-slate-200 dark:divide-slate-700">
           {filteredActivity.length > 0 ? (
             filteredActivity.map((item) => (
               <ActivityItem key={item.id} item={item} />
             ))
           ) : (
             <div className="p-8 text-center">
-              <p className="text-slate-400">No activity found</p>
+              <p className="text-slate-600 dark:text-slate-400">No activity found</p>
             </div>
           )}
         </div>
@@ -190,7 +190,7 @@ export default function ActivityPage() {
 
       {/* Pagination placeholder */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Showing {filteredActivity.length} of {filteredActivity.length} items
         </p>
         <div className="flex gap-2">

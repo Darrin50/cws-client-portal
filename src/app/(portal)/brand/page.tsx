@@ -101,7 +101,7 @@ export default function BrandPage() {
           <p className="text-slate-500 font-medium">
             Your brand files will live here.
           </p>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             Your CWS team will add your logos and colors.
           </p>
         </div>
