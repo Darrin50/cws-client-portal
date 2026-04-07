@@ -5,7 +5,8 @@
       "Bash(curl -L \"https://www.caliberwebstudio.com/logo-mark-nav.png\" -o \"/c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/tender-cartwright/public/logo.png\")",
       "Bash(npm install:*)",
       "Bash(node -e \"require\\(''''next-themes''''\\); console.log\\(''''next-themes OK''''\\)\")",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

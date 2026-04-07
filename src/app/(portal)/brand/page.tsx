@@ -67,10 +67,10 @@ export default function BrandPage() {
                     <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors scroll-m-0 border-0 pb-0 tracking-normal text-lg">
                       {section.title}
                     </h3>
-                    <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
                   </div>
-                  <p className="text-sm text-slate-500">{section.description}</p>
-                  <span className="inline-block text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mt-3">
+                  <p className="text-sm text-slate-600">{section.description}</p>
+                  <span className="inline-block text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full mt-3">
                     {section.count}
                   </span>
                   {section.swatches && (

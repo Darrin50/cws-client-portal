@@ -74,7 +74,7 @@ export default function SettingsPage() {
                       {section.description}
                     </p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors flex-shrink-0" />
                 </div>
               </div>
             </Link>

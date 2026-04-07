@@ -170,11 +170,9 @@ export function ClientLayout({
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-white/15"
                 />
               ) : (
-                <img
-                  src="/logo.png"
-                  alt="Profile"
-                  className="w-9 h-9 rounded-full object-cover bg-slate-800 ring-2 ring-white/15 p-1"
-                />
+                <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold ring-2 ring-white/15">
+                  {userInitials}
+                </div>
               )}
               {avatarHovered && (
                 <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
@@ -220,7 +218,7 @@ export function ClientLayout({
             {/* Breadcrumb */}
             <div className="hidden md:flex items-center gap-1.5 text-sm">
               <span className="text-slate-400">Portal</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               <span className="font-semibold text-[var(--text-primary)]">{activeLabel}</span>
             </div>
 
@@ -245,12 +243,8 @@ export function ClientLayout({
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                 )}
               </button>
-              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-blue-500 transition-all bg-slate-800">
-                <img
-                  src="/logo.png"
-                  alt="User"
-                  className="w-8 h-8 object-cover p-0.5"
-                />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-blue-500 transition-all bg-blue-600 text-white text-xs font-bold flex-shrink-0">
+                {userInitials}
               </div>
             </div>
           </div>
