@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Paperclip } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { AttachPopup } from "@/components/screenshot/AttachPopup";
+import { ScreenshotFlow } from "@/components/screenshot/ScreenshotFlow";
+import { AttachedFilesList } from "@/components/screenshot/AttachedFilesList";
+import type { Attachment, ScreenshotAttachment } from "@/components/screenshot/types";
 
 interface Message {
   id: string;
@@ -178,7 +182,11 @@ export default function MessagesPage() {
   const [unreadCount, setUnreadCount] = useState(
     seedMessages.filter((m) => !m.read && !m.isClient).length
   );
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showAttachPopup, setShowAttachPopup] = useState(false);
+  const [showScreenshotFlow, setShowScreenshotFlow] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const attachButtonRef = useRef<HTMLButtonElement>(null);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -212,12 +220,32 @@ export default function MessagesPage() {
     return () => clearInterval(interval);
   }, [messages]);
 
+  function handleFromDevice(files: FileList) {
+    const newAtts: Attachment[] = Array.from(files).map((file) => ({
+      id: `file-${Date.now()}-${Math.random()}`,
+      name: file.name,
+      file,
+      isScreenshot: false as const,
+    }));
+    setAttachments((prev) => [...prev, ...newAtts]);
+  }
+
+  function handleScreenshotCapture(screenshot: ScreenshotAttachment) {
+    setAttachments((prev) => [...prev, screenshot]);
+    setShowScreenshotFlow(false);
+  }
+
+  function handleRemoveAttachment(id: string) {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || isSubmitting) return;
+    if ((!newMessage.trim() && attachments.length === 0) || isSubmitting) return;
 
     setIsSubmitting(true);
     const messageText = newMessage.trim();
     setNewMessage("");
+    setAttachments([]);
 
     try {
       // TODO: Call server action to persist message
@@ -337,17 +365,44 @@ export default function MessagesPage() {
               }}
               className="resize-none min-h-20 max-h-32"
             />
+
+            {/* Attached files preview */}
+            {attachments.length > 0 && (
+              <AttachedFilesList
+                attachments={attachments}
+                onRemove={handleRemoveAttachment}
+                compact
+              />
+            )}
+
             <div className="flex items-center justify-between">
-              <button aria-label="Attach a file" className="text-slate-400 hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
-                <Paperclip className="w-5 h-5" aria-hidden="true" />
-              </button>
+              {/* Attach button with popup */}
+              <div className="relative">
+                <button
+                  ref={attachButtonRef}
+                  aria-label="Attach a file"
+                  aria-expanded={showAttachPopup}
+                  onClick={() => setShowAttachPopup((v) => !v)}
+                  className="text-slate-400 hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded p-1"
+                >
+                  <Paperclip className="w-5 h-5" aria-hidden="true" />
+                </button>
+                {showAttachPopup && (
+                  <AttachPopup
+                    onFromDevice={handleFromDevice}
+                    onTakeScreenshot={() => setShowScreenshotFlow(true)}
+                    onClose={() => setShowAttachPopup(false)}
+                  />
+                )}
+              </div>
+
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-500 hidden sm:block">
                   Ctrl+Enter to send
                 </span>
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || isSubmitting}
+                  disabled={(!newMessage.trim() && attachments.length === 0) || isSubmitting}
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {isSubmitting ? "Sending..." : "Send"}
@@ -357,6 +412,14 @@ export default function MessagesPage() {
           </div>
         </div>
       </Card>
+
+      {showScreenshotFlow && (
+        <ScreenshotFlow
+          pageLabel="Messages"
+          onCapture={handleScreenshotCapture}
+          onCancel={() => setShowScreenshotFlow(false)}
+        />
+      )}
     </div>
   );
 }

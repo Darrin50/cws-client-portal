@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -14,6 +13,10 @@ import {
   X,
   Paperclip,
 } from "lucide-react";
+import { AttachPopup } from "@/components/screenshot/AttachPopup";
+import { ScreenshotFlow } from "@/components/screenshot/ScreenshotFlow";
+import { AttachedFilesList } from "@/components/screenshot/AttachedFilesList";
+import type { Attachment, ScreenshotAttachment } from "@/components/screenshot/types";
 
 // ─── Device definitions ────────────────────────────────────────────────────────
 const DEVICES = [
@@ -178,9 +181,20 @@ function CommentCard({ comment }: { comment: (typeof mockComments)[0] }) {
   );
 }
 
-function AddRequestForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function AddRequestForm({
+  onClose,
+  onSuccess,
+  pageName,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+  pageName: string;
+}) {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("important");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showAttachPopup, setShowAttachPopup] = useState(false);
+  const [showScreenshotFlow, setShowScreenshotFlow] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -189,66 +203,122 @@ function AddRequestForm({ onClose, onSuccess }: { onClose: () => void; onSuccess
     onClose();
   }
 
+  function handleFromDevice(files: FileList) {
+    const newAtts: Attachment[] = Array.from(files).map((file) => ({
+      id: `file-${Date.now()}-${Math.random()}`,
+      name: file.name,
+      file,
+      isScreenshot: false as const,
+    }));
+    setAttachments((prev) => [...prev, ...newAtts]);
+  }
+
+  function handleScreenshotCapture(screenshot: ScreenshotAttachment) {
+    setAttachments((prev) => [...prev, screenshot]);
+    setShowScreenshotFlow(false);
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">New Change Request</h2>
-          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
-            <X className="w-4 h-4" aria-hidden="true" />
-          </button>
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">New Change Request</h2>
+            <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
+              <X className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Describe the change <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the change you'd like..."
+                required
+                rows={4}
+                className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400 resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Priority</label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100"
+              >
+                <option value="nice-to-have">Nice to Have</option>
+                <option value="important">Important</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+
+            {/* Attach section */}
+            <div>
+              <div className="relative inline-block">
+                <button
+                  type="button"
+                  onClick={() => setShowAttachPopup((v) => !v)}
+                  aria-expanded={showAttachPopup}
+                  className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                >
+                  <Paperclip className="w-4 h-4" />
+                  {attachments.length > 0
+                    ? `${attachments.length} file${attachments.length > 1 ? "s" : ""} attached`
+                    : "Attach a file (optional)"}
+                </button>
+                {showAttachPopup && (
+                  <AttachPopup
+                    onFromDevice={handleFromDevice}
+                    onTakeScreenshot={() => {
+                      setShowAttachPopup(false);
+                      setShowScreenshotFlow(true);
+                    }}
+                    onClose={() => setShowAttachPopup(false)}
+                  />
+                )}
+              </div>
+              {attachments.length > 0 && (
+                <AttachedFilesList
+                  attachments={attachments}
+                  onRemove={(id) =>
+                    setAttachments((prev) => prev.filter((a) => a.id !== id))
+                  }
+                  compact
+                />
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!description.trim()}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Submit Request
+              </button>
+            </div>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Describe the change <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the change you'd like..."
-              required
-              rows={4}
-              className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400 resize-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Priority</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100"
-            >
-              <option value="nice-to-have">Nice to Have</option>
-              <option value="important">Important</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-          <div>
-            <button type="button" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-              <Paperclip className="w-4 h-4" />
-              Attach a file (optional)
-            </button>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!description.trim()}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Submit Request
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+
+      {showScreenshotFlow && (
+        <ScreenshotFlow
+          pageLabel={pageName}
+          onCapture={handleScreenshotCapture}
+          onCancel={() => setShowScreenshotFlow(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -387,9 +457,8 @@ export default function PageDetailPage({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [activeDevice, setActiveDevice] = useState<DeviceId>("desktop");
-  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
-  const [screenshotCapturedAt, setScreenshotCapturedAt] = useState<Date | null>(null);
-  const [screenshotLoading, setScreenshotLoading] = useState(false);
+  const [capturedScreenshots, setCapturedScreenshots] = useState<ScreenshotAttachment[]>([]);
+  const [showPageScreenshotFlow, setShowPageScreenshotFlow] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -418,24 +487,10 @@ export default function PageDetailPage({
     showSuccessToast("Comment added successfully.");
   }
 
-  async function handleTakeScreenshot() {
-    setScreenshotLoading(true);
-    try {
-      const res = await fetch(`/api/pages/${params.pageId}/screenshot`, { method: "POST" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Screenshot failed");
-      }
-      const { data } = await res.json();
-      setScreenshotUrl(data.screenshotUrl);
-      setScreenshotCapturedAt(new Date(data.capturedAt));
-      showSuccessToast("Screenshot captured!");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Screenshot failed";
-      showSuccessToast(`Error: ${msg}`);
-    } finally {
-      setScreenshotLoading(false);
-    }
+  function handlePageScreenshotCapture(screenshot: ScreenshotAttachment) {
+    setCapturedScreenshots((prev) => [screenshot, ...prev]);
+    setShowPageScreenshotFlow(false);
+    showSuccessToast(`Screenshot saved as "${screenshot.name}"`);
   }
 
   function timeSince(date: Date): string {
@@ -504,16 +559,11 @@ export default function PageDetailPage({
 
             {/* Screenshot Button */}
             <button
-              onClick={handleTakeScreenshot}
-              disabled={screenshotLoading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={() => setShowPageScreenshotFlow(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all"
             >
-              {screenshotLoading ? (
-                <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Camera className="w-4 h-4" />
-              )}
-              {screenshotLoading ? "Capturing…" : "Capture Screenshot"}
+              <Camera className="w-4 h-4" />
+              Capture Screenshot
             </button>
           </div>
 
@@ -527,36 +577,52 @@ export default function PageDetailPage({
             />
           </div>
 
-          {/* Screenshot result */}
-          {screenshotUrl && screenshotCapturedAt && (
+          {/* Captured screenshots */}
+          {capturedScreenshots.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Last Screenshot</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Last captured: {timeSince(screenshotCapturedAt)}
-                  </p>
-                </div>
-                <a
-                  href={screenshotUrl}
-                  download={`${mockPage.name.toLowerCase()}-screenshot.jpg`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                >
-                  Download
-                </a>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
+                Captured Screenshots ({capturedScreenshots.length})
+              </p>
+              <div className="space-y-3">
+                {capturedScreenshots.map((ss) => (
+                  <div key={ss.id} className="border border-teal-200 dark:border-teal-800 rounded-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-2 bg-teal-50 dark:bg-teal-900/20">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-full">
+                          <Camera className="w-2.5 h-2.5" />
+                          Screenshot
+                        </span>
+                        <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate max-w-[180px]">
+                          {ss.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400">{timeSince(ss.capturedAt)}</span>
+                        <a
+                          href={ss.dataUrl}
+                          download={`${ss.name}.png`}
+                          className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium"
+                        >
+                          Download
+                        </a>
+                        <button
+                          onClick={() => setCapturedScreenshots((prev) => prev.filter((s) => s.id !== ss.id))}
+                          className="text-slate-400 hover:text-red-500 transition-colors"
+                          aria-label="Remove screenshot"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ss.dataUrl}
+                      alt={ss.name}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
               </div>
-              <a href={screenshotUrl} target="_blank" rel="noopener noreferrer" className="block">
-                <Image
-                  src={screenshotUrl}
-                  alt={`Screenshot of ${mockPage.name}`}
-                  width={1280}
-                  height={800}
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 hover:opacity-90 transition-opacity"
-                  unoptimized
-                />
-              </a>
             </div>
           )}
 
@@ -645,6 +711,7 @@ export default function PageDetailPage({
         <AddRequestForm
           onClose={() => setShowRequestForm(false)}
           onSuccess={() => showSuccessToast("Your request has been submitted. We'll get started soon!")}
+          pageName={mockPage.name}
         />
       )}
 
@@ -653,6 +720,15 @@ export default function PageDetailPage({
         <Toast
           message={toastMessage}
           onClose={() => setShowToast(false)}
+        />
+      )}
+
+      {/* Page-level screenshot flow */}
+      {showPageScreenshotFlow && (
+        <ScreenshotFlow
+          pageLabel={mockPage.name}
+          onCapture={handlePageScreenshotCapture}
+          onCancel={() => setShowPageScreenshotFlow(false)}
         />
       )}
     </div>
