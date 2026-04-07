@@ -4,8 +4,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 const isMarketingRoot = createRouteMatcher(['/']);
 
 const isPublicRoute = createRouteMatcher([
-  '/login',
-  '/signup',
+  '/login(.*)',
+  '/signup(.*)',
   '/api/stripe/webhook',
   '/api/auth/webhook',
   '/',
