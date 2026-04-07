@@ -24,13 +24,16 @@ import {
   Sun,
   Moon,
   Camera,
+  Trophy,
 } from "lucide-react"
+import { MilestoneChecker } from "@/components/milestones/milestone-checker"
 
 const navItems = [
   { label: "Home", href: "/dashboard", icon: Home },
   { label: "My Website", href: "/pages", icon: Monitor },
   { label: "My Brand", href: "/brand", icon: Palette },
   { label: "Messages", href: "/messages", icon: MessageSquare },
+  { label: "Milestones", href: "/milestones", icon: Trophy },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 
@@ -265,6 +268,9 @@ export function ClientLayout({
         <main className="flex-1 overflow-auto">
           <div className="p-6 md:p-8 max-w-7xl mx-auto">{children}</div>
         </main>
+
+        {/* Milestone celebration checker — fires on every portal page load */}
+        <MilestoneChecker userName={userName} />
       </div>
 
       {/* Mobile Overlay */}

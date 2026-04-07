@@ -14,6 +14,8 @@ import {
   X,
   Paperclip,
 } from "lucide-react";
+import { FeedbackOverlay, type PinData } from "@/components/feedback/feedback-overlay";
+import { FeedbackPanel } from "@/components/feedback/feedback-panel";
 
 // ─── Device definitions ────────────────────────────────────────────────────────
 const DEVICES = [
@@ -392,6 +394,8 @@ export default function PageDetailPage({
   const [screenshotLoading, setScreenshotLoading] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [feedbackPins, setFeedbackPins] = useState<PinData[]>([]);
+  const [showFeedbackOverlay, setShowFeedbackOverlay] = useState(false);
 
   const device = DEVICES.find((d) => d.id === activeDevice)!;
 
@@ -599,6 +603,14 @@ export default function PageDetailPage({
             </button>
           </div>
 
+          {/* Pin to Fix — feedback panel */}
+          <FeedbackPanel
+            pageId={params.pageId}
+            pins={feedbackPins}
+            onPinsChange={setFeedbackPins}
+            onOpenOverlay={() => setShowFeedbackOverlay(true)}
+          />
+
           {/* Comments */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
             <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
@@ -653,6 +665,17 @@ export default function PageDetailPage({
         <Toast
           message={toastMessage}
           onClose={() => setShowToast(false)}
+        />
+      )}
+
+      {/* Pin to Fix — feedback overlay */}
+      {showFeedbackOverlay && (
+        <FeedbackOverlay
+          pageUrl={mockPage.url}
+          pageId={params.pageId}
+          existingPins={feedbackPins}
+          onClose={() => setShowFeedbackOverlay(false)}
+          onPinAdded={(pin) => setFeedbackPins((prev) => [...prev, pin])}
         />
       )}
     </div>
