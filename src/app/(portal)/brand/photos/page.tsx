@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AssetCategory } from '@/components/brand/AssetCategory';
 import { SocialResizer } from '@/components/brand/SocialResizer';
+import { CaptionGenerator } from '@/components/brand/ai-captions/CaptionGenerator';
 import type { AssetItem } from '@/components/brand/AssetCard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -102,6 +103,9 @@ export default function PhotosPage() {
 
   // Social resizer modal state
   const [resizerAsset, setResizerAsset] = useState<AssetItem | null>(null);
+
+  // AI caption generator modal state
+  const [captionAsset, setCaptionAsset] = useState<AssetItem | null>(null);
 
   // ── Fetch all photos once on mount ──────────────────────────────────────────
   useEffect(() => {
@@ -203,6 +207,8 @@ export default function PhotosPage() {
         onUpload={makeCategoryUploader('blog')}
         onDelete={handleDelete}
         onRename={handleRename}
+        onGenerateCaptions={setCaptionAsset}
+        showCaptionButton
         emptyIcon="📝"
         emptyMessage="No blog photos yet — drag one in or click Upload."
       />
@@ -222,6 +228,8 @@ export default function PhotosPage() {
         onUpload={makeCategoryUploader('webpage')}
         onDelete={handleDelete}
         onRename={handleRename}
+        onGenerateCaptions={setCaptionAsset}
+        showCaptionButton
         emptyIcon="🖥️"
         emptyMessage="No webpage photos yet — drag one in or click Upload."
       />
@@ -242,6 +250,8 @@ export default function PhotosPage() {
         onRename={handleRename}
         onResize={(asset) => setResizerAsset(asset)}
         showResizeButton
+        onGenerateCaptions={setCaptionAsset}
+        showCaptionButton
         emptyIcon="📱"
         emptyMessage="No social photos yet — upload one and click 📐 to generate all platform sizes."
       />
@@ -270,6 +280,14 @@ export default function PhotosPage() {
           imageUrl={resizerAsset.fileUrl}
           imageName={resizerAsset.name}
           onClose={() => setResizerAsset(null)}
+        />
+      )}
+
+      {/* AI Caption Generator modal */}
+      {captionAsset && (
+        <CaptionGenerator
+          asset={captionAsset}
+          onClose={() => setCaptionAsset(null)}
         />
       )}
     </div>

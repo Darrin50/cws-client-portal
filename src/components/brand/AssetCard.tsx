@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Download, Trash2, Link2, Maximize2, Pencil, Check } from 'lucide-react';
+import { Download, Trash2, Link2, Maximize2, Pencil, Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface AssetItem {
@@ -21,6 +21,8 @@ interface AssetCardProps {
   onRename: (id: string, name: string) => void;
   onResize?: (asset: AssetItem) => void;
   showResizeButton?: boolean;
+  onGenerateCaptions?: (asset: AssetItem) => void;
+  showCaptionButton?: boolean;
 }
 
 function formatBytes(bytes: number | null): string {
@@ -44,6 +46,8 @@ export function AssetCard({
   onRename,
   onResize,
   showResizeButton,
+  onGenerateCaptions,
+  showCaptionButton,
 }: AssetCardProps) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(asset.name);
@@ -206,6 +210,16 @@ export function AssetCard({
             .filter(Boolean)
             .join(' · ')}
         </p>
+
+        {showCaptionButton && !isVideo && asset.fileUrl && onGenerateCaptions && (
+          <button
+            onClick={() => onGenerateCaptions(asset)}
+            className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 transition-all shadow-sm hover:shadow-md"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            ✨ Generate Captions
+          </button>
+        )}
       </div>
     </div>
   );
