@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, Trash2 } from "lucide-react";
@@ -53,7 +54,15 @@ function LogoSlot({
 
       {asset?.fileUrl ? (
         <div className="mb-4 bg-slate-700 rounded-lg p-4 flex items-center justify-center min-h-32">
-          <img src={asset.fileUrl} alt={slot.name} className="max-h-32 max-w-full" />
+          <div className="relative w-full h-32">
+            <Image
+              src={asset.fileUrl}
+              alt={slot.name}
+              fill
+              className="object-contain"
+              unoptimized
+            />
+          </div>
         </div>
       ) : (
         <div className="mb-4 bg-slate-700 rounded-lg p-4 flex items-center justify-center min-h-32">

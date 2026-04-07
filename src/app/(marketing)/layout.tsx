@@ -39,7 +39,7 @@ function MarketingNav() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav aria-label="Main navigation" className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -91,7 +91,7 @@ function MarketingNav() {
                 </div>
 
                 {/* Mobile Links */}
-                <nav className="flex flex-col gap-1 px-4 flex-1">
+                <nav aria-label="Mobile navigation" className="flex flex-col gap-1 px-4 flex-1">
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
@@ -146,17 +146,17 @@ function MarketingFooter() {
               The most affordable AI-powered website platform for small businesses — $0 down, cancel anytime.
             </p>
             <div className="flex items-center gap-3">
-              <a href="https://twitter.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-teal-400 transition-colors">
-                <Twitter className="h-4 w-4" />
+              <a href="https://twitter.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+                <Twitter className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://instagram.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-teal-400 transition-colors">
-                <Instagram className="h-4 w-4" />
+              <a href="https://instagram.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+                <Instagram className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://linkedin.com/company/caliber-web-studio" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-teal-400 transition-colors">
-                <Linkedin className="h-4 w-4" />
+              <a href="https://linkedin.com/company/caliber-web-studio" target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+                <Linkedin className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://facebook.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-teal-400 transition-colors">
-                <Facebook className="h-4 w-4" />
+              <a href="https://facebook.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+                <Facebook className="h-4 w-4" aria-hidden="true" />
               </a>
             </div>
           </div>

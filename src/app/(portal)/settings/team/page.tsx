@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -237,11 +238,13 @@ export default function TeamPage() {
                     {/* Avatar placeholder */}
                     <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center flex-shrink-0">
                       {member.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={member.avatarUrl}
                           alt=""
-                          className="w-10 h-10 rounded-full object-cover"
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover"
+                          unoptimized
                         />
                       ) : (
                         <UserCircle2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
@@ -273,10 +276,10 @@ export default function TeamPage() {
                   <button
                     onClick={() => handleRemoveMember(member)}
                     disabled={removingId === member.userId}
-                    className="ml-4 text-slate-400 hover:text-red-400 disabled:opacity-40 transition-colors flex-shrink-0"
-                    title="Remove member"
+                    aria-label={`Remove ${memberDisplayName(member)} from organization`}
+                    className="ml-4 text-slate-400 hover:text-red-400 disabled:opacity-40 transition-colors flex-shrink-0 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               ))}

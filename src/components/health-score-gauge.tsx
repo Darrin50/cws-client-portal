@@ -40,12 +40,20 @@ export function HealthScoreGauge({
   const viewBoxSize = (config.radius + config.strokeWidth) * 2 + 20
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div
+      className="flex flex-col items-center justify-center"
+      role="progressbar"
+      aria-valuenow={clampedScore}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`Health score: ${clampedScore} out of 100`}
+    >
       <svg
         viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
         width={viewBoxSize}
         height={viewBoxSize}
         className="transform -rotate-90"
+        aria-hidden="true"
       >
         {/* Background circle */}
         <circle

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -124,10 +125,13 @@ function MessageBubble({ message }: { message: Message }) {
     <div
       className={`flex gap-3 ${message.isClient ? "flex-row-reverse" : ""}`}
     >
-      <img
+      <Image
         src={message.avatar}
         alt={message.sender}
-        className="w-8 h-8 rounded-full flex-shrink-0 bg-slate-600"
+        width={32}
+        height={32}
+        className="rounded-full flex-shrink-0 bg-slate-600"
+        unoptimized
       />
       <div
         className={`flex flex-col ${message.isClient ? "items-end" : ""} max-w-[75%]`}
@@ -334,8 +338,8 @@ export default function MessagesPage() {
               className="resize-none min-h-20 max-h-32"
             />
             <div className="flex items-center justify-between">
-              <button className="text-slate-400 hover:text-slate-200 transition-colors">
-                <Paperclip className="w-5 h-5" />
+              <button aria-label="Attach a file" className="text-slate-400 hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+                <Paperclip className="w-5 h-5" aria-hidden="true" />
               </button>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-500 hidden sm:block">
