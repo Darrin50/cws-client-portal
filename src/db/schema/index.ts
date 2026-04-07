@@ -14,3 +14,6 @@ export * from './faq';
 export * from './audit-log';
 export * from './milestones';
 export * from './page-feedback';
+export * from './competitors';
+export * from './scheduled-posts';
+export * from './site-audits';

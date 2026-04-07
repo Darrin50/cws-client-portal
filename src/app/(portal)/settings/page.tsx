@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from "next/link";
-import { CreditCard, Users, Bell, Building2, ArrowRight } from "lucide-react";
+import { CreditCard, Users, Bell, Building2, Paintbrush, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: 'Settings | CWS Portal',
@@ -43,6 +43,15 @@ const settingsSections = [
     href: "/settings/notifications",
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
+  },
+  {
+    id: "white-label",
+    title: "White Label",
+    description: "Custom branding — logo, colors, domain",
+    icon: Paintbrush,
+    href: "/settings/white-label",
+    iconBg: "bg-teal-100",
+    iconColor: "text-teal-600",
   },
 ];
 

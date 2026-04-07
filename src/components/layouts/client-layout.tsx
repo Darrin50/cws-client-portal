@@ -25,6 +25,8 @@ import {
   Moon,
   Camera,
   Trophy,
+  Globe,
+  SearchCheck,
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
 
@@ -34,6 +36,8 @@ const navItems = [
   { label: "My Brand", href: "/brand", icon: Palette },
   { label: "Messages", href: "/messages", icon: MessageSquare },
   { label: "Milestones", href: "/milestones", icon: Trophy },
+  { label: "Competitors", href: "/competitors", icon: Globe },
+  { label: "Site Audit", href: "/audit", icon: SearchCheck },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 
