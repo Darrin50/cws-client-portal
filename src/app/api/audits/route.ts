@@ -7,8 +7,9 @@ import {
   organizationMembersTable,
   usersTable,
 } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, gte, and } from 'drizzle-orm';
 import { jsonResponse, errorResponse } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 import Anthropic from '@anthropic-ai/sdk';
 
 async function getOrgForUser(userId: string) {
@@ -115,12 +116,32 @@ export async function GET() {
   return jsonResponse(audits);
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const { success } = rateLimit(getIp(request));
+  if (!success) return errorResponse('Too many requests', 429);
+
   const { userId } = await auth();
   if (!userId) return errorResponse('Unauthorized', 401);
 
   const orgId = await getOrgForUser(userId);
   if (!orgId) return errorResponse('No organization found', 404);
+
+  // Rate limit: 1 audit per 24 hours per org
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const recentAudits = await db
+    .select({ id: siteAuditsTable.id })
+    .from(siteAuditsTable)
+    .where(
+      and(
+        eq(siteAuditsTable.organizationId, orgId),
+        gte(siteAuditsTable.auditedAt, twentyFourHoursAgo),
+      )
+    )
+    .limit(1);
+
+  if (recentAudits.length > 0) {
+    return errorResponse('An audit was already run in the last 24 hours. Please wait before running another.', 429);
+  }
 
   // Get org website URL
   const [org] = await db

@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Palette, Globe, Building2, Image, Save, CheckCircle2 } from "lucide-react";
+import { Lock, Palette, Globe, Building2, Image, Save, CheckCircle2, ToggleLeft, ToggleRight } from "lucide-react";
 
 interface WhiteLabelSettings {
+  enabled: boolean;
   logoUrl: string | null;
   primaryColor: string | null;
   companyName: string | null;
@@ -16,6 +17,7 @@ interface WhiteLabelSettings {
 
 export default function WhiteLabelPage() {
   const [settings, setSettings] = useState<WhiteLabelSettings>({
+    enabled: false,
     logoUrl: null,
     primaryColor: "#2563eb",
     companyName: null,
@@ -44,6 +46,7 @@ export default function WhiteLabelPage() {
     if (res.ok) {
       const json = await res.json();
       setSettings({
+        enabled: json.data?.enabled ?? false,
         logoUrl: json.data?.logoUrl ?? null,
         primaryColor: json.data?.primaryColor ?? "#2563eb",
         companyName: json.data?.companyName ?? null,
@@ -70,9 +73,9 @@ export default function WhiteLabelPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
+      <div className="space-y-4 animate-pulse">
+        <div className="h-8 w-48 bg-slate-100 dark:bg-slate-800 rounded" />
+        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-xl" />
       </div>
     );
   }
@@ -166,12 +169,49 @@ export default function WhiteLabelPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Enable Toggle */}
+      <Card className="p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+              {settings.enabled
+                ? <ToggleRight className="w-5 h-5 text-[#0d9488]" />
+                : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                White-Label Mode
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {settings.enabled
+                  ? "Active — your branding is showing in the portal"
+                  : "Disabled — Caliber branding is shown"}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setSettings((s) => ({ ...s, enabled: !s.enabled }))}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none ${
+              settings.enabled ? "bg-[#0d9488]" : "bg-slate-200 dark:bg-slate-700"
+            }`}
+            role="switch"
+            aria-checked={settings.enabled}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                settings.enabled ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
+      </Card>
+
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 ${!settings.enabled ? "opacity-60 pointer-events-none" : ""}`}>
         {/* Company Name */}
         <Card className="p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Building2 className="w-4.5 h-4.5 text-[#2563eb]" />
+              <Building2 className="w-4 h-4 text-[#2563eb]" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -193,7 +233,7 @@ export default function WhiteLabelPage() {
         <Card className="p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-              <Palette className="w-4.5 h-4.5 text-pink-600" />
+              <Palette className="w-4 h-4 text-pink-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -230,7 +270,7 @@ export default function WhiteLabelPage() {
         <Card className="p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <Image className="w-4.5 h-4.5 text-purple-600" />
+              <Image className="w-4 h-4 text-purple-600" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -265,7 +305,7 @@ export default function WhiteLabelPage() {
         <Card className="p-5">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-              <Globe className="w-4.5 h-4.5 text-[#0d9488]" />
+              <Globe className="w-4 h-4 text-[#0d9488]" />
             </div>
             <div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -289,7 +329,7 @@ export default function WhiteLabelPage() {
       </div>
 
       {/* Preview */}
-      {(settings.companyName || settings.primaryColor || settings.logoUrl) && (
+      {settings.enabled && (settings.companyName || settings.primaryColor || settings.logoUrl) && (
         <Card className="p-5">
           <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
             Brand Preview
