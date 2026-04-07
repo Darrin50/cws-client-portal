@@ -23,6 +23,8 @@ interface AssetCategoryProps {
   onRename: (id: string, name: string) => void;
   onResize?: (asset: AssetItem) => void;
   showResizeButton?: boolean;
+  onGenerateCaptions?: (asset: AssetItem) => void;
+  showCaptionButton?: boolean;
   emptyIcon?: string;
   emptyMessage: string;
 }
@@ -43,6 +45,8 @@ export function AssetCategory({
   onRename,
   onResize,
   showResizeButton,
+  onGenerateCaptions,
+  showCaptionButton,
   emptyIcon = '📁',
   emptyMessage,
 }: AssetCategoryProps) {
@@ -202,6 +206,8 @@ export function AssetCategory({
                 onRename={onRename}
                 onResize={onResize}
                 showResizeButton={showResizeButton}
+                onGenerateCaptions={onGenerateCaptions}
+                showCaptionButton={showCaptionButton}
               />
             ))}
           </div>
