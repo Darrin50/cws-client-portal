@@ -54,3 +54,5 @@ src/db/migrations/
 # Local development
 .vercel
 *.local
+
+.vercel

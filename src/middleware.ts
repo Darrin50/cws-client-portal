@@ -11,12 +11,13 @@ const isPublicRoute = createRouteMatcher([
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId } = await auth();
+  const authObject = await auth();
+  const { userId } = authObject;
 
   // Protect admin routes - require authentication
   if (isAdminRoute(req)) {
     if (!userId) {
-      return auth().redirectToSignIn();
+      return authObject.redirectToSignIn();
     }
   }
 
@@ -27,7 +28,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
   // Protect all other routes - require authentication
   if (!userId) {
-    return auth().redirectToSignIn();
+    return authObject.redirectToSignIn();
   }
 });
 
