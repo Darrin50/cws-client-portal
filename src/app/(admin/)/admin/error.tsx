@@ -11,7 +11,7 @@ export default function AdminErrorBoundary({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0a0e1a]">
       <div className="w-full max-w-md">
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center space-y-6">
           <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">

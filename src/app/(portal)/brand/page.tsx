@@ -37,8 +37,8 @@ const sections = [
     count: "25 items",
     icon: Image,
     href: "/brand/photos",
-    iconBg: "bg-teal-100",
-    iconColor: "text-teal-600",
+    iconBg: "bg-blue-100",
+    iconColor: "text-[#2563eb]",
     swatches: null,
   },
 ];

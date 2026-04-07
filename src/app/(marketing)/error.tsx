@@ -11,7 +11,7 @@ export default function MarketingErrorBoundary({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-[#0a0e1a]">
       <div className="w-full max-w-md text-center space-y-6">
         <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center mx-auto">
           <AlertTriangle className="w-7 h-7 text-red-500 dark:text-red-400" />

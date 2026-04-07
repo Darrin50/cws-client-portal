@@ -25,7 +25,7 @@ export function ShareGraphic({ milestone, onClose }: ShareGraphicProps) {
 
     // Background gradient
     const bg = ctx.createLinearGradient(0, 0, SIZE, SIZE);
-    bg.addColorStop(0, "#0F172A");
+    bg.addColorStop(0, "#0a0e1a");
     bg.addColorStop(1, "#1E293B");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, SIZE, SIZE);
@@ -117,7 +117,7 @@ export function ShareGraphic({ milestone, onClose }: ShareGraphicProps) {
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors text-slate-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
+            className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors text-slate-400 focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none"
           >
             <X className="w-4 h-4" />
           </button>
@@ -135,7 +135,7 @@ export function ShareGraphic({ milestone, onClose }: ShareGraphicProps) {
           <div className="flex gap-3">
             <button
               onClick={handleDownload}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-600 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] transition-colors"
             >
               <Download className="w-4 h-4" />
               Download

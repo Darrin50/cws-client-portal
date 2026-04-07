@@ -131,7 +131,7 @@ export function AssetCard({
               className="p-2 bg-white/90 rounded-lg hover:bg-white transition-colors shadow-sm"
             >
               {copied ? (
-                <Check className="w-4 h-4 text-teal-600" />
+                <Check className="w-4 h-4 text-[#2563eb]" />
               ) : (
                 <Link2 className="w-4 h-4 text-slate-700" />
               )}
@@ -155,7 +155,7 @@ export function AssetCard({
               title="Resize for platforms"
               className="p-2 bg-white/90 rounded-lg hover:bg-white transition-colors shadow-sm"
             >
-              <Maximize2 className="w-4 h-4 text-teal-600" />
+              <Maximize2 className="w-4 h-4 text-[#2563eb]" />
             </button>
           )}
 
@@ -187,9 +187,9 @@ export function AssetCard({
               onChange={(e) => setEditName(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={saveName}
-              className="flex-1 text-sm font-medium text-slate-900 border-b border-teal-400 outline-none bg-transparent min-w-0"
+              className="flex-1 text-sm font-medium text-slate-900 border-b border-[#0d9488] outline-none bg-transparent min-w-0"
             />
-            <button onClick={saveName} className="p-0.5 text-teal-600 flex-shrink-0">
+            <button onClick={saveName} className="p-0.5 text-[#2563eb] flex-shrink-0">
               <Check className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -198,10 +198,10 @@ export function AssetCard({
             onClick={startEdit}
             className="group/name flex items-center gap-1 text-left w-full mb-1"
           >
-            <span className="text-sm font-medium text-slate-900 truncate group-hover/name:text-teal-700 transition-colors">
+            <span className="text-sm font-medium text-slate-900 truncate group-hover/name:text-[#0d9488] transition-colors">
               {asset.name}
             </span>
-            <Pencil className="w-3 h-3 text-slate-300 group-hover/name:text-teal-500 flex-shrink-0 opacity-0 group-hover/name:opacity-100 transition-all" />
+            <Pencil className="w-3 h-3 text-slate-300 group-hover/name:text-[#2563eb] flex-shrink-0 opacity-0 group-hover/name:opacity-100 transition-all" />
           </button>
         )}
 
@@ -214,7 +214,7 @@ export function AssetCard({
         {showCaptionButton && !isVideo && asset.fileUrl && onGenerateCaptions && (
           <button
             onClick={() => onGenerateCaptions(asset)}
-            className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 transition-all shadow-sm hover:shadow-md"
+            className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#0d9488] to-[#0d9488] text-white hover:from-[#0d9488] hover:to-[#0d9488] transition-all shadow-sm hover:shadow-md"
           >
             <Sparkles className="w-3.5 h-3.5" />
             ✨ Generate Captions

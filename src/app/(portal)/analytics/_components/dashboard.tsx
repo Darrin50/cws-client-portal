@@ -105,7 +105,7 @@ const RANGES = [
   { value: "12m", label: "Last 12 months" },
 ] as const;
 
-const PIE_COLORS = ["#14b8a6", "#0ea5e9", "#8b5cf6", "#f59e0b"];
+const PIE_COLORS = ["#0d9488", "#0ea5e9", "#8b5cf6", "#f59e0b"];
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
@@ -127,8 +127,8 @@ function KpiCard({
         <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
           {label}
         </span>
-        <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+        <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-slate-800/30 flex items-center justify-center">
+          <Icon className="w-4 h-4 text-[#2563eb] dark:text-[#2563eb]" />
         </div>
       </div>
       <div className="text-3xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
@@ -205,8 +205,8 @@ export function AnalyticsDashboard() {
   if (!loading && data?.isEmpty) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
-        <div className="w-16 h-16 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-          <BarChart2 className="w-8 h-8 text-teal-500" />
+        <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-slate-800/30 flex items-center justify-center">
+          <BarChart2 className="w-8 h-8 text-[#2563eb]" />
         </div>
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           Analytics are being set up
@@ -239,8 +239,8 @@ export function AnalyticsDashboard() {
             onClick={() => setRange(r.value)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               range === r.value
-                ? "bg-teal-600 text-white"
-                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-teal-500"
+                ? "bg-[#1d4ed8] text-white"
+                : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-[#0d9488]"
             }`}
           >
             {r.label}
@@ -301,8 +301,8 @@ export function AnalyticsDashboard() {
               <AreaChart data={data.trafficOverTime}>
                 <defs>
                   <linearGradient id="tealGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -333,7 +333,7 @@ export function AnalyticsDashboard() {
                 <Area
                   type="monotone"
                   dataKey="visitors"
-                  stroke="#14b8a6"
+                  stroke="#0d9488"
                   strokeWidth={2}
                   fill="url(#tealGrad)"
                 />
@@ -539,7 +539,7 @@ export function AnalyticsDashboard() {
                       <span
                         className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${
                           kw.position <= 3
-                            ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400"
+                            ? "bg-blue-100 dark:bg-slate-800/30 text-[#0d9488] dark:text-[#2563eb]"
                             : kw.position <= 10
                               ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
@@ -606,10 +606,10 @@ export function AnalyticsDashboard() {
             ].map(({ label, value, icon: Icon }) => (
               <div
                 key={label}
-                className="bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800 rounded-xl p-4"
+                className="bg-blue-50 dark:bg-slate-800/20 border border-[#ccfbf1] dark:border-slate-700 rounded-xl p-4"
               >
-                <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-800 flex items-center justify-center mb-3">
-                  <Icon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                  <Icon className="w-4 h-4 text-[#2563eb] dark:text-[#2563eb]" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
                   {value.toLocaleString()}
@@ -650,7 +650,7 @@ export function AnalyticsDashboard() {
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="views" fill="#14b8a6" name="Views" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="views" fill="#0d9488" name="Views" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="calls" fill="#0ea5e9" name="Calls" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

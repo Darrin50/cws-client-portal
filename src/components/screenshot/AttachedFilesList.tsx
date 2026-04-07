@@ -39,10 +39,10 @@ export function AttachedFilesList({
           return (
             <div
               key={att.id}
-              className="flex items-center gap-2.5 p-2 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800"
+              className="flex items-center gap-2.5 p-2 rounded-lg bg-blue-50 dark:bg-slate-800/20 border border-[#99f6e4] dark:border-slate-700"
             >
               {/* Thumbnail */}
-              <div className="w-10 h-10 rounded flex-shrink-0 overflow-hidden border border-teal-200 dark:border-teal-700 bg-white dark:bg-slate-800">
+              <div className="w-10 h-10 rounded flex-shrink-0 overflow-hidden border border-[#99f6e4] dark:border-[#0d9488] bg-white dark:bg-slate-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={att.dataUrl}
@@ -53,7 +53,7 @@ export function AttachedFilesList({
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0d9488] dark:text-slate-300 bg-blue-100 dark:bg-slate-800/40 px-1.5 py-0.5 rounded-full">
                     <Camera className="w-2.5 h-2.5" />
                     Screenshot
                   </span>
@@ -72,7 +72,7 @@ export function AttachedFilesList({
                 <a
                   href={att.dataUrl}
                   download={`${att.name}.png`}
-                  className="p-1.5 rounded text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors"
+                  className="p-1.5 rounded text-[#2563eb] dark:text-[#2563eb] hover:bg-blue-100 dark:hover:bg-slate-800/40 transition-colors"
                   aria-label="Download screenshot"
                   onClick={(e) => e.stopPropagation()}
                 >

@@ -194,7 +194,7 @@ export function CaptionGenerator({ asset, onClose }: CaptionGeneratorProps) {
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0d9488] to-[#0d9488] flex items-center justify-center shadow-sm">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -249,7 +249,7 @@ export function CaptionGenerator({ asset, onClose }: CaptionGeneratorProps) {
                     disabled={status === 'loading'}
                     className={cn(
                       'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm text-white transition-all shadow-sm',
-                      'bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 hover:shadow-md',
+                      'bg-gradient-to-r from-[#0d9488] to-[#0d9488] hover:from-[#0d9488] hover:to-[#0d9488] hover:shadow-md',
                       'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-sm',
                     )}
                   >
@@ -294,7 +294,7 @@ export function CaptionGenerator({ asset, onClose }: CaptionGeneratorProps) {
                     <p className="text-sm font-semibold text-slate-700">Platform Captions</p>
                     <button
                       onClick={copyAll}
-                      className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-3 py-1.5 rounded-lg transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2563eb] hover:text-[#0d9488] bg-blue-50 hover:bg-blue-100 border border-[#99f6e4] px-3 py-1.5 rounded-lg transition-colors"
                     >
                       {copied === 'all' ? (
                         <>
@@ -366,12 +366,12 @@ export function CaptionGenerator({ asset, onClose }: CaptionGeneratorProps) {
                                 onChange={(e) => setEditText(e.target.value)}
                                 rows={4}
                                 autoFocus
-                                className="w-full text-sm text-slate-700 border border-teal-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-teal-200 resize-none leading-relaxed"
+                                className="w-full text-sm text-slate-700 border border-[#0d9488] rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200 resize-none leading-relaxed"
                               />
                               <div className="flex gap-2">
                                 <button
                                   onClick={saveEdit}
-                                  className="text-xs px-3 py-1.5 bg-teal-500 text-white rounded-lg font-medium hover:bg-teal-600 transition-colors"
+                                  className="text-xs px-3 py-1.5 bg-[#2563eb] text-white rounded-lg font-medium hover:bg-[#1d4ed8] transition-colors"
                                 >
                                   Save
                                 </button>
@@ -409,7 +409,7 @@ export function CaptionGenerator({ asset, onClose }: CaptionGeneratorProps) {
                                   >
                                     {isCopied ? (
                                       <>
-                                        <Check className="w-3 h-3 text-teal-600" /> Copied!
+                                        <Check className="w-3 h-3 text-[#2563eb]" /> Copied!
                                       </>
                                     ) : (
                                       <>

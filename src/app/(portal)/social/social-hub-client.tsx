@@ -62,7 +62,7 @@ const STATUS_CONFIG: Record<
   },
   approved: {
     label: "Approved",
-    badgeCls: "bg-teal-900/40 text-teal-300",
+    badgeCls: "bg-slate-800/40 text-slate-300",
     Icon: ({ className }) => <CheckCircle className={className} />,
   },
   published: {
@@ -206,7 +206,7 @@ function SchedulePostModal({
               onChange={(e) => setContent(e.target.value.slice(0, 280))}
               placeholder="What would you like to share?"
               rows={4}
-              className="w-full px-3 py-2.5 text-sm bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-100 placeholder:text-slate-500 resize-none"
+              className="w-full px-3 py-2.5 text-sm bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-slate-100 placeholder:text-slate-500 resize-none"
             />
             <p className={`text-xs mt-1 text-right ${remaining < 20 ? "text-red-400" : "text-slate-500"}`}>
               {remaining} characters remaining
@@ -226,7 +226,7 @@ function SchedulePostModal({
                   onClick={() => togglePlatform(id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-all ${
                     platforms.includes(id)
-                      ? "border-teal-500 bg-teal-500/10 text-teal-300"
+                      ? "border-[#0d9488] bg-[#2563eb]/10 text-slate-300"
                       : "border-slate-600 text-slate-400 hover:border-slate-500"
                   }`}
                 >
@@ -248,7 +248,7 @@ function SchedulePostModal({
               type="datetime-local"
               value={scheduledAt}
               onChange={(e) => setScheduledAt(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-100"
+              className="w-full px-3 py-2.5 text-sm bg-slate-900 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-slate-100"
             />
           </div>
 
@@ -257,7 +257,7 @@ function SchedulePostModal({
             <div className="border border-slate-600 rounded-lg p-4 bg-slate-900/50">
               <p className="text-xs font-medium text-slate-400 mb-2">Preview</p>
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-[#1d4ed8] flex items-center justify-center text-white text-xs font-bold">
                   CW
                 </div>
                 <div>
@@ -286,7 +286,7 @@ function SchedulePostModal({
             <button
               type="submit"
               disabled={saving || !content.trim() || platforms.length === 0}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? "Saving…" : "Save as Draft"}
             </button>
@@ -379,7 +379,7 @@ function PostCard({
               <button
                 onClick={() => updateStatus("pending_approval")}
                 disabled={acting}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-teal-300 bg-teal-900/30 border border-teal-800 rounded-lg hover:bg-teal-900/50 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800/30 border border-slate-700 rounded-lg hover:bg-slate-800/50 transition-colors disabled:opacity-50"
               >
                 <Send className="w-3 h-3" />
                 Submit
@@ -400,7 +400,7 @@ function PostCard({
                 <button
                   onClick={() => updateStatus("approved")}
                   disabled={acting}
-                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-teal-300 bg-teal-900/30 border border-teal-800 rounded-lg hover:bg-teal-900/50 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800/30 border border-slate-700 rounded-lg hover:bg-slate-800/50 transition-colors disabled:opacity-50"
                 >
                   <CheckCircle className="w-3 h-3" />
                   Approve
@@ -564,7 +564,7 @@ function CalendarView({
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mb-1 ${
                       isToday
-                        ? "bg-teal-500 text-white"
+                        ? "bg-[#2563eb] text-white"
                         : "text-slate-400"
                     }`}
                   >
@@ -678,7 +678,7 @@ export function SocialHubClient() {
               onClick={() => setActiveTab(tab)}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-medium transition-all capitalize ${
                 activeTab === tab
-                  ? "bg-teal-600 text-white shadow-sm"
+                  ? "bg-[#1d4ed8] text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
@@ -697,7 +697,7 @@ export function SocialHubClient() {
                 onClick={() => setFilterStatus(value)}
                 className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   filterStatus === value
-                    ? "bg-teal-600 text-white"
+                    ? "bg-[#1d4ed8] text-white"
                     : "bg-slate-800 text-slate-400 hover:bg-slate-700"
                 }`}
               >
@@ -750,7 +750,7 @@ export function SocialHubClient() {
       {/* FAB */}
       <button
         onClick={() => setShowModal(true)}
-        className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-full shadow-2xl shadow-teal-900/50 transition-all hover:scale-105 active:scale-95 z-40"
+        className="fixed bottom-8 right-8 flex items-center gap-2 px-5 py-3 bg-[#1d4ed8] hover:bg-[#1d4ed8] text-white font-semibold rounded-full shadow-2xl shadow-slate-900/50 transition-all hover:scale-105 active:scale-95 z-40"
       >
         <Plus className="w-5 h-5" />
         Schedule a Post

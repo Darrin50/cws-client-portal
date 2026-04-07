@@ -29,7 +29,7 @@ export const metadata = {
 // Hero Section
 function HeroSection() {
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-[#0F172A]">
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-[#0a0e1a]">
       {/* Geometric SVG background */}
       <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
         <svg
@@ -38,19 +38,19 @@ function HeroSection() {
         >
           <defs>
             <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#14B8A6" strokeWidth="0.5" />
+              <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#0d9488" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
         {/* Radial glow top left */}
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-[#2563eb]/10 rounded-full blur-3xl" />
         {/* Radial glow bottom right */}
         <div className="absolute -bottom-40 -right-20 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-3xl" />
         {/* Geometric shapes */}
         <svg className="absolute top-20 right-10 opacity-20" width="200" height="200" viewBox="0 0 200 200">
-          <polygon points="100,10 190,70 190,130 100,190 10,130 10,70" fill="none" stroke="#14B8A6" strokeWidth="0.8" />
-          <polygon points="100,30 170,75 170,125 100,170 30,125 30,75" fill="none" stroke="#14B8A6" strokeWidth="0.5" />
+          <polygon points="100,10 190,70 190,130 100,190 10,130 10,70" fill="none" stroke="#0d9488" strokeWidth="0.8" />
+          <polygon points="100,30 170,75 170,125 100,170 30,125 30,75" fill="none" stroke="#0d9488" strokeWidth="0.5" />
         </svg>
         <svg className="absolute bottom-32 left-20 opacity-15" width="140" height="140" viewBox="0 0 140 140">
           <rect x="10" y="10" width="120" height="120" fill="none" stroke="#0EA5E9" strokeWidth="0.8" transform="rotate(15 70 70)" />
@@ -63,7 +63,7 @@ function HeroSection() {
           {/* Left: Text */}
           <div>
             <div className="flex items-center gap-2 mb-6">
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1">
                 <Zap className="h-3 w-3" />
                 Detroit-built · AI-first
               </span>
@@ -71,7 +71,7 @@ function HeroSection() {
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.08] tracking-tight mb-6">
               Your Small Business Deserves a Website That{" "}
-              <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
                 Actually Works
               </span>
             </h1>
@@ -97,7 +97,7 @@ function HeroSection() {
               <Link href="/signup">
                 <Button
                   size="lg"
-                  className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 shadow-xl shadow-teal-500/25 text-base"
+                  className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-8 shadow-xl shadow-blue-500/25 text-base"
                 >
                   Get Your Free Demo
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -131,7 +131,7 @@ function HeroSection() {
                 {/* Stat row */}
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: "Site Visitors", value: "1,284", delta: "+34%", color: "text-teal-400" },
+                    { label: "Site Visitors", value: "1,284", delta: "+34%", color: "text-[#2563eb]" },
                     { label: "Leads Captured", value: "47", delta: "+12", color: "text-cyan-400" },
                     { label: "Google Rank", value: "#2", delta: "↑ 4 spots", color: "text-green-400" },
                   ].map((stat) => (
@@ -147,13 +147,13 @@ function HeroSection() {
                 <div className="bg-slate-800/60 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs text-white font-semibold">Monthly Traffic</span>
-                    <span className="text-[10px] text-teal-400">Last 6 months</span>
+                    <span className="text-[10px] text-[#2563eb]">Last 6 months</span>
                   </div>
                   <div className="flex items-end gap-2 h-20">
                     {[35, 52, 48, 63, 71, 84].map((h, i) => (
                       <div
                         key={i}
-                        className="flex-1 rounded-t-md bg-gradient-to-t from-teal-600 to-teal-400"
+                        className="flex-1 rounded-t-md bg-gradient-to-t from-[#0d9488] to-[#5eead4]"
                         style={{ height: `${h}%` }}
                       />
                     ))}
@@ -168,7 +168,7 @@ function HeroSection() {
                 {/* Chat mockup */}
                 <div className="bg-slate-800/60 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Bot className="h-3 w-3 text-teal-400" />
+                    <Bot className="h-3 w-3 text-[#2563eb]" />
                     <span className="text-xs text-white font-semibold">AI Chatbot</span>
                     <span className="ml-auto text-[10px] text-green-400">● Live</span>
                   </div>
@@ -176,7 +176,7 @@ function HeroSection() {
                     <div className="text-[11px] bg-slate-700/60 rounded-lg rounded-tl-none px-3 py-2 text-slate-300 max-w-[80%]">
                       What are your business hours?
                     </div>
-                    <div className="text-[11px] bg-teal-500/20 border border-teal-500/30 rounded-lg rounded-tr-none px-3 py-2 text-teal-200 max-w-[80%] ml-auto">
+                    <div className="text-[11px] bg-[#2563eb]/20 border border-[#0d9488]/30 rounded-lg rounded-tr-none px-3 py-2 text-slate-200 max-w-[80%] ml-auto">
                       We&apos;re open Mon–Fri 8am–6pm. Want to schedule an appointment?
                     </div>
                   </div>
@@ -185,7 +185,7 @@ function HeroSection() {
             </div>
 
             {/* Floating badge */}
-            <div className="absolute -bottom-4 -left-4 bg-teal-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg shadow-teal-500/30">
+            <div className="absolute -bottom-4 -left-4 bg-[#2563eb] text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg shadow-blue-500/30">
               🔥 Live right now
             </div>
           </div>
@@ -258,7 +258,7 @@ function ProblemSection() {
   ];
 
   return (
-    <section className="py-24 bg-[#0F172A]">
+    <section className="py-24 bg-[#0a0e1a]">
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -295,7 +295,7 @@ function HowItWorksSection() {
       num: "01",
       title: "We build your demo — free",
       body: "Tell us about your business. We build a custom demo site with AI chatbot in 3–5 business days. No charge, no commitment.",
-      color: "from-teal-500 to-teal-400",
+      color: "from-[#0d9488] to-[#5eead4]",
     },
     {
       num: "02",
@@ -312,7 +312,7 @@ function HowItWorksSection() {
   ];
 
   return (
-    <section className="py-24 bg-slate-950/60">
+    <section className="py-24 bg-[#0a0e1a]/60">
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -325,7 +325,7 @@ function HowItWorksSection() {
 
         <div className="grid md:grid-cols-3 gap-8 relative">
           {/* Connector line (desktop) */}
-          <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-teal-500/30 via-cyan-500/30 to-blue-500/30" />
+          <div className="hidden md:block absolute top-10 left-[16.66%] right-[16.66%] h-px bg-gradient-to-r from-[#0d9488]/30 via-cyan-500/30 to-blue-500/30" />
 
           {steps.map((step, i) => (
             <div key={step.num} className="relative flex flex-col items-center text-center">
@@ -349,8 +349,8 @@ function FeatureHighlightsSection() {
       icon: Bot,
       title: "AI Chatbot",
       body: "24/7 lead capture trained on your business. Never miss an inquiry again — even at 11pm.",
-      color: "text-teal-400",
-      bg: "bg-teal-400/10",
+      color: "text-[#2563eb]",
+      bg: "bg-[#2563eb]/10",
     },
     {
       icon: MapPin,
@@ -376,7 +376,7 @@ function FeatureHighlightsSection() {
   ];
 
   return (
-    <section className="py-24 bg-[#0F172A]">
+    <section className="py-24 bg-[#0a0e1a]">
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -401,7 +401,7 @@ function FeatureHighlightsSection() {
 
         <div className="text-center mt-10">
           <Link href="/features">
-            <Button variant="ghost" className="text-teal-400 hover:text-teal-300 hover:bg-teal-400/10">
+            <Button variant="ghost" className="text-[#2563eb] hover:text-slate-300 hover:bg-[#2563eb]/10">
               Explore all features <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -462,7 +462,7 @@ function PricingPreviewSection() {
   ];
 
   return (
-    <section className="py-24 bg-slate-950/60">
+    <section className="py-24 bg-[#0a0e1a]/60">
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -479,13 +479,13 @@ function PricingPreviewSection() {
               key={plan.name}
               className={`rounded-2xl p-7 flex flex-col ${
                 plan.highlight
-                  ? "border-2 border-teal-500 bg-teal-500/5 relative"
+                  ? "border-2 border-[#0d9488] bg-[#2563eb]/5 relative"
                   : "border border-slate-800 bg-slate-900/60"
               }`}
             >
               {plan.badge && (
                 <div className="absolute -top-3.5 left-0 right-0 flex justify-center">
-                  <span className="text-xs font-bold text-white bg-teal-500 px-3 py-1 rounded-full uppercase tracking-wider">
+                  <span className="text-xs font-bold text-white bg-[#2563eb] px-3 py-1 rounded-full uppercase tracking-wider">
                     {plan.badge}
                   </span>
                 </div>
@@ -493,7 +493,7 @@ function PricingPreviewSection() {
               <div className="mb-5">
                 <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-2">
-                  <span className={`text-4xl font-black ${plan.highlight ? "text-teal-400" : "text-white"}`}>
+                  <span className={`text-4xl font-black ${plan.highlight ? "text-[#2563eb]" : "text-white"}`}>
                     {plan.price}
                   </span>
                   <span className="text-slate-400 text-sm">/mo</span>
@@ -504,7 +504,7 @@ function PricingPreviewSection() {
               <ul className="space-y-2.5 mb-8 flex-1">
                 {plan.features.map((feat) => (
                   <li key={feat} className="flex items-start gap-2">
-                    <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-teal-400" : "text-slate-400"}`} />
+                    <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[#2563eb]" : "text-slate-400"}`} />
                     <span className="text-slate-300 text-sm">{feat}</span>
                   </li>
                 ))}
@@ -514,7 +514,7 @@ function PricingPreviewSection() {
                 <Button
                   className={`w-full font-semibold ${
                     plan.highlight
-                      ? "bg-teal-500 hover:bg-teal-400 text-white shadow-lg shadow-teal-500/20"
+                      ? "bg-[#2563eb] hover:bg-[#2563eb] text-white shadow-lg shadow-blue-500/20"
                       : "bg-slate-800 hover:bg-slate-700 text-white"
                   }`}
                 >
@@ -526,7 +526,7 @@ function PricingPreviewSection() {
         </div>
 
         <div className="text-center mt-8">
-          <Link href="/pricing" className="text-teal-400 hover:text-teal-300 text-sm font-medium inline-flex items-center gap-1">
+          <Link href="/pricing" className="text-[#2563eb] hover:text-slate-300 text-sm font-medium inline-flex items-center gap-1">
             View full pricing & feature comparison <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -559,7 +559,7 @@ function TestimonialsSection() {
   ];
 
   return (
-    <section className="py-24 bg-[#0F172A]">
+    <section className="py-24 bg-[#0a0e1a]">
       <div className="container">
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -596,7 +596,7 @@ function TestimonialsSection() {
 // Final CTA
 function FinalCTASection() {
   return (
-    <section className="py-24 bg-gradient-to-br from-slate-900 via-teal-950/40 to-slate-900">
+    <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-950/40 to-slate-900">
       <div className="container">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-5 leading-tight">
@@ -608,7 +608,7 @@ function FinalCTASection() {
           <Link href="/signup">
             <Button
               size="lg"
-              className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 py-6 text-lg shadow-2xl shadow-teal-500/30"
+              className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 py-6 text-lg shadow-2xl shadow-blue-500/30"
             >
               Get Your Free Demo
               <ArrowRight className="ml-2 h-5 w-5" />

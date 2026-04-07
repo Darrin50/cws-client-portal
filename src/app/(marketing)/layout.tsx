@@ -22,7 +22,7 @@ function MarketingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/60 bg-[#0F172A]/90 backdrop-blur-md">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/60 bg-[#0a0e1a]/90 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -47,7 +47,7 @@ function MarketingNav() {
               className={cn(
                 "px-3 py-2 rounded-md text-sm font-medium transition-colors",
                 pathname === link.href
-                  ? "text-teal-400 bg-teal-400/10"
+                  ? "text-[#2563eb] bg-[#2563eb]/10"
                   : "text-slate-300 hover:text-white hover:bg-slate-800"
               )}
             >
@@ -66,7 +66,7 @@ function MarketingNav() {
           <Link href="/signup">
             <Button
               size="sm"
-              className="bg-teal-500 hover:bg-teal-400 text-white font-semibold shadow-lg shadow-teal-500/20"
+              className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-semibold shadow-lg shadow-blue-500/20"
             >
               Get Your Free Demo
             </Button>
@@ -82,7 +82,7 @@ function MarketingNav() {
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
-            <SheetContent side="right" className="bg-[#0F172A] border-slate-800 w-72">
+            <SheetContent side="right" className="bg-[#0a0e1a] border-slate-800 w-72">
               <div className="flex flex-col h-full pt-8">
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-2 px-6 mb-8">
@@ -100,7 +100,7 @@ function MarketingNav() {
                       className={cn(
                         "px-3 py-3 rounded-md text-sm font-medium transition-colors",
                         pathname === link.href
-                          ? "text-teal-400 bg-teal-400/10"
+                          ? "text-[#2563eb] bg-[#2563eb]/10"
                           : "text-slate-300 hover:text-white hover:bg-slate-800"
                       )}
                     >
@@ -117,7 +117,7 @@ function MarketingNav() {
                     </Button>
                   </Link>
                   <Link href="/signup" onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full bg-teal-500 hover:bg-teal-400 text-white font-semibold">
+                    <Button className="w-full bg-[#2563eb] hover:bg-[#2563eb] text-white font-semibold">
                       Get Your Free Demo
                     </Button>
                   </Link>
@@ -146,16 +146,16 @@ function MarketingFooter() {
               The most affordable AI-powered website platform for small businesses — $0 down, cancel anytime.
             </p>
             <div className="flex items-center gap-3">
-              <a href="https://twitter.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+              <a href="https://twitter.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Twitter" className="text-slate-500 hover:text-[#2563eb] transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded">
                 <Twitter className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://instagram.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+              <a href="https://instagram.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram" className="text-slate-500 hover:text-[#2563eb] transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded">
                 <Instagram className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://linkedin.com/company/caliber-web-studio" target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+              <a href="https://linkedin.com/company/caliber-web-studio" target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn" className="text-slate-500 hover:text-[#2563eb] transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded">
                 <Linkedin className="h-4 w-4" aria-hidden="true" />
               </a>
-              <a href="https://facebook.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="text-slate-500 hover:text-teal-400 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded">
+              <a href="https://facebook.com/caliberwebstudio" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook" className="text-slate-500 hover:text-[#2563eb] transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded">
                 <Facebook className="h-4 w-4" aria-hidden="true" />
               </a>
             </div>
@@ -235,7 +235,7 @@ function MarketingFooter() {
             &copy; {new Date().getFullYear()} Caliber Web Studio LLC. Built in Detroit.
           </p>
           <div className="flex items-center gap-1">
-            <Zap className="h-3 w-3 text-teal-400" />
+            <Zap className="h-3 w-3 text-[#2563eb]" />
             <span className="text-slate-500 text-xs">AI-powered. Detroit-built.</span>
           </div>
         </div>
@@ -246,7 +246,7 @@ function MarketingFooter() {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white">
+    <div className="min-h-screen bg-[#0a0e1a] text-white">
       <MarketingNav />
       <main className="pt-16">
         {children}

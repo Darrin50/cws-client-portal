@@ -17,7 +17,7 @@ const mockPages = [
 const gradients = [
   "from-blue-600 to-indigo-700",
   "from-violet-600 to-purple-700",
-  "from-teal-500 to-cyan-700",
+  "from-[#0d9488] to-cyan-700",
   "from-rose-500 to-pink-700",
   "from-amber-500 to-orange-700",
   "from-green-500 to-emerald-700",
@@ -60,7 +60,7 @@ export default function PagesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPages.map((page, index) => (
             <Link key={page.id} href={`/pages/${page.id}`} className="no-underline">
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 overflow-hidden group cursor-pointer">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-200 overflow-hidden group cursor-pointer">
                 {/* Thumbnail with gradient */}
                 <div
                   className={`relative h-44 bg-gradient-to-br ${gradients[index % gradients.length]} flex flex-col items-center justify-center`}

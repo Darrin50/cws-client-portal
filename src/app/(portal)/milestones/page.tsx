@@ -56,8 +56,8 @@ export default function MilestonesPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-900/30">
-            <Trophy className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-slate-800/30">
+            <Trophy className="w-6 h-6 text-[#2563eb] dark:text-[#2563eb]" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Milestones</h1>
         </div>
@@ -81,7 +81,7 @@ export default function MilestonesPage() {
         </div>
         <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3">
           <div
-            className="bg-gradient-to-r from-teal-600 to-teal-400 h-3 rounded-full transition-all duration-700"
+            className="bg-gradient-to-r from-[#0d9488] to-[#5eead4] h-3 rounded-full transition-all duration-700"
             style={{ width: loading ? "0%" : `${(totalEarned / total) * 100}%` }}
           />
         </div>
@@ -105,14 +105,14 @@ export default function MilestonesPage() {
               key={key}
               className={`relative rounded-2xl border p-5 transition-all duration-200 ${
                 isEarned
-                  ? "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800"
+                  ? "bg-blue-50 dark:bg-slate-800/20 border-[#99f6e4] dark:border-slate-700"
                   : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
               }`}
             >
               {/* Earned badge */}
               {isEarned && (
                 <div className="absolute top-4 right-4">
-                  <CheckCircle2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <CheckCircle2 className="w-5 h-5 text-[#2563eb] dark:text-[#2563eb]" />
                 </div>
               )}
 
@@ -136,7 +136,7 @@ export default function MilestonesPage() {
               <h3
                 className={`font-semibold text-sm mb-1 ${
                   isEarned
-                    ? "text-teal-800 dark:text-teal-300"
+                    ? "text-[#0d9488] dark:text-slate-300"
                     : "text-slate-400 dark:text-slate-500"
                 }`}
               >
@@ -145,7 +145,7 @@ export default function MilestonesPage() {
 
               {/* Earned date or hint */}
               {isEarned ? (
-                <p className="text-xs text-teal-600 dark:text-teal-400 font-medium">
+                <p className="text-xs text-[#2563eb] dark:text-[#2563eb] font-medium">
                   Earned {formatDate(earnedMilestone.earnedAt)}
                 </p>
               ) : (

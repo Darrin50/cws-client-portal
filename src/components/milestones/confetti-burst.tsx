@@ -15,7 +15,7 @@ export function ConfettiBurst({ active }: ConfettiBurstProps) {
     (async () => {
       const confetti = (await import("canvas-confetti")).default;
 
-      const colors = ["#0F766E", "#0F172A", "#ffffff", "#14B8A6", "#1E293B"];
+      const colors = ["#2563eb", "#0d9488", "#0a0e1a", "#ffffff", "#1E293B"];
 
       const end = Date.now() + 3000;
 

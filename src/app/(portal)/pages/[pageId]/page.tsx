@@ -54,7 +54,7 @@ const mockPagesData: Record<string, {
   },
   "3": {
     name: "Services", url: "https://www.caliberwebstudio.com/services", path: "/services",
-    lastUpdated: "1 week ago", gradient: "from-teal-500 to-cyan-700",
+    lastUpdated: "1 week ago", gradient: "from-[#0d9488] to-cyan-700",
     metadata: {
       title: "Web Design & Development Services",
       description: "Full-service web design, development, and AI-powered solutions for growing businesses.",
@@ -226,7 +226,7 @@ function AddRequestForm({
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
             <h2 className="text-base font-semibold text-slate-900 dark:text-white">New Change Request</h2>
-            <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
+            <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none">
               <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
@@ -564,7 +564,7 @@ export default function PageDetailPage({
             {/* Screenshot Button */}
             <button
               onClick={() => setShowPageScreenshotFlow(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0d9488] dark:text-slate-300 bg-blue-50 dark:bg-slate-800/20 border border-[#99f6e4] dark:border-slate-700 rounded-lg hover:bg-blue-100 dark:hover:bg-slate-800/40 transition-all"
             >
               <Camera className="w-4 h-4" />
               Capture Screenshot
@@ -589,10 +589,10 @@ export default function PageDetailPage({
               </p>
               <div className="space-y-3">
                 {capturedScreenshots.map((ss) => (
-                  <div key={ss.id} className="border border-teal-200 dark:border-teal-800 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 bg-teal-50 dark:bg-teal-900/20">
+                  <div key={ss.id} className="border border-[#99f6e4] dark:border-slate-700 rounded-lg overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-2 bg-blue-50 dark:bg-slate-800/20">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/40 px-1.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0d9488] dark:text-slate-300 bg-blue-100 dark:bg-slate-800/40 px-1.5 py-0.5 rounded-full">
                           <Camera className="w-2.5 h-2.5" />
                           Screenshot
                         </span>
@@ -605,7 +605,7 @@ export default function PageDetailPage({
                         <a
                           href={ss.dataUrl}
                           download={`${ss.name}.png`}
-                          className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-medium"
+                          className="text-xs text-[#2563eb] dark:text-[#2563eb] hover:underline font-medium"
                         >
                           Download
                         </a>
@@ -708,7 +708,7 @@ export default function PageDetailPage({
                   onClick={handleSubmitComment}
                   disabled={!newComment.trim()}
                   aria-label="Submit comment"
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 self-end focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none min-h-[44px] min-w-[44px]"
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 self-end focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none min-h-[44px] min-w-[44px]"
                 >
                   <Send className="w-4 h-4" aria-hidden="true" />
                 </button>

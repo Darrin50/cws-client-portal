@@ -89,10 +89,10 @@ export function AttachPopup({
             onClose();
             onTakeScreenshot();
           }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors text-left group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-800/20 transition-colors text-left group"
         >
-          <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-900/30 group-hover:bg-teal-100 dark:group-hover:bg-teal-900/50 flex items-center justify-center flex-shrink-0 transition-colors">
-            <Camera className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-slate-800/30 group-hover:bg-blue-100 dark:group-hover:bg-slate-800/50 flex items-center justify-center flex-shrink-0 transition-colors">
+            <Camera className="w-4 h-4 text-[#2563eb] dark:text-[#2563eb]" />
           </div>
           <div>
             <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">

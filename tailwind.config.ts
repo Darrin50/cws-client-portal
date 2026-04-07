@@ -50,9 +50,12 @@ const config: Config = {
         },
         // Brand colors
         cws: {
-          primary: '#0F172A',
-          accent: '#3B82F6',
+          primary: '#0a0e1a',
+          accent: '#2563eb',
         },
+        midnight: '#0a0e1a',
+        'caliber-blue': '#2563eb',
+        'precision-teal': '#0d9488',
         // Health score color scale
         health: {
           critical: '#DC2626',

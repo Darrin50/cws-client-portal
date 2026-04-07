@@ -383,7 +383,7 @@ export default function MessagesPage() {
                   aria-label="Attach a file"
                   aria-expanded={showAttachPopup}
                   onClick={() => setShowAttachPopup((v) => !v)}
-                  className="text-slate-400 hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded p-1"
+                  className="text-slate-400 hover:text-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded p-1"
                 >
                   <Paperclip className="w-5 h-5" aria-hidden="true" />
                 </button>

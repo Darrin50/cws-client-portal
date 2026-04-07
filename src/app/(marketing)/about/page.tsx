@@ -19,29 +19,29 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[#0a0e1a]">
       {/* Hero */}
       <section className="relative py-28 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.5" fill="#14B8A6" />
+                <circle cx="2" cy="2" r="1.5" fill="#0d9488" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#dots)" />
           </svg>
-          <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-teal-500/8 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-[600px] h-[400px] bg-[#2563eb]/8 rounded-full blur-3xl" />
         </div>
 
         <div className="container relative z-10 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
             <MapPin className="h-3 w-3" />
             Detroit, Michigan
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight">
             Built in Detroit.{" "}
-            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
               Built for Main Street.
             </span>
           </h1>
@@ -52,7 +52,7 @@ export default function AboutPage() {
       </section>
 
       {/* Story */}
-      <section className="py-20 bg-slate-950/50">
+      <section className="py-20 bg-[#0a0e1a]/50">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center max-w-5xl mx-auto">
             <div>
@@ -94,7 +94,7 @@ export default function AboutPage() {
                   {
                     year: "2024",
                     event: "Caliber Web Studio launches. AI-first, Detroit-built, $0 down. The gap finally gets filled.",
-                    color: "bg-teal-400",
+                    color: "bg-[#2563eb]",
                   },
                 ].map((item) => (
                   <div key={item.year} className="flex items-start gap-4">
@@ -117,11 +117,11 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/40 via-slate-900/80 to-slate-900/80 p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-teal-400/10 flex items-center justify-center mx-auto mb-6">
-              <Zap className="h-7 w-7 text-teal-400" />
+          <div className="max-w-4xl mx-auto rounded-2xl border border-[#0d9488]/30 bg-gradient-to-br from-slate-950/40 via-slate-900/80 to-slate-900/80 p-12 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center mx-auto mb-6">
+              <Zap className="h-7 w-7 text-[#2563eb]" />
             </div>
             <blockquote className="text-2xl sm:text-3xl font-bold text-white mb-4 leading-tight">
               &ldquo;We don&apos;t just build websites. We build AI-visible businesses.&rdquo;
@@ -134,7 +134,7 @@ export default function AboutPage() {
       </section>
 
       {/* The Numbers */}
-      <section className="py-20 bg-slate-950/50">
+      <section className="py-20 bg-[#0a0e1a]/50">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -149,9 +149,9 @@ export default function AboutPage() {
               {
                 stat: "33M+",
                 label: "Small businesses in the US without an effective web presence",
-                color: "text-teal-400",
-                bg: "bg-teal-400/10",
-                border: "border-teal-400/20",
+                color: "text-[#2563eb]",
+                bg: "bg-[#2563eb]/10",
+                border: "border-[#0d9488]/20",
               },
               {
                 stat: "$4,200",
@@ -178,7 +178,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Moat */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -194,8 +194,8 @@ export default function AboutPage() {
                 icon: BookOpen,
                 title: "Template Library",
                 desc: "Detroit-optimized website designs built specifically for local industries — barbershops, contractors, auto shops, restaurants, and more. Not generic templates.",
-                color: "text-teal-400",
-                bg: "bg-teal-400/10",
+                color: "text-[#2563eb]",
+                bg: "bg-[#2563eb]/10",
               },
               {
                 icon: Zap,
@@ -232,15 +232,15 @@ export default function AboutPage() {
       </section>
 
       {/* Detroit Focus */}
-      <section className="py-20 bg-slate-950/50">
+      <section className="py-20 bg-[#0a0e1a]/50">
         <div className="container">
           <div className="max-w-4xl mx-auto rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden">
             <div className="grid lg:grid-cols-2">
               {/* Left: text */}
               <div className="p-10">
                 <div className="flex items-center gap-2 mb-5">
-                  <MapPin className="h-5 w-5 text-teal-400" />
-                  <span className="text-teal-400 font-semibold text-sm">Detroit Focused</span>
+                  <MapPin className="h-5 w-5 text-[#2563eb]" />
+                  <span className="text-[#2563eb] font-semibold text-sm">Detroit Focused</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
                   We&apos;re not a faceless SaaS company.
@@ -256,7 +256,7 @@ export default function AboutPage() {
                     "Focused on Southeast Michigan small businesses",
                   ].map((item) => (
                     <li key={item} className="flex items-center gap-2.5">
-                      <Check className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                      <Check className="h-4 w-4 text-[#2563eb] flex-shrink-0" />
                       <span className="text-slate-300 text-sm">{item}</span>
                     </li>
                   ))}
@@ -264,7 +264,7 @@ export default function AboutPage() {
               </div>
 
               {/* Right: visual */}
-              <div className="bg-gradient-to-br from-teal-950/60 to-slate-900/60 p-10 flex flex-col justify-center">
+              <div className="bg-gradient-to-br from-slate-950/60 to-slate-900/60 p-10 flex flex-col justify-center">
                 <div className="space-y-4">
                   {[
                     { label: "City", value: "Detroit, Michigan" },
@@ -285,7 +285,7 @@ export default function AboutPage() {
       </section>
 
       {/* Portfolio Callout */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -308,8 +308,8 @@ export default function AboutPage() {
                 name: "BookedByAI",
                 desc: "AI-powered appointment booking platform. Smart scheduling that works around your business, not the other way around.",
                 tag: "SaaS",
-                color: "border-teal-500/30 bg-teal-500/5",
-                tagColor: "text-teal-400 bg-teal-400/10 border-teal-400/20",
+                color: "border-[#0d9488]/30 bg-[#2563eb]/5",
+                tagColor: "text-[#2563eb] bg-[#2563eb]/10 border-[#0d9488]/20",
               },
               {
                 name: "OpsOS",
@@ -332,7 +332,7 @@ export default function AboutPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-teal-950/30 to-slate-900">
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-950/30 to-slate-900">
         <div className="container text-center">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5">
             Ready to work with us?
@@ -342,7 +342,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup">
-              <Button size="lg" className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 shadow-xl shadow-teal-500/25">
+              <Button size="lg" className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 shadow-xl shadow-blue-500/25">
                 Get Your Free Demo
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

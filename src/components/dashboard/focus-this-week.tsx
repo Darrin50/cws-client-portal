@@ -10,7 +10,7 @@ const STATUS_PILL: Record<
 > = {
   in_progress: {
     label: 'In Progress',
-    classes: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+    classes: 'bg-blue-100 text-[#0d9488] dark:bg-slate-800/30 dark:text-[#2563eb]',
   },
   starting_soon: {
     label: 'Starting Soon',
@@ -55,9 +55,9 @@ export function FocusThisWeek({ focus, topPageName }: FocusThisWeekProps) {
   const pill = STATUS_PILL[focus.status];
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-teal-200 dark:border-teal-800 shadow-sm p-6 relative overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#99f6e4] dark:border-slate-700 shadow-sm p-6 relative overflow-hidden">
       {/* Subtle teal accent strip */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-l-xl" />
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#2563eb] rounded-l-xl" />
       <div className="pl-3">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">

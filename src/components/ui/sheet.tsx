@@ -105,7 +105,7 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
         <div
           ref={ref}
           className={cn(
-            "fixed z-50 border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-950",
+            "fixed z-50 border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-[#0a0e1a]",
             sideClasses[side],
             className
           )}

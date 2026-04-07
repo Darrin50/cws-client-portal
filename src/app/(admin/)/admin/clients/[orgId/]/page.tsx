@@ -226,7 +226,7 @@ export default function ClientDetailPage() {
             <button
               onClick={() => void sendBriefing()}
               disabled={briefingSending}
-              className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#1d4ed8] hover:bg-[#2563eb] disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition-colors"
             >
               {briefingSending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -381,7 +381,7 @@ export default function ClientDetailPage() {
                   onChange={(e) => setFocusTitle(e.target.value)}
                   placeholder="e.g. Services Page Rewrite"
                   maxLength={200}
-                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
                 />
               </div>
 
@@ -393,7 +393,7 @@ export default function ClientDetailPage() {
                   placeholder="e.g. Your most-visited page converts at 1.8% — we're rebuilding it this week"
                   maxLength={1000}
                   rows={3}
-                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent resize-none"
                 />
               </div>
 
@@ -402,7 +402,7 @@ export default function ClientDetailPage() {
                 <select
                   value={focusStatus}
                   onChange={(e) => setFocusStatus(e.target.value as WeeklyFocusStatus)}
-                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                 >
                   <option value="starting_soon">Starting Soon</option>
                   <option value="in_progress">In Progress</option>
@@ -414,7 +414,7 @@ export default function ClientDetailPage() {
                 <button
                   onClick={() => void saveFocus()}
                   disabled={focusSaving || !focusTitle.trim() || !focusDesc.trim()}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#1d4ed8] hover:bg-[#2563eb] disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   {focusSaving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -440,15 +440,15 @@ export default function ClientDetailPage() {
 
           {/* Current focus preview */}
           {org.weeklyFocus && (
-            <Card className="bg-slate-800 border-teal-700 border p-5">
-              <p className="text-xs font-semibold text-teal-400 mb-2 uppercase tracking-wider">Currently showing on client dashboard</p>
+            <Card className="bg-slate-800 border-[#0d9488] border p-5">
+              <p className="text-xs font-semibold text-[#2563eb] mb-2 uppercase tracking-wider">Currently showing on client dashboard</p>
               <p className="text-white font-semibold">{org.weeklyFocus.title}</p>
               <p className="text-slate-400 text-sm mt-1">{org.weeklyFocus.description}</p>
               <span className={`inline-block mt-2 text-xs font-medium px-2.5 py-0.5 rounded-full ${
                 org.weeklyFocus.status === 'completed'
                   ? 'bg-green-900/30 text-green-400'
                   : org.weeklyFocus.status === 'in_progress'
-                  ? 'bg-teal-900/30 text-teal-400'
+                  ? 'bg-slate-800/30 text-[#2563eb]'
                   : 'bg-amber-900/30 text-amber-400'
               }`}>
                 {org.weeklyFocus.status.replace('_', ' ')}
