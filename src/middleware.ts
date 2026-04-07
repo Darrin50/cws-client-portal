@@ -16,30 +16,26 @@ const isPublicRoute = createRouteMatcher([
   '/faq',
 ]);
 
-export default clerkMiddleware(
-  async (auth, req) => {
-    // Redirect authenticated users from root to dashboard
+export default clerkMiddleware(async (auth, req) => {
+  // Public routes: pass through (but redirect authed users from root)
+  if (isPublicRoute(req)) {
     if (req.nextUrl.pathname === '/') {
       const { userId } = await auth();
       if (userId) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
-      return;
     }
-
-    // Public routes pass through without auth check
-    if (isPublicRoute(req)) {
-      return;
-    }
-
-    // All other routes require authentication
-    await auth.protect();
-  },
-  {
-    signInUrl: '/login',
-    signUpUrl: '/signup',
+    return;
   }
-);
+
+  // Protected routes: check auth and redirect to /login explicitly
+  const { userId } = await auth();
+  if (!userId) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+});
 
 export const config = {
   matcher: [
