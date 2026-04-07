@@ -38,6 +38,12 @@ import {
   Paintbrush,
   Activity,
   Plus,
+  BookOpen,
+  HelpCircle,
+  TrendingUp,
+  Layers,
+  MapPin,
+  UserCheck,
   type LucideIcon,
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
@@ -84,6 +90,7 @@ const NAV_TREE: NavItem[] = [
       { label: "Logos", href: "/brand/logos", icon: FileText },
       { label: "Colors", href: "/brand/colors", icon: Palette },
       { label: "Fonts", href: "/brand/fonts", icon: Type },
+      { label: "Brand Guidelines", href: "/brand/guidelines", icon: BookOpen },
       { label: "Photos & Files", href: "/brand/photos", icon: ImageIcon },
       { label: "Content Calendar", href: "/brand/calendar", icon: Calendar },
     ],
@@ -92,6 +99,9 @@ const NAV_TREE: NavItem[] = [
     label: "Messages",
     href: "/messages",
     icon: MessageSquare,
+    children: [
+      { label: "FAQ", href: "/messages/faq", icon: HelpCircle },
+    ],
   },
   {
     label: "Milestones",
@@ -99,7 +109,7 @@ const NAV_TREE: NavItem[] = [
     icon: Trophy,
   },
   {
-    label: "Competitors",
+    label: "Competitor Pulse",
     href: "/competitors",
     icon: Globe,
   },
@@ -114,6 +124,12 @@ const NAV_TREE: NavItem[] = [
     icon: BarChart2,
     locked: true,
     lockedTooltip: "Upgrade your plan to unlock Analytics",
+    children: [
+      { label: "Traffic Overview", href: "/analytics/traffic", icon: TrendingUp },
+      { label: "Traffic Sources", href: "/analytics/sources", icon: Layers },
+      { label: "Google Business", href: "/analytics/gbp", icon: MapPin },
+      { label: "Lead Tracking", href: "/analytics/leads", icon: UserCheck },
+    ],
   },
   {
     label: "Reports",
@@ -121,6 +137,9 @@ const NAV_TREE: NavItem[] = [
     icon: FileBarChart,
     locked: true,
     lockedTooltip: "Upgrade your plan to unlock Reports",
+    children: [
+      { label: "Latest Report", href: "/reports/latest", icon: FileText },
+    ],
   },
   {
     label: "Social Media",
@@ -128,6 +147,11 @@ const NAV_TREE: NavItem[] = [
     icon: Share2,
     locked: true,
     lockedTooltip: "Upgrade your plan to unlock Social Media",
+    children: [
+      { label: "Calendar", href: "/social/calendar", icon: Calendar },
+      { label: "Posts", href: "/social/posts", icon: FileText },
+      { label: "Request Post", href: "/social/request", icon: Plus },
+    ],
   },
   {
     label: "Settings",
@@ -180,21 +204,57 @@ function NavRow({ item, pathname, expanded, onToggleExpand, onNavigate }: NavRow
   const Icon = item.icon
 
   if (item.locked) {
+    const hasLockedChildren = (item.children?.length ?? 0) > 0
     return (
-      <div
-        title={item.lockedTooltip}
-        className="flex items-center justify-between px-2 py-2 rounded-md text-sm text-slate-600 cursor-not-allowed select-none"
-      >
-        <div className="flex items-center gap-2.5 pl-0.5">
-          <Icon className="w-4 h-4 flex-shrink-0" />
-          <span>{item.label}</span>
+      <div>
+        <div
+          title={item.lockedTooltip}
+          className="flex items-center justify-between px-2 py-2 rounded-md text-sm text-slate-600 cursor-not-allowed select-none"
+        >
+          <div className="flex items-center gap-2.5 pl-0.5 flex-1 min-w-0">
+            <Icon className="w-4 h-4 flex-shrink-0" />
+            <span className="truncate">{item.label}</span>
+          </div>
+          <div className="flex items-center gap-1.5 pr-1 flex-shrink-0">
+            <span className="text-[9px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-full tracking-wide">
+              PRO
+            </span>
+            {hasLockedChildren ? (
+              <button
+                onClick={() => onToggleExpand(item.href)}
+                className="p-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label={expanded ? "Collapse" : "Expand"}
+              >
+                <ChevronRight
+                  className={cn(
+                    "w-3.5 h-3.5 transition-transform duration-200 text-slate-600",
+                    expanded ? "rotate-90" : ""
+                  )}
+                />
+              </button>
+            ) : (
+              <Lock className="w-3 h-3" />
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 pr-1">
-          <span className="text-[9px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/25 px-1.5 py-0.5 rounded-full tracking-wide">
-            PRO
-          </span>
-          <Lock className="w-3 h-3" />
-        </div>
+        {hasLockedChildren && expanded && (
+          <div className="ml-3 mt-0.5 border-l border-white/10 pl-2 space-y-0.5">
+            {item.children!.map((child) => {
+              const ChildIcon = child.icon
+              return (
+                <div
+                  key={child.href}
+                  title={item.lockedTooltip}
+                  className="flex items-center gap-2 py-1.5 px-2 rounded-md text-xs text-slate-700 cursor-not-allowed select-none"
+                >
+                  <ChildIcon className="w-3.5 h-3.5 flex-shrink-0 opacity-50" />
+                  <span className="truncate opacity-50">{child.label}</span>
+                  <Lock className="w-2.5 h-2.5 ml-auto flex-shrink-0 opacity-40" />
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     )
   }
