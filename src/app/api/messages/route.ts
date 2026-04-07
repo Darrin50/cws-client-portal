@@ -7,9 +7,13 @@ import {
   errorResponse,
   unauthorizedResponse,
 } from '@/lib/api-helpers';
+import { db } from '@/db';
+import { messagesTable, organizationsTable, usersTable } from '@/db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { triggerEvent } from '@/lib/pusher';
 
 const CreateMessageSchema = z.object({
-  threadId: z.string().min(1),
+  orgId: z.string().min(1),
   content: z.string().min(1),
 });
 
@@ -22,28 +26,54 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const threadId = searchParams.get('thread_id');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const clerkOrgId = searchParams.get('org_id') || auth.orgId;
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // TODO: Fetch messages from database, verify org access
-    const messages = [
-      {
-        id: 'msg_1',
-        threadId,
-        content: 'Hello, how can we help?',
-        senderType: 'admin',
-        createdAt: new Date().toISOString(),
-        read: true,
-      },
-    ];
+    if (!clerkOrgId) {
+      return errorResponse('Organization context required', 400);
+    }
 
-    return jsonResponse({
-      messages,
-      total: messages.length,
+    const org = await db.query.organizationsTable.findFirst({
+      where: eq(organizationsTable.clerkOrgId, clerkOrgId),
+    });
+
+    if (!org) {
+      return errorResponse('Organization not found', 404);
+    }
+
+    const rows = await db.query.messagesTable.findMany({
+      where: eq(messagesTable.organizationId, org.id),
+      with: { sender: true },
+      orderBy: [desc(messagesTable.createdAt)],
       limit,
       offset,
     });
+
+    // Reverse so oldest first
+    const messages = rows.reverse().map((msg) => ({
+      id: msg.id,
+      sender: msg.sender
+        ? `${msg.sender.firstName ?? ''} ${msg.sender.lastName ?? ''}`.trim() ||
+          msg.sender.email
+        : 'Unknown',
+      role:
+        msg.sender?.role === 'admin'
+          ? 'Admin'
+          : msg.sender?.role === 'team_member'
+          ? 'Team Member'
+          : 'Client',
+      avatar: msg.sender?.avatarUrl || '/api/placeholder/32/32',
+      timestamp: new Date(msg.createdAt).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+      content: msg.content,
+      isClient: msg.sender?.role === 'client',
+      createdAt: msg.createdAt,
+    }));
+
+    return jsonResponse({ messages, total: messages.length, limit, offset });
   } catch (err) {
     console.error('GET /api/messages error:', err);
     return errorResponse('Internal server error', 500);
@@ -54,28 +84,85 @@ export async function POST(request: NextRequest) {
   try {
     const auth = await withAuth(request);
 
-    if (!auth.authenticated) {
+    if (!auth.authenticated || !auth.userId) {
       return unauthorizedResponse();
     }
 
     const body = await request.json();
-    const validation = validateRequest(CreateMessageSchema, body);
+    const validation = validateRequest<z.infer<typeof CreateMessageSchema>>(CreateMessageSchema, body);
 
-    if (!validation.success) {
+    if (!validation.success || !validation.data) {
       return errorResponse(validation.error || 'Validation failed', 400);
     }
 
-    // TODO: Create message in database
-    // TODO: Notify relevant parties (client or admin)
-    const newMessage = {
-      id: `msg_${Date.now()}`,
-      ...validation.data,
-      senderType: 'admin',
-      createdAt: new Date().toISOString(),
-      read: false,
-    };
+    const { orgId: clerkOrgId, content } = validation.data;
 
-    return jsonResponse(newMessage, 201);
+    // Get DB org
+    const org = await db.query.organizationsTable.findFirst({
+      where: eq(organizationsTable.clerkOrgId, clerkOrgId),
+    });
+
+    if (!org) {
+      return errorResponse('Organization not found', 404);
+    }
+
+    // Get DB user by clerkUserId
+    const sender = await db.query.usersTable.findFirst({
+      where: eq(usersTable.clerkUserId, auth.userId),
+    });
+
+    if (!sender) {
+      return errorResponse('User not found', 404);
+    }
+
+    // Insert message
+    const insertedRows = await db
+      .insert(messagesTable)
+      .values({
+        organizationId: org.id,
+        senderId: sender.id,
+        content,
+      })
+      .returning();
+
+    const newMessage = insertedRows[0];
+    if (!newMessage) {
+      return errorResponse('Failed to create message', 500);
+    }
+
+    const senderName =
+      `${sender.firstName ?? ''} ${sender.lastName ?? ''}`.trim() || sender.email;
+
+    const senderRole =
+      sender.role === 'admin'
+        ? 'Admin'
+        : sender.role === 'team_member'
+        ? 'Team Member'
+        : 'Client';
+
+    // Trigger Pusher event for real-time delivery
+    await triggerEvent(`private-org-${clerkOrgId}`, 'new-message', {
+      id: newMessage.id,
+      content: newMessage.content,
+      senderId: sender.id,
+      senderName,
+      senderRole,
+      createdAt: newMessage.createdAt.toISOString(),
+      isClient: sender.role === 'client',
+    });
+
+    return jsonResponse(
+      {
+        id: newMessage.id,
+        content: newMessage.content,
+        senderId: sender.id,
+        senderName,
+        senderRole,
+        createdAt: newMessage.createdAt.toISOString(),
+        isClient: sender.role === 'client',
+      },
+      201
+    );
   } catch (err) {
     console.error('POST /api/messages error:', err);
     return errorResponse('Internal server error', 500);
