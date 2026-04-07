@@ -16,6 +16,7 @@ import {
   errorResponse,
   unauthorizedResponse,
   forbiddenResponse,
+  notFoundResponse,
 } from '@/lib/api-helpers';
 
 const VALID_ASSET_TYPES = [
@@ -139,6 +140,55 @@ export async function POST(request: NextRequest) {
     return jsonResponse(inserted[0], 201);
   } catch (err) {
     console.error('POST /api/brand-assets error:', err);
+    return errorResponse('Internal server error', 500);
+  }
+}
+
+const UpdateAssetSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).optional(),
+  metadata: z.record(z.unknown()).optional(),
+});
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
+    const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
+    if (!clerkUserId) return unauthorizedResponse();
+
+    const org = await resolveOrg(clerkUserId, clerkOrgId ?? null);
+    if (!org) return forbiddenResponse();
+
+    const body = await request.json();
+    const validation = validateRequest(UpdateAssetSchema, body);
+    if (!validation.success) {
+      return errorResponse(validation.error ?? 'Validation failed', 400);
+    }
+
+    const data = validation.data!;
+
+    const setFields: Record<string, unknown> = { updatedAt: new Date() };
+    if (data.name !== undefined) setFields.name = data.name;
+    if (data.metadata !== undefined) setFields.metadata = data.metadata;
+
+    const updated = await db
+      .update(brandAssetsTable)
+      .set(setFields)
+      .where(
+        and(
+          eq(brandAssetsTable.id, data.id),
+          eq(brandAssetsTable.organizationId, org.id),
+        ),
+      )
+      .returning();
+
+    if (updated.length === 0) return notFoundResponse();
+
+    return jsonResponse(updated[0]);
+  } catch (err) {
+    console.error('PATCH /api/brand-assets error:', err);
     return errorResponse('Internal server error', 500);
   }
 }
