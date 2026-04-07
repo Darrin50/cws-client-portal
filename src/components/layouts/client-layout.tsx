@@ -1,8 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import {
   Home,
@@ -19,6 +21,9 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Sun,
+  Moon,
+  Camera,
 } from "lucide-react"
 
 const navItems = [
@@ -52,24 +57,46 @@ export function ClientLayout({
 }: ClientLayoutProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profilePic, setProfilePic] = useState<string | null>(null)
+  const [avatarHovered, setAvatarHovered] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { theme, setTheme } = useTheme()
 
   const activeLabel = navItems.find(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
   )?.label ?? "Home"
 
+  function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      if (ev.target?.result) {
+        setProfilePic(ev.target.result as string)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   return (
-    <div className="flex h-screen bg-[#FAFAF9]">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-[var(--page-bg)]">
+      {/* Sidebar — always dark navy regardless of theme */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 flex flex-col bg-gradient-to-b from-slate-900 to-slate-950 md:static md:translate-x-0 transition-transform duration-300",
+          "fixed inset-y-0 left-0 z-40 w-64 flex flex-col bg-[#0F172A] md:static md:translate-x-0 transition-transform duration-300",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="px-5 py-6 border-b border-white/10 flex-shrink-0">
-          <div className="font-bold text-xl text-white tracking-wider">CALIBER</div>
-          <div className="text-xs text-slate-400 mt-0.5">Web Studio</div>
+        <div className="px-5 py-5 border-b border-white/10 flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="Caliber Web Studio"
+            width={140}
+            height={40}
+            className="object-contain"
+            priority
+          />
         </div>
 
         {/* Navigation */}
@@ -126,12 +153,42 @@ export function ClientLayout({
           })}
         </div>
 
-        {/* User Section */}
+        {/* User Section with clickable avatar */}
         <div className="px-4 py-4 border-t border-white/10 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 ring-2 ring-white/15">
-              {userInitials}
+            {/* Clickable avatar */}
+            <div
+              className="relative w-9 h-9 rounded-full flex-shrink-0 cursor-pointer"
+              onMouseEnter={() => setAvatarHovered(true)}
+              onMouseLeave={() => setAvatarHovered(false)}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {profilePic ? (
+                <img
+                  src={profilePic}
+                  alt="Profile"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-white/15"
+                />
+              ) : (
+                <img
+                  src="/logo.png"
+                  alt="Profile"
+                  className="w-9 h-9 rounded-full object-cover bg-slate-800 ring-2 ring-white/15 p-1"
+                />
+              )}
+              {avatarHovered && (
+                <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-white" />
+                </div>
+              )}
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{userName}</p>
               <p className="text-xs text-slate-500 truncate">{userEmail}</p>
@@ -146,12 +203,12 @@ export function ClientLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Top Header */}
-        <header className="bg-white border-b border-slate-200 flex-shrink-0">
+        <header className="bg-[var(--header-bg)] border-b border-[var(--border-color)] flex-shrink-0">
           <div className="flex items-center h-14 px-6 gap-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-600"
+              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
             >
               {mobileMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -164,19 +221,36 @@ export function ClientLayout({
             <div className="hidden md:flex items-center gap-1.5 text-sm">
               <span className="text-slate-400">Portal</span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-              <span className="font-semibold text-slate-900">{activeLabel}</span>
+              <span className="font-semibold text-[var(--text-primary)]">{activeLabel}</span>
             </div>
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 ml-auto">
-              <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                <Bell className="w-5 h-5 text-slate-500" />
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5 text-slate-400" />
+                ) : (
+                  <Moon className="w-5 h-5 text-slate-500" />
+                )}
+              </button>
+
+              <button className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 {unreadNotifications > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                 )}
               </button>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-semibold cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-blue-500 transition-all">
-                {userInitials}
+              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-blue-500 transition-all bg-slate-800">
+                <img
+                  src="/logo.png"
+                  alt="User"
+                  className="w-8 h-8 object-cover p-0.5"
+                />
               </div>
             </div>
           </div>

@@ -79,7 +79,7 @@ const statCards = [
     value: getGrade(mockHealthScore),
     subtext: "Your site is healthy",
     icon: Activity,
-    iconBg: "bg-green-100",
+    iconBg: "bg-green-100 dark:bg-green-900/30",
     iconColor: "text-green-600",
     accent: "text-green-600",
   },
@@ -88,7 +88,7 @@ const statCards = [
     value: "10",
     subtext: "2 need your attention",
     icon: FileText,
-    iconBg: "bg-amber-100",
+    iconBg: "bg-amber-100 dark:bg-amber-900/30",
     iconColor: "text-amber-600",
     accent: "text-amber-600",
   },
@@ -97,7 +97,7 @@ const statCards = [
     value: "3",
     subtext: "from your CWS team",
     icon: MessageSquare,
-    iconBg: "bg-blue-100",
+    iconBg: "bg-blue-100 dark:bg-blue-900/30",
     iconColor: "text-blue-600",
     accent: "text-blue-600",
   },
@@ -106,7 +106,7 @@ const statCards = [
     value: "99.9%",
     subtext: "No downtime this month",
     icon: Wifi,
-    iconBg: "bg-green-100",
+    iconBg: "bg-green-100 dark:bg-green-900/30",
     iconColor: "text-green-600",
     accent: "text-green-600",
   },
@@ -163,8 +163,8 @@ function HealthScoreRing({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-bold text-slate-900">{grade}</span>
-        <span className="text-xs text-slate-500 mt-1">Website Grade</span>
+        <span className="text-5xl font-bold text-slate-900 dark:text-slate-100">{grade}</span>
+        <span className="text-xs text-slate-600 dark:text-slate-400 mt-1">Website Grade</span>
       </div>
     </div>
   );
@@ -186,25 +186,25 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
           {getGreeting()}, Darrin
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {summaryText} &middot; {today}
         </p>
       </div>
 
       {/* Urgent Alert Banner */}
       {urgentCount > 0 && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+        <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-5 py-4">
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-          <p className="text-sm font-medium text-amber-800">
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
             You have {urgentCount} urgent request{urgentCount > 1 ? "s" : ""}{" "}
             waiting for review
           </p>
           <Link
             href="/pages"
-            className="ml-auto text-xs font-semibold text-amber-700 hover:text-amber-900 no-underline whitespace-nowrap"
+            className="ml-auto text-xs font-semibold text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-200 no-underline whitespace-nowrap"
           >
             View now &rarr;
           </Link>
@@ -218,17 +218,17 @@ export default function DashboardPage() {
           return (
             <div
               key={card.label}
-              className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 p-6"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 p-6"
             >
               <div
                 className={`w-10 h-10 rounded-full ${card.iconBg} flex items-center justify-center mb-4`}
               >
                 <Icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
-              <div className="text-3xl font-bold text-slate-900">
+              <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">
                 {card.value}
               </div>
-              <div className="text-sm font-medium text-slate-700 mt-1">
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">
                 {card.label}
               </div>
               <div className={`text-xs mt-1.5 ${card.accent}`}>
@@ -242,8 +242,8 @@ export default function DashboardPage() {
       {/* Row 2: Health Score + Request Priority */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Health Score Detail */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-900 mb-6 scroll-m-0 border-0 pb-0 tracking-normal">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-6 scroll-m-0 border-0 pb-0 tracking-normal">
             Website Health
           </h2>
           <div className="flex flex-col items-center">
@@ -253,10 +253,10 @@ export default function DashboardPage() {
                 const scoreLabel = getScoreLabel(factor.score);
                 return (
                   <div key={factor.label} className="flex items-center gap-3">
-                    <span className="text-sm text-slate-600 w-36 flex-shrink-0">
+                    <span className="text-sm text-slate-600 dark:text-slate-400 w-36 flex-shrink-0">
                       {factor.label}
                     </span>
-                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${factor.color} rounded-full transition-all duration-1000`}
                         style={{ width: `${factor.score}%` }}
@@ -275,9 +275,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Changes in Progress */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-semibold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
               Changes in Progress
             </h2>
             <Link
@@ -288,34 +288,34 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-red-50 border-l-4 border-red-500">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
               <div>
                 <div className="text-2xl font-bold text-red-600">
                   {mockOpenRequests.high}
                 </div>
-                <div className="text-sm font-medium text-red-600/70 mt-0.5">
+                <div className="text-sm font-medium text-red-600/80 dark:text-red-400 mt-0.5">
                   Need your attention
                 </div>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-300" />
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 border-l-4 border-amber-500">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500">
               <div>
                 <div className="text-2xl font-bold text-amber-600">
                   {mockOpenRequests.medium}
                 </div>
-                <div className="text-sm font-medium text-amber-600/70 mt-0.5">
+                <div className="text-sm font-medium text-amber-600/80 dark:text-amber-400 mt-0.5">
                   In progress
                 </div>
               </div>
               <Clock className="w-8 h-8 text-amber-300" />
             </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 border-l-4 border-green-500">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500">
               <div>
                 <div className="text-2xl font-bold text-green-600">
                   {mockOpenRequests.low}
                 </div>
-                <div className="text-sm font-medium text-green-600/70 mt-0.5">
+                <div className="text-sm font-medium text-green-600/80 dark:text-green-400 mt-0.5">
                   Queued
                 </div>
               </div>
@@ -328,21 +328,21 @@ export default function DashboardPage() {
       {/* Row 3: Activity Feed + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Activity Feed */}
-        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-900 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
             Recent Activity
           </h2>
           <div className="space-y-0.5">
             {mockActivityFeed.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 transition-colors"
+                className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
                 <div
                   className={`w-2 h-2 rounded-full ${item.dot} flex-shrink-0`}
                 />
-                <p className="text-sm text-slate-700 flex-1">{item.title}</p>
-                <span className="text-xs text-slate-400 flex-shrink-0 whitespace-nowrap">
+                <p className="text-sm text-slate-700 dark:text-slate-300 flex-1">{item.title}</p>
+                <span className="text-xs text-slate-500 dark:text-slate-500 flex-shrink-0 whitespace-nowrap">
                   {item.timestamp}
                 </span>
               </div>
@@ -351,47 +351,47 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-900 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
             Quick Actions
           </h2>
           <div className="space-y-3">
             <Link href="/pages/request/new" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-200 flex-shrink-0">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-200 flex-shrink-0">
                   <Plus className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-700 dark:group-hover:text-blue-400">
                   Request a Website Change
                 </span>
               </div>
             </Link>
             <Link href="/brand" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-200 flex-shrink-0">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-200 flex-shrink-0">
                   <Upload className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-medium text-slate-700 group-hover:text-purple-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
                   Upload a File
                 </span>
               </div>
             </Link>
             <Link href="/reports" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-500 transition-colors duration-200 flex-shrink-0">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-500 transition-colors duration-200 flex-shrink-0">
                   <FileText className="w-5 h-5 text-green-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-medium text-slate-700 group-hover:text-green-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-green-700 dark:group-hover:text-green-400">
                   View My Report
                 </span>
               </div>
             </Link>
             <Link href="/messages" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-500 transition-colors duration-200 flex-shrink-0">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center group-hover:bg-amber-500 transition-colors duration-200 flex-shrink-0">
                   <MessageSquare className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-sm font-medium text-slate-700 group-hover:text-amber-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400">
                   Message My Team
                 </span>
               </div>
@@ -401,26 +401,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 4: Billing Summary */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-5 h-5 text-slate-500" />
+            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 text-slate-500 dark:text-slate-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 Your Plan: Growth &mdash; $197/month
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Next payment: May 6, 2026
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 Payment method: Visa ending 4242
               </p>
             </div>
           </div>
           <Link href="/settings/billing" className="no-underline flex-shrink-0">
-            <button className="px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-700 transition-all duration-200">
+            <button className="px-5 py-2.5 text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-all duration-200">
               Manage Billing
             </button>
           </Link>

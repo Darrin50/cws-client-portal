@@ -24,6 +24,40 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --ring: 217.2 91.2% 59.8%;
     --radius: 0.75rem;
+    --page-bg: #FAFAF9;
+    --header-bg: #ffffff;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: #e2e8f0;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 217.2 32.6% 17.5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 91.2% 59.8%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 27.5%;
+    --input: 217.2 32.6% 17.5%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --ring: 217.2 91.2% 59.8%;
+    --page-bg: #020617;
+    --header-bg: #0f172a;
+    --card-bg: #0f172a;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
   }
 }
 
@@ -33,11 +67,13 @@
   }
 
   html {
-    background-color: #FAFAF9;
+    background-color: var(--page-bg);
   }
 
   body {
-    @apply bg-[#FAFAF9] text-slate-900 antialiased;
+    @apply antialiased;
+    background-color: var(--page-bg);
+    color: var(--text-primary);
   }
 
   *:focus-visible {

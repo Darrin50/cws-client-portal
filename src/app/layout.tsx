@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ThemeProvider } from 'next-themes';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -62,7 +63,9 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body className={inter.className}>
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
