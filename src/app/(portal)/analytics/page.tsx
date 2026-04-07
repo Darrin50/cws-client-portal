@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import {
@@ -11,31 +10,12 @@ import { eq } from "drizzle-orm";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { AnalyticsLoader as AnalyticsDashboard } from './_components/analytics-loader';
 
 export const metadata: Metadata = {
   title: 'Analytics | CWS Portal',
   description: 'Track your website performance metrics, visitor insights, and keyword rankings.',
 };
-
-const AnalyticsDashboard = dynamic(
-  () => import('./_components/dashboard').then((m) => m.AnalyticsDashboard),
-  {
-    loading: () => (
-      <div className="space-y-4" aria-busy="true">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
-        </div>
-        <Skeleton className="h-72 rounded-xl" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="lg:col-span-2 h-64 rounded-xl" />
-          <Skeleton className="h-64 rounded-xl" />
-        </div>
-      </div>
-    ),
-    ssr: false,
-  }
-);
 
 async function resolveOrg(clerkUserId: string, clerkOrgId: string | null) {
   if (clerkOrgId) {
