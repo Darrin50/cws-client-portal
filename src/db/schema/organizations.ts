@@ -32,6 +32,7 @@ export const organizationsTable = pgTable(
     healthBreakdown: jsonb('health_breakdown'),
     weeklyFocus: jsonb('weekly_focus'),
     lastBriefingSentAt: timestamp('last_briefing_sent_at', { withTimezone: true }),
+    whiteLabel: jsonb('white_label'),
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

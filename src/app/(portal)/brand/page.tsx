@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from "next/link";
-import { FileText, Palette, Image, ArrowRight } from "lucide-react";
+import { FileText, Palette, Image, Calendar, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: 'My Brand | CWS Portal',
@@ -39,6 +39,17 @@ const sections = [
     href: "/brand/photos",
     iconBg: "bg-blue-100",
     iconColor: "text-[#2563eb]",
+    swatches: null,
+  },
+  {
+    id: "calendar",
+    title: "Content Calendar",
+    description: "Schedule and plan social media posts",
+    count: "Monthly view",
+    icon: Calendar,
+    href: "/brand/calendar",
+    iconBg: "bg-teal-100",
+    iconColor: "text-[#0d9488]",
     swatches: null,
   },
 ];

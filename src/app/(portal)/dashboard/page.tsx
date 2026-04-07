@@ -34,6 +34,7 @@ import {
 import { GrowthScoreRing, type GrowthScoreData } from "@/components/dashboard/growth-score-ring";
 import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-this-week";
 import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
+import { CalendlyDialog } from "@/components/calendly-dialog";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -641,6 +642,12 @@ export default async function DashboardPage() {
                 </div>
               </Link>
             ))}
+            <div className="w-full">
+              <CalendlyDialog
+                className="w-full justify-start px-4 py-4 h-auto rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-blue-700"
+                variant="ghost"
+              />
+            </div>
           </div>
         </div>
       </div>

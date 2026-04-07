@@ -1,0 +1,24 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/competitor-scan",
+      "schedule": "0 7 * * 1"
+    },
+    {
+      "path": "/api/cron/site-audit",
+      "schedule": "0 6 1 * *"
+    },
+    {
+      "path": "/api/cron/analytics-sync",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/health-scores",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/screenshots",
+      "schedule": "0 3 * * 0"
+    }
+  ]
+}

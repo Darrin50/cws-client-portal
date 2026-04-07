@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Paperclip } from "lucide-react";
+import { CalendlyDialog } from "@/components/calendly-dialog";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AttachPopup } from "@/components/screenshot/AttachPopup";
 import { ScreenshotFlow } from "@/components/screenshot/ScreenshotFlow";
@@ -293,11 +294,14 @@ export default function MessagesPage() {
               Communicate with your CWS project team
             </p>
           </div>
-          {unreadCount > 0 && (
-            <div className="bg-blue-600 text-white text-sm font-semibold rounded-full px-3 py-1">
-              {unreadCount} unread
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 && (
+              <div className="bg-blue-600 text-white text-sm font-semibold rounded-full px-3 py-1">
+                {unreadCount} unread
+              </div>
+            )}
+            <CalendlyDialog size="sm" />
+          </div>
         </div>
       </div>
 
