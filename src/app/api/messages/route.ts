@@ -7,6 +7,7 @@ import {
   errorResponse,
   unauthorizedResponse,
 } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 import { db } from '@/db';
 import { messagesTable, organizationsTable, usersTable } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -82,6 +83,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const auth = await withAuth(request);
 
     if (!auth.authenticated || !auth.userId) {

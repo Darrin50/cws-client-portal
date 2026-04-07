@@ -16,6 +16,7 @@ import {
   unauthorizedResponse,
   forbiddenResponse,
 } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 import { sendEmail } from '@/lib/email';
 import { TeamInviteEmail } from '@/lib/email/templates/team-invite';
 import React from 'react';
@@ -68,6 +69,9 @@ async function resolveContext(clerkUserId: string, clerkOrgId: string | null) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
     if (!clerkUserId) return unauthorizedResponse();
 

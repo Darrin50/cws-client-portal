@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/db';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 import {
   organizationsTable,
   brandAssetsTable,
@@ -105,6 +106,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
     if (!clerkUserId) return unauthorizedResponse();
 

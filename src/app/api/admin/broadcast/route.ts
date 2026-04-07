@@ -8,6 +8,7 @@ import {
   unauthorizedResponse,
   forbiddenResponse,
 } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 
 const BroadcastSchema = z.object({
   title: z.string().min(1),
@@ -18,6 +19,9 @@ const BroadcastSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const auth = await withAuth(request);
 
     if (!auth.authenticated) {

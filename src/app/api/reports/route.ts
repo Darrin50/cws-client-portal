@@ -16,6 +16,7 @@ import {
   forbiddenResponse,
   validateRequest,
 } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 
 async function resolveContext(clerkUserId: string, clerkOrgId: string | null) {
   const userRows = await db
@@ -84,6 +85,9 @@ const CreateReportSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
     if (!clerkUserId) return unauthorizedResponse();
 

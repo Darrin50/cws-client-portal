@@ -119,10 +119,10 @@ function groupByDate(messages: Message[]) {
   return groups;
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({ message, isNew = false }: { message: Message; isNew?: boolean }) {
   return (
     <div
-      className={`flex gap-3 ${message.isClient ? "flex-row-reverse" : ""}`}
+      className={`flex gap-3 ${message.isClient ? "flex-row-reverse" : ""} ${isNew ? "animate-in slide-in-from-bottom-2 duration-200" : ""}`}
     >
       <img
         src={message.avatar}
@@ -251,7 +251,7 @@ export default function MessagesPage() {
   const messageGroups = groupByDate(messages);
 
   return (
-    <div className="h-[calc(100vh-180px)] flex flex-col gap-0">
+    <div className="h-[calc(100vh-180px)] flex flex-col gap-0 animate-in fade-in duration-300">
       {/* Header */}
       <div className="pb-6">
         <div className="flex items-center justify-between">
@@ -319,7 +319,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Message Input */}
-        <div className="p-4 border-t border-slate-700">
+        <div className="p-4 border-t border-slate-700 pb-safe">
           <div className="space-y-3">
             <Textarea
               placeholder="Type a message... (Ctrl+Enter to send)"

@@ -261,7 +261,7 @@ export default async function DashboardPage() {
       : "Everything looks good";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
@@ -289,7 +289,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Stat Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {[
           {
             label: "Website Grade",
@@ -332,7 +332,7 @@ export default async function DashboardPage() {
           return (
             <div
               key={card.label}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 p-6"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 p-6"
             >
               <div className={`w-10 h-10 rounded-full ${card.iconBg} flex items-center justify-center mb-4`}>
                 <Icon className={`w-5 h-5 ${card.iconColor}`} />
@@ -418,10 +418,11 @@ export default async function DashboardPage() {
             {recentActivity.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center">No recent activity yet</p>
             ) : (
-              recentActivity.map((item) => (
+              recentActivity.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300"
+                  style={{ animationDelay: `${idx * 75}ms`, animationFillMode: "both" }}
                 >
                   <div className={`w-2 h-2 rounded-full ${dotColor(item.title)} flex-shrink-0`} />
                   <p className="text-sm text-slate-700 dark:text-slate-300 flex-1 capitalize">{item.title}</p>
