@@ -386,8 +386,8 @@ export default function PageDetailPage({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [activeDevice, setActiveDevice] = useState<DeviceId>("desktop");
-  const [screenshotTaken, setScreenshotTaken] = useState(false);
-  const [screenshotDate, setScreenshotDate] = useState("");
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const [screenshotCapturedAt, setScreenshotCapturedAt] = useState<Date | null>(null);
   const [screenshotLoading, setScreenshotLoading] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -417,15 +417,34 @@ export default function PageDetailPage({
     showSuccessToast("Comment added successfully.");
   }
 
-  function handleTakeScreenshot() {
+  async function handleTakeScreenshot() {
     setScreenshotLoading(true);
-    // MVP: optimistic capture (real ScreenshotOne API wired up when API key is added)
-    setTimeout(() => {
-      setScreenshotLoading(false);
-      setScreenshotTaken(true);
-      setScreenshotDate(new Date().toLocaleString());
+    try {
+      const res = await fetch(`/api/pages/${params.pageId}/screenshot`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Screenshot failed");
+      }
+      const { data } = await res.json();
+      setScreenshotUrl(data.screenshotUrl);
+      setScreenshotCapturedAt(new Date(data.capturedAt));
       showSuccessToast("Screenshot captured!");
-    }, 1500);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Screenshot failed";
+      showSuccessToast(`Error: ${msg}`);
+    } finally {
+      setScreenshotLoading(false);
+    }
+  }
+
+  function timeSince(date: Date): string {
+    const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (secs < 60) return "just now";
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} hour${hrs !== 1 ? "s" : ""} ago`;
+    return `${Math.floor(hrs / 24)} days ago`;
   }
 
   return (
@@ -507,29 +526,33 @@ export default function PageDetailPage({
             />
           </div>
 
-          {/* Screenshot result (MVP placeholder) */}
-          {screenshotTaken && (
+          {/* Screenshot result */}
+          {screenshotUrl && screenshotCapturedAt && (
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">Last Screenshot</p>
-                <button
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Last Screenshot</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Last captured: {timeSince(screenshotCapturedAt)}
+                  </p>
+                </div>
+                <a
+                  href={screenshotUrl}
+                  download={`${mockPage.name.toLowerCase()}-screenshot.jpg`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                  onClick={() => {
-                    const a = document.createElement("a");
-                    a.download = `${mockPage.name.toLowerCase()}-screenshot.png`;
-                    a.click();
-                  }}
                 >
                   Download
-                </button>
+                </a>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-8 text-center border border-dashed border-slate-200 dark:border-slate-700">
-                <Camera className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                <p className="text-sm text-slate-500 dark:text-slate-400">Screenshot saved — {screenshotDate}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-600 mt-1">
-                  Real capture requires ScreenshotOne API key
-                </p>
-              </div>
+              <a href={screenshotUrl} target="_blank" rel="noopener noreferrer" className="block">
+                <img
+                  src={screenshotUrl}
+                  alt={`Screenshot of ${mockPage.name}`}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 hover:opacity-90 transition-opacity"
+                />
+              </a>
             </div>
           )}
 
