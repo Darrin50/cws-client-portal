@@ -12,3 +12,5 @@ export * from './reports';
 export * from './analytics';
 export * from './faq';
 export * from './audit-log';
+export * from './milestones';
+export * from './page-feedback';
