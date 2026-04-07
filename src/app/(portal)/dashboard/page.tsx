@@ -14,8 +14,10 @@ import {
   messagesTable,
   usersTable,
   organizationMembersTable,
+  pagesTable,
+  brandAssetsTable,
 } from "@/db/schema";
-import { eq, and, inArray, count, desc, sql } from "drizzle-orm";
+import { eq, and, inArray, count, desc, sql, gte } from "drizzle-orm";
 import {
   Activity,
   FileText,
@@ -29,6 +31,9 @@ import {
   ChevronRight,
   Plus,
 } from "lucide-react";
+import { GrowthScoreRing, type GrowthScoreData } from "@/components/dashboard/growth-score-ring";
+import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-this-week";
+import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -37,20 +42,6 @@ function getGreeting() {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
-}
-
-function getGrade(score: number): string {
-  if (score >= 90) return "A";
-  if (score >= 80) return "B";
-  if (score >= 70) return "C";
-  if (score >= 40) return "D";
-  return "F";
-}
-
-function getScoreLabel(score: number): { label: string; color: string } {
-  if (score >= 90) return { label: "Great", color: "text-green-600" };
-  if (score >= 70) return { label: "Good", color: "text-blue-600" };
-  return { label: "Needs Work", color: "text-amber-600" };
 }
 
 function dotColor(action: string): string {
@@ -76,45 +67,102 @@ const PLAN_NAME: Record<string, string> = {
   domination: "Domination",
 };
 
-// ── component ──────────────────────────────────────────────────────────────
+// ── growth score algorithm ─────────────────────────────────────────────────
 
-function HealthScoreRing({ score }: { score: number }) {
-  const size = 160;
-  const strokeWidth = 10;
-  const radius = (size - strokeWidth * 2) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-  const grade = getGrade(score);
+function computeGrowthScore(input: {
+  healthScore: number;
+  isActive: boolean;
+  planTier: string;
+  messagesLast30: number;
+  openRequests: number;
+  completedRequestsLast30: number;
+  daysSinceLastPageUpdate: number;
+  recentAssetsCount: number;
+}): GrowthScoreData {
+  // Website Health 30%
+  const websiteHealth = input.healthScore;
+  const healthContrib = (websiteHealth / 100) * 30;
 
-  return (
-    <div className="relative mx-auto" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90" viewBox={`0 0 ${size} ${size}`}>
-        <defs>
-          <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#22c55e" />
-            <stop offset="100%" stopColor="#3b82f6" />
-          </linearGradient>
-        </defs>
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={strokeWidth} />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="url(#scoreGradient)"
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-1000"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-bold text-slate-900 dark:text-slate-100">{grade}</span>
-        <span className="text-xs text-slate-600 dark:text-slate-400 mt-1">Website Grade</span>
-      </div>
-    </div>
+  // Activity Engagement 25%
+  const msgScore = Math.min(input.messagesLast30 * 8, 60);
+  const total = input.openRequests + input.completedRequestsLast30;
+  const resolutionScore = total > 0
+    ? (input.completedRequestsLast30 / total) * 40
+    : 20; // neutral default
+  const activityEngagement = Math.min(Math.round(msgScore + resolutionScore), 100);
+  const engagementContrib = (activityEngagement / 100) * 25;
+
+  // Content Freshness 20%
+  let contentFreshness: number;
+  if (input.daysSinceLastPageUpdate <= 7) contentFreshness = 100;
+  else if (input.daysSinceLastPageUpdate <= 30) contentFreshness = 70;
+  else if (input.daysSinceLastPageUpdate <= 90) contentFreshness = 40;
+  else contentFreshness = 10;
+  if (input.recentAssetsCount > 0) contentFreshness = Math.min(contentFreshness + 10, 100);
+  const freshnessContrib = (contentFreshness / 100) * 20;
+
+  // Account Standing 15%
+  let accountStanding = 0;
+  if (input.isActive) {
+    if (input.planTier === 'domination') accountStanding = 100;
+    else if (input.planTier === 'growth') accountStanding = 88;
+    else accountStanding = 75;
+  }
+  const standingContrib = (accountStanding / 100) * 15;
+
+  // Momentum 10% — static 50 until historical data
+  const momentum = 50;
+  const momentumContrib = (momentum / 100) * 10;
+
+  const total100 = Math.round(
+    healthContrib + engagementContrib + freshnessContrib + standingContrib + momentumContrib
   );
+
+  // Action items (up to 3)
+  const actionItems: string[] = [];
+  if (input.daysSinceLastPageUpdate > 23) {
+    actionItems.push(`Your website hasn't been updated in ${input.daysSinceLastPageUpdate} days`);
+  }
+  if (input.openRequests > 0) {
+    actionItems.push(
+      `${input.openRequests} open request${input.openRequests > 1 ? "s" : ""} pending your feedback`
+    );
+  }
+  if (!input.isActive) {
+    actionItems.push("Your account is inactive — update billing to restore your full score");
+  }
+  if (input.messagesLast30 === 0) {
+    actionItems.push("You haven't messaged your team this month — stay connected");
+  }
+
+  return {
+    total: total100,
+    trend: 0,
+    websiteHealth,
+    activityEngagement,
+    contentFreshness,
+    accountStanding,
+    momentum,
+    actionItems: actionItems.slice(0, 3),
+  };
+}
+
+// ── week helpers ───────────────────────────────────────────────────────────
+
+function currentWeekBounds(): { start: Date; weekStart: string; weekEnd: string } {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMon = (day + 6) % 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - diffToMon);
+  monday.setHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+  return { start: monday, weekStart: fmt(monday), weekEnd: fmt(sunday) };
 }
 
 // ── page (server component) ────────────────────────────────────────────────
@@ -122,9 +170,7 @@ function HealthScoreRing({ score }: { score: number }) {
 export default async function DashboardPage() {
   const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
 
-  // Resolve the DB organization for the current user
   let org: typeof organizationsTable.$inferSelect | null = null;
-  let dbUserId: string | null = null;
 
   if (clerkOrgId) {
     const rows = await db
@@ -135,14 +181,13 @@ export default async function DashboardPage() {
     org = rows[0] ?? null;
   }
 
-  // If no Clerk org, fall back to looking up the user's membership
   if (!org && clerkUserId) {
     const userRows = await db
       .select({ id: usersTable.id })
       .from(usersTable)
       .where(eq(usersTable.clerkUserId, clerkUserId))
       .limit(1);
-    dbUserId = userRows[0]?.id ?? null;
+    const dbUserId = userRows[0]?.id ?? null;
 
     if (dbUserId) {
       const memberRows = await db
@@ -167,24 +212,119 @@ export default async function DashboardPage() {
   const healthScore = org?.healthScore ?? 100;
   const healthBreakdown = (org?.healthBreakdown ?? {}) as Record<string, { score: number; weight: number }>;
 
-  // Open change requests by priority
   let openHighCount = 0;
   let openMediumCount = 0;
   let openLowCount = 0;
   let unreadMessages = 0;
   let recentActivity: Array<{ id: string; title: string; createdAt: Date }> = [];
 
+  // Growth score inputs
+  let messagesLast30 = 0;
+  let completedRequestsLast30 = 0;
+  let daysSinceLastPageUpdate = 999;
+  let recentAssetsCount = 0;
+  // Week in review
+  let messagesThisWeek = 0;
+  let requestsDoneThisWeek = 0;
+  let pagesUpdatedThisWeek = 0;
+  // Top page name for Focus fallback
+  let topPageName: string | null = null;
+
   if (org) {
-    const requestCounts = await db
-      .select({ priority: commentsTable.priority, count: count() })
-      .from(commentsTable)
-      .where(
-        and(
-          eq(commentsTable.organizationId, org.id),
-          sql`${commentsTable.status} IN ('new', 'in_progress')`,
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const { start: weekStart } = currentWeekBounds();
+
+    const [
+      requestCounts,
+      unreadRows,
+      activityRows,
+      msgLast30Rows,
+      completedLast30Rows,
+      latestPageRows,
+      recentAssetRows,
+      msgsWeekRows,
+      completedWeekRows,
+      pagesWeekRows,
+      topPageRows,
+    ] = await Promise.all([
+      db
+        .select({ priority: commentsTable.priority, count: count() })
+        .from(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.organizationId, org.id),
+            sql`${commentsTable.status} IN ('new', 'in_progress')`,
+          ),
+        )
+        .groupBy(commentsTable.priority),
+      db
+        .select({ count: count() })
+        .from(messagesTable)
+        .where(and(eq(messagesTable.organizationId, org.id), eq(messagesTable.isRead, false))),
+      db
+        .select({ id: auditLogTable.id, action: auditLogTable.action, entityType: auditLogTable.entityType, createdAt: auditLogTable.createdAt })
+        .from(auditLogTable)
+        .where(eq(auditLogTable.organizationId, org.id))
+        .orderBy(desc(auditLogTable.createdAt))
+        .limit(5),
+      // Messages in last 30 days
+      db
+        .select({ count: count() })
+        .from(messagesTable)
+        .where(and(eq(messagesTable.organizationId, org.id), gte(messagesTable.createdAt, thirtyDaysAgo))),
+      // Completed requests in last 30 days
+      db
+        .select({ count: count() })
+        .from(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.organizationId, org.id),
+            eq(commentsTable.status, 'completed'),
+            gte(commentsTable.createdAt, thirtyDaysAgo),
+          ),
         ),
-      )
-      .groupBy(commentsTable.priority);
+      // Most recently updated page
+      db
+        .select({ updatedAt: pagesTable.updatedAt })
+        .from(pagesTable)
+        .where(and(eq(pagesTable.organizationId, org.id), eq(pagesTable.isActive, true)))
+        .orderBy(desc(pagesTable.updatedAt))
+        .limit(1),
+      // Brand assets uploaded in last 7 days
+      db
+        .select({ count: count() })
+        .from(brandAssetsTable)
+        .where(and(eq(brandAssetsTable.organizationId, org.id), gte(brandAssetsTable.createdAt, sevenDaysAgo))),
+      // Messages this week
+      db
+        .select({ count: count() })
+        .from(messagesTable)
+        .where(and(eq(messagesTable.organizationId, org.id), gte(messagesTable.createdAt, weekStart))),
+      // Completed requests this week
+      db
+        .select({ count: count() })
+        .from(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.organizationId, org.id),
+            eq(commentsTable.status, 'completed'),
+            gte(commentsTable.updatedAt, weekStart),
+          ),
+        ),
+      // Pages updated this week
+      db
+        .select({ count: count() })
+        .from(pagesTable)
+        .where(and(eq(pagesTable.organizationId, org.id), gte(pagesTable.updatedAt, weekStart))),
+      // Top page (first active page by sort order)
+      db
+        .select({ name: pagesTable.name })
+        .from(pagesTable)
+        .where(and(eq(pagesTable.organizationId, org.id), eq(pagesTable.isActive, true)))
+        .orderBy(pagesTable.sortOrder)
+        .limit(1),
+    ]);
 
     for (const row of requestCounts) {
       if (row.priority === "urgent") openHighCount = row.count;
@@ -192,40 +332,81 @@ export default async function DashboardPage() {
       else openLowCount = row.count;
     }
 
-    // Unread messages
-    const unreadRows = await db
-      .select({ count: count() })
-      .from(messagesTable)
-      .where(
-        and(
-          eq(messagesTable.organizationId, org.id),
-          eq(messagesTable.isRead, false),
-        ),
-      );
     unreadMessages = unreadRows[0]?.count ?? 0;
-
-    // Recent audit log activity
-    const activityRows = await db
-      .select({ id: auditLogTable.id, action: auditLogTable.action, entityType: auditLogTable.entityType, createdAt: auditLogTable.createdAt })
-      .from(auditLogTable)
-      .where(eq(auditLogTable.organizationId, org.id))
-      .orderBy(desc(auditLogTable.createdAt))
-      .limit(5);
 
     recentActivity = activityRows.map((r) => ({
       id: r.id,
       title: `${r.action.replace(/_/g, " ")} — ${r.entityType}`,
       createdAt: r.createdAt,
     }));
+
+    messagesLast30 = msgLast30Rows[0]?.count ?? 0;
+    completedRequestsLast30 = completedLast30Rows[0]?.count ?? 0;
+
+    if (latestPageRows[0]) {
+      const ms = Date.now() - new Date(latestPageRows[0].updatedAt).getTime();
+      daysSinceLastPageUpdate = Math.floor(ms / (1000 * 60 * 60 * 24));
+    }
+
+    recentAssetsCount = recentAssetRows[0]?.count ?? 0;
+    messagesThisWeek = msgsWeekRows[0]?.count ?? 0;
+    requestsDoneThisWeek = completedWeekRows[0]?.count ?? 0;
+    pagesUpdatedThisWeek = pagesWeekRows[0]?.count ?? 0;
+    topPageName = topPageRows[0]?.name ?? null;
   }
 
-  // ── derived display values ───────────────────────────────────────────
+  // ── derived values ──────────────────────────────────────────────────
 
   const urgentCount = openHighCount;
   const totalOpen = openHighCount + openMediumCount + openLowCount;
   const planTier = org?.planTier ?? "starter";
   const planPrice = PLAN_PRICE[planTier] ?? 0;
   const planLabel = PLAN_NAME[planTier] ?? planTier;
+
+  const growthScore = computeGrowthScore({
+    healthScore,
+    isActive: org?.isActive ?? true,
+    planTier,
+    messagesLast30,
+    openRequests: totalOpen,
+    completedRequestsLast30,
+    daysSinceLastPageUpdate,
+    recentAssetsCount,
+  });
+
+  const weeklyFocusRaw = org?.weeklyFocus as
+    | { title: string; description: string; status: WeeklyFocus['status'] }
+    | null
+    | undefined;
+  const weeklyFocus: WeeklyFocus | null = weeklyFocusRaw
+    ? { title: weeklyFocusRaw.title, description: weeklyFocusRaw.description, status: weeklyFocusRaw.status }
+    : null;
+
+  const { weekStart, weekEnd } = currentWeekBounds();
+  const weekInsights: WeekInReviewData['insights'] = [];
+  if (totalOpen > 0) {
+    weekInsights.push({
+      type: 'warning',
+      text: `You have ${totalOpen} open request${totalOpen > 1 ? 's' : ''}. Reply to keep things moving.`,
+    });
+  }
+  if (pagesUpdatedThisWeek === 0 && messagesThisWeek === 0) {
+    weekInsights.push({ type: 'warning', text: 'No activity this week — reach out to your team.' });
+  }
+  if (requestsDoneThisWeek > 0) {
+    weekInsights.push({ type: 'win', text: `${requestsDoneThisWeek} request${requestsDoneThisWeek > 1 ? 's' : ''} completed this week. Great progress!` });
+  }
+
+  const reviewData: WeekInReviewData = {
+    weekStart,
+    weekEnd,
+    messagesSent: messagesThisWeek,
+    requestsDone: requestsDoneThisWeek,
+    requestsOpen: totalOpen,
+    pagesUpdated: pagesUpdatedThisWeek,
+    daysActive: Math.min(7, messagesThisWeek > 0 || pagesUpdatedThisWeek > 0 ? 3 : 1),
+    insights: weekInsights.slice(0, 2),
+  };
 
   const healthFactors = [
     {
@@ -266,6 +447,12 @@ export default async function DashboardPage() {
       ? `${urgentCount} thing${urgentCount > 1 ? "s" : ""} need${urgentCount === 1 ? "s" : ""} your attention`
       : "Everything looks good";
 
+  function getScoreLabel(score: number): { label: string; color: string } {
+    if (score >= 90) return { label: "Great", color: "text-green-600" };
+    if (score >= 70) return { label: "Good", color: "text-blue-600" };
+    return { label: "Needs Work", color: "text-amber-600" };
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Greeting */}
@@ -298,13 +485,13 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {[
           {
-            label: "Website Grade",
-            value: getGrade(healthScore),
-            subtext: healthScore >= 90 ? "Your site is excellent" : healthScore >= 70 ? "Your site is healthy" : "Needs attention",
+            label: "Growth Score",
+            value: String(growthScore.total),
+            subtext: growthScore.total >= 71 ? "On track" : growthScore.total >= 41 ? "Room to improve" : "Needs attention",
             icon: Activity,
-            iconBg: "bg-green-100 dark:bg-green-900/30",
-            iconColor: "text-green-600",
-            accent: "text-green-600",
+            iconBg: "bg-teal-100 dark:bg-teal-900/30",
+            iconColor: "text-teal-600",
+            accent: growthScore.total >= 71 ? "text-teal-600" : growthScore.total >= 41 ? "text-amber-600" : "text-red-600",
           },
           {
             label: "Changes in Progress",
@@ -351,30 +538,14 @@ export default async function DashboardPage() {
         })}
       </div>
 
-      {/* Row 2: Health Score + Request Priority */}
+      {/* Row 2: Growth Score + Request Priority */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Health Score Detail */}
+        {/* Growth Score Detail */}
         <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
           <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-6 scroll-m-0 border-0 pb-0 tracking-normal">
-            Website Health
+            Business Growth Score
           </h2>
-          <div className="flex flex-col items-center">
-            <HealthScoreRing score={healthScore} />
-            <div className="w-full mt-8 space-y-3 max-w-sm mx-auto">
-              {healthFactors.map((factor) => {
-                const scoreLabel = getScoreLabel(factor.score);
-                return (
-                  <div key={factor.label} className="flex items-center gap-3">
-                    <span className="text-sm text-slate-600 dark:text-slate-400 w-36 flex-shrink-0">{factor.label}</span>
-                    <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div className={`h-full ${factor.color} rounded-full transition-all duration-1000`} style={{ width: `${factor.score}%` }} />
-                    </div>
-                    <span className={`text-xs font-semibold w-20 text-right ${scoreLabel.color}`}>{scoreLabel.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <GrowthScoreRing data={growthScore} />
         </div>
 
         {/* Changes in Progress */}
@@ -413,30 +584,40 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 3: Activity Feed + Quick Actions */}
+      {/* Row 3: Focus This Week + Website Health factors */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Activity Feed */}
+        {/* Focus This Week */}
+        <div className="lg:col-span-2">
+          <FocusThisWeek focus={weeklyFocus} topPageName={topPageName} />
+        </div>
+
+        {/* Website Health Factors */}
         <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
-            Recent Activity
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-5 scroll-m-0 border-0 pb-0 tracking-normal">
+            Website Health
           </h2>
-          <div className="space-y-0.5">
-            {recentActivity.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center">No recent activity yet</p>
-            ) : (
-              recentActivity.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300"
-                  style={{ animationDelay: `${idx * 75}ms`, animationFillMode: "both" }}
-                >
-                  <div className={`w-2 h-2 rounded-full ${dotColor(item.title)} flex-shrink-0`} />
-                  <p className="text-sm text-slate-700 dark:text-slate-300 flex-1 capitalize">{item.title}</p>
-                  <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">{timeAgo(item.createdAt)}</span>
+          <div className="space-y-3">
+            {healthFactors.map((factor) => {
+              const scoreLabel = getScoreLabel(factor.score);
+              return (
+                <div key={factor.label} className="flex items-center gap-3">
+                  <span className="text-sm text-slate-600 dark:text-slate-400 w-36 flex-shrink-0">{factor.label}</span>
+                  <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${factor.color} rounded-full transition-all duration-1000`} style={{ width: `${factor.score}%` }} />
+                  </div>
+                  <span className={`text-xs font-semibold w-20 text-right ${scoreLabel.color}`}>{scoreLabel.label}</span>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
+        </div>
+      </div>
+
+      {/* Row 4: Week in Review + Activity Feed */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Week in Review */}
+        <div className="lg:col-span-3">
+          <WeekInReview data={reviewData} />
         </div>
 
         {/* Quick Actions */}
@@ -464,7 +645,31 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 4: Billing Summary */}
+      {/* Row 5: Activity Feed */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
+          Recent Activity
+        </h2>
+        <div className="space-y-0.5">
+          {recentActivity.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center">No recent activity yet</p>
+          ) : (
+            recentActivity.map((item, idx) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300"
+                style={{ animationDelay: `${idx * 75}ms`, animationFillMode: "both" }}
+              >
+                <div className={`w-2 h-2 rounded-full ${dotColor(item.title)} flex-shrink-0`} />
+                <p className="text-sm text-slate-700 dark:text-slate-300 flex-1 capitalize">{item.title}</p>
+                <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">{timeAgo(item.createdAt)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Row 6: Billing Summary */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">

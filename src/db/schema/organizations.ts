@@ -30,6 +30,8 @@ export const organizationsTable = pgTable(
     industry: varchar('industry', { length: 255 }),
     healthScore: integer('health_score').default(100).notNull(),
     healthBreakdown: jsonb('health_breakdown'),
+    weeklyFocus: jsonb('weekly_focus'),
+    lastBriefingSentAt: timestamp('last_briefing_sent_at', { withTimezone: true }),
     isActive: boolean('is_active').default(true).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
