@@ -6,96 +6,109 @@ import {
   FileText,
   MessageSquare,
   Upload,
-  AlertCircle,
+  AlertTriangle,
   Clock,
   CheckCircle2,
   Wifi,
   CreditCard,
   ChevronRight,
-  TrendingUp,
   Plus,
 } from "lucide-react";
 
 const mockHealthScore = 87;
 const mockOpenRequests = { high: 2, medium: 5, low: 3 };
+const urgentCount = mockOpenRequests.high;
 
 const mockActivityFeed = [
   {
     id: "1",
-    title: "Homepage redesign marked as completed",
+    title: "Your homepage update was completed",
     timestamp: "2 hours ago",
     dot: "bg-green-500",
   },
   {
     id: "2",
-    title: "New message from Sarah Chen (CWS Team)",
+    title: "Sarah from CWS sent you a message",
     timestamp: "4 hours ago",
     dot: "bg-blue-500",
   },
   {
     id: "3",
-    title: "Brand guidelines v2 uploaded to assets",
+    title: "Your brand guidelines file was uploaded",
     timestamp: "1 day ago",
-    dot: "bg-purple-500",
+    dot: "bg-blue-500",
   },
   {
     id: "4",
-    title: "Contact page optimization is in progress",
+    title: "Contact page update is in progress",
     timestamp: "2 days ago",
     dot: "bg-amber-500",
   },
   {
     id: "5",
-    title: "Monthly analytics report is ready to view",
+    title: "Your March report is ready to view",
     timestamp: "3 days ago",
     dot: "bg-blue-500",
   },
 ];
 
 const healthFactors = [
-  { label: "Uptime", score: 99, color: "bg-green-500" },
-  { label: "Speed", score: 82, color: "bg-blue-500" },
-  { label: "SEO", score: 78, color: "bg-amber-500" },
-  { label: "SSL", score: 100, color: "bg-green-500" },
-  { label: "Freshness", score: 85, color: "bg-blue-500" },
+  { label: "Online Time", score: 99, color: "bg-green-500" },
+  { label: "Page Speed", score: 82, color: "bg-blue-500" },
+  { label: "Google Visibility", score: 78, color: "bg-amber-500" },
+  { label: "Security", score: 100, color: "bg-green-500" },
+  { label: "Content Updates", score: 85, color: "bg-blue-500" },
 ];
+
+function getScoreLabel(score: number): { label: string; color: string } {
+  if (score >= 90) return { label: "Great", color: "text-green-600" };
+  if (score >= 70) return { label: "Good", color: "text-blue-600" };
+  return { label: "Needs Work", color: "text-amber-600" };
+}
+
+function getGrade(score: number): string {
+  if (score >= 80) return "A";
+  if (score >= 60) return "B";
+  if (score >= 40) return "C";
+  return "D";
+}
 
 const statCards = [
   {
-    label: "Health Score",
-    value: "87",
-    subtext: "+3 from last month",
-    trend: "up",
+    label: "Website Grade",
+    value: getGrade(mockHealthScore),
+    subtext: "Your site is healthy",
     icon: Activity,
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
+    iconBg: "bg-green-100",
+    iconColor: "text-green-600",
+    accent: "text-green-600",
   },
   {
-    label: "Open Requests",
+    label: "Changes in Progress",
     value: "10",
-    subtext: "2 high priority",
-    trend: "neutral",
+    subtext: "2 need your attention",
     icon: FileText,
     iconBg: "bg-amber-100",
     iconColor: "text-amber-600",
+    accent: "text-amber-600",
   },
   {
-    label: "Unread Messages",
+    label: "New Messages",
     value: "3",
-    subtext: "From CWS team",
-    trend: "neutral",
+    subtext: "from your CWS team",
     icon: MessageSquare,
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
+    iconBg: "bg-blue-100",
+    iconColor: "text-blue-600",
+    accent: "text-blue-600",
   },
   {
-    label: "Uptime",
+    label: "Website Online",
     value: "99.9%",
-    subtext: "Last 30 days",
-    trend: "up",
+    subtext: "No downtime this month",
     icon: Wifi,
     iconBg: "bg-green-100",
     iconColor: "text-green-600",
+    accent: "text-green-600",
   },
 ];
 
@@ -107,11 +120,12 @@ function getGreeting() {
 }
 
 function HealthScoreRing({ score }: { score: number }) {
-  const size = 200;
-  const strokeWidth = 12;
+  const size = 160;
+  const strokeWidth = 10;
   const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
+  const grade = getGrade(score);
 
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
@@ -123,8 +137,8 @@ function HealthScoreRing({ score }: { score: number }) {
       >
         <defs>
           <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#22c55e" />
+            <stop offset="0%" stopColor="#22c55e" />
+            <stop offset="100%" stopColor="#3b82f6" />
           </linearGradient>
         </defs>
         <circle
@@ -149,8 +163,8 @@ function HealthScoreRing({ score }: { score: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-bold text-slate-900">{score}</span>
-        <span className="text-sm text-slate-500 mt-1">out of 100</span>
+        <span className="text-5xl font-bold text-slate-900">{grade}</span>
+        <span className="text-xs text-slate-500 mt-1">Website Grade</span>
       </div>
     </div>
   );
@@ -163,6 +177,11 @@ export default function DashboardPage() {
     day: "numeric",
   });
 
+  const summaryText =
+    urgentCount > 0
+      ? `${urgentCount} thing${urgentCount > 1 ? "s" : ""} need${urgentCount === 1 ? "s" : ""} your attention`
+      : "Everything looks good";
+
   return (
     <div className="space-y-6">
       {/* Greeting */}
@@ -170,8 +189,27 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
           {getGreeting()}, Darrin
         </h1>
-        <p className="text-sm text-slate-500 mt-1">{today}</p>
+        <p className="text-sm text-slate-500 mt-1">
+          {summaryText} &middot; {today}
+        </p>
       </div>
+
+      {/* Urgent Alert Banner */}
+      {urgentCount > 0 && (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+          <p className="text-sm font-medium text-amber-800">
+            You have {urgentCount} urgent request{urgentCount > 1 ? "s" : ""}{" "}
+            waiting for review
+          </p>
+          <Link
+            href="/pages"
+            className="ml-auto text-xs font-semibold text-amber-700 hover:text-amber-900 no-underline whitespace-nowrap"
+          >
+            View now &rarr;
+          </Link>
+        </div>
+      )}
 
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -187,14 +225,13 @@ export default function DashboardPage() {
               >
                 <Icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
-              <div className="text-3xl font-bold text-slate-900">{card.value}</div>
-              <div className="text-sm text-slate-500 mt-1">{card.label}</div>
-              <div
-                className={`text-xs mt-2 flex items-center gap-1 ${
-                  card.trend === "up" ? "text-green-600" : "text-slate-400"
-                }`}
-              >
-                {card.trend === "up" && <TrendingUp className="w-3 h-3" />}
+              <div className="text-3xl font-bold text-slate-900">
+                {card.value}
+              </div>
+              <div className="text-sm font-medium text-slate-700 mt-1">
+                {card.label}
+              </div>
+              <div className={`text-xs mt-1.5 ${card.accent}`}>
                 {card.subtext}
               </div>
             </div>
@@ -207,36 +244,41 @@ export default function DashboardPage() {
         {/* Health Score Detail */}
         <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <h2 className="text-base font-semibold text-slate-900 mb-6 scroll-m-0 border-0 pb-0 tracking-normal">
-            Project Health
+            Website Health
           </h2>
           <div className="flex flex-col items-center">
             <HealthScoreRing score={mockHealthScore} />
             <div className="w-full mt-8 space-y-3 max-w-sm mx-auto">
-              {healthFactors.map((factor) => (
-                <div key={factor.label} className="flex items-center gap-3">
-                  <span className="text-sm text-slate-600 w-20 flex-shrink-0">
-                    {factor.label}
-                  </span>
-                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${factor.color} rounded-full transition-all duration-1000`}
-                      style={{ width: `${factor.score}%` }}
-                    />
+              {healthFactors.map((factor) => {
+                const scoreLabel = getScoreLabel(factor.score);
+                return (
+                  <div key={factor.label} className="flex items-center gap-3">
+                    <span className="text-sm text-slate-600 w-36 flex-shrink-0">
+                      {factor.label}
+                    </span>
+                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${factor.color} rounded-full transition-all duration-1000`}
+                        style={{ width: `${factor.score}%` }}
+                      />
+                    </div>
+                    <span
+                      className={`text-xs font-semibold w-20 text-right ${scoreLabel.color}`}
+                    >
+                      {scoreLabel.label}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium text-slate-700 w-8 text-right">
-                    {factor.score}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Request Priority */}
+        {/* Changes in Progress */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-semibold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
-              Open Requests
+              Changes in Progress
             </h2>
             <Link
               href="/pages"
@@ -252,10 +294,10 @@ export default function DashboardPage() {
                   {mockOpenRequests.high}
                 </div>
                 <div className="text-sm font-medium text-red-600/70 mt-0.5">
-                  High Priority
+                  Need your attention
                 </div>
               </div>
-              <AlertCircle className="w-8 h-8 text-red-300" />
+              <AlertTriangle className="w-8 h-8 text-red-300" />
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 border-l-4 border-amber-500">
               <div>
@@ -263,7 +305,7 @@ export default function DashboardPage() {
                   {mockOpenRequests.medium}
                 </div>
                 <div className="text-sm font-medium text-amber-600/70 mt-0.5">
-                  Medium Priority
+                  In progress
                 </div>
               </div>
               <Clock className="w-8 h-8 text-amber-300" />
@@ -274,7 +316,7 @@ export default function DashboardPage() {
                   {mockOpenRequests.low}
                 </div>
                 <div className="text-sm font-medium text-green-600/70 mt-0.5">
-                  Low Priority
+                  Queued
                 </div>
               </div>
               <CheckCircle2 className="w-8 h-8 text-green-300" />
@@ -287,17 +329,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Activity Feed */}
         <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
-              Recent Activity
-            </h2>
-            <Link
-              href="/dashboard"
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium no-underline"
-            >
-              View all
-            </Link>
-          </div>
+          <h2 className="text-base font-semibold text-slate-900 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
+            Recent Activity
+          </h2>
           <div className="space-y-0.5">
             {mockActivityFeed.map((item) => (
               <div
@@ -318,47 +352,47 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-base font-semibold text-slate-900 mb-5 scroll-m-0 border-0 pb-0 tracking-normal">
+          <h2 className="text-base font-semibold text-slate-900 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/pages/request/new" className="no-underline">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-200">
+          <div className="space-y-3">
+            <Link href="/pages/request/new" className="no-underline block">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-200 flex-shrink-0">
                   <Plus className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">
-                  Submit Request
+                <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">
+                  Request a Website Change
                 </span>
               </div>
             </Link>
-            <Link href="/brand" className="no-underline">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-200">
+            <Link href="/brand" className="no-underline block">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-200 flex-shrink-0">
                   <Upload className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">
-                  Upload Asset
+                <span className="text-sm font-medium text-slate-700 group-hover:text-purple-700">
+                  Upload a File
                 </span>
               </div>
             </Link>
-            <Link href="/reports" className="no-underline">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-slate-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-500 transition-colors duration-200">
+            <Link href="/reports" className="no-underline block">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-green-400 hover:bg-green-50 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-500 transition-colors duration-200 flex-shrink-0">
                   <FileText className="w-5 h-5 text-green-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">
-                  View Reports
+                <span className="text-sm font-medium text-slate-700 group-hover:text-green-700">
+                  View My Report
                 </span>
               </div>
             </Link>
-            <Link href="/messages" className="no-underline">
-              <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-500 transition-colors duration-200">
+            <Link href="/messages" className="no-underline block">
+              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all duration-200 cursor-pointer group">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-500 transition-colors duration-200 flex-shrink-0">
                   <MessageSquare className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
                 </div>
-                <span className="text-xs font-medium text-slate-700 text-center leading-tight">
-                  Message Team
+                <span className="text-sm font-medium text-slate-700 group-hover:text-amber-700">
+                  Message My Team
                 </span>
               </div>
             </Link>
@@ -367,43 +401,29 @@ export default function DashboardPage() {
       </div>
 
       {/* Row 4: Billing Summary */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
               <CreditCard className="w-5 h-5 text-slate-500" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-900">
-                  Growth Plan
-                </span>
-                <span className="text-[11px] font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                  Active
-                </span>
-              </div>
+              <p className="text-sm font-semibold text-slate-900">
+                Your Plan: Growth &mdash; $197/month
+              </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Next billing: May 6, 2026
+                Next payment: May 6, 2026
+              </p>
+              <p className="text-xs text-slate-500">
+                Payment method: Visa ending 4242
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-6 sm:gap-8 flex-wrap">
-            <div>
-              <div className="text-lg font-bold text-slate-900">$197</div>
-              <div className="text-xs text-slate-500">per month</div>
-            </div>
-            <div>
-              <div className="text-sm text-slate-600 tracking-wider">
-                •••• •••• •••• 4242
-              </div>
-              <div className="text-xs text-slate-500">Visa</div>
-            </div>
-            <Link href="/settings/billing" className="no-underline">
-              <button className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg hover:border-blue-400 hover:text-blue-600 transition-all duration-200">
-                Manage
-              </button>
-            </Link>
-          </div>
+          <Link href="/settings/billing" className="no-underline flex-shrink-0">
+            <button className="px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-700 transition-all duration-200">
+              Manage Billing
+            </button>
+          </Link>
         </div>
       </div>
     </div>

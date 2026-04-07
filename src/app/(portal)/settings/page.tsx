@@ -4,8 +4,8 @@ import { CreditCard, Users, Bell, Building2, ArrowRight } from "lucide-react";
 const settingsSections = [
   {
     id: "billing",
-    title: "Billing & Subscriptions",
-    description: "Manage your plan, payment methods, and invoices",
+    title: "Billing & Plan",
+    description: "Manage your subscription and payments",
     icon: CreditCard,
     href: "/settings/billing",
     iconBg: "bg-blue-100",
@@ -13,8 +13,8 @@ const settingsSections = [
   },
   {
     id: "business",
-    title: "Business Information",
-    description: "Update your company details and contact info",
+    title: "Business Info",
+    description: "Update your business details",
     icon: Building2,
     href: "/settings/business",
     iconBg: "bg-orange-100",
@@ -23,7 +23,7 @@ const settingsSections = [
   {
     id: "team",
     title: "Team Members",
-    description: "Manage your team and invite new members",
+    description: "Invite your team to view the portal",
     icon: Users,
     href: "/settings/team",
     iconBg: "bg-violet-100",
@@ -32,7 +32,7 @@ const settingsSections = [
   {
     id: "notifications",
     title: "Notifications",
-    description: "Control how and when you receive updates",
+    description: "Choose how you want to be notified",
     icon: Bell,
     href: "/settings/notifications",
     iconBg: "bg-green-100",

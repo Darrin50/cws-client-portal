@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import {
-  LayoutDashboard,
-  FileText,
+  Home,
+  Monitor,
   Palette,
   MessageSquare,
   Settings,
@@ -22,17 +22,17 @@ import {
 } from "lucide-react"
 
 const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Pages", href: "/pages", icon: FileText },
-  { label: "Brand Assets", href: "/brand", icon: Palette },
+  { label: "Home", href: "/dashboard", icon: Home },
+  { label: "My Website", href: "/pages", icon: Monitor },
+  { label: "My Brand", href: "/brand", icon: Palette },
   { label: "Messages", href: "/messages", icon: MessageSquare },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 
 const lockedItems = [
-  { label: "Analytics", icon: BarChart2 },
-  { label: "Reports", icon: FileBarChart },
-  { label: "Social Media", icon: Share2 },
+  { label: "Analytics", icon: BarChart2, tooltip: "Upgrade your plan to unlock Analytics" },
+  { label: "Reports", icon: FileBarChart, tooltip: "Upgrade your plan to unlock Reports" },
+  { label: "Social Media", icon: Share2, tooltip: "Upgrade your plan to unlock Social Media" },
 ]
 
 interface ClientLayoutProps {
@@ -55,7 +55,7 @@ export function ClientLayout({
 
   const activeLabel = navItems.find(
     (item) => pathname === item.href || pathname.startsWith(item.href + "/")
-  )?.label ?? "Dashboard"
+  )?.label ?? "Home"
 
   return (
     <div className="flex h-screen bg-[#FAFAF9]">
@@ -108,6 +108,7 @@ export function ClientLayout({
             return (
               <div
                 key={item.label}
+                title={item.tooltip}
                 className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-slate-600 cursor-not-allowed select-none"
               >
                 <div className="flex items-center gap-3">
