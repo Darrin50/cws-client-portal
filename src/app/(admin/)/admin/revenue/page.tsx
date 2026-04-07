@@ -1,182 +1,338 @@
-'use client';
+"use client";
 
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useEffect, useState } from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
-// TODO: Replace with real data and integrate Recharts for charts
-const mockRevenueData = {
-  mrr: 4850,
-  mrrChange: 12, // percentage change
-  mrrByPlan: {
-    starter: { count: 8, revenue: 1592 },
-    professional: { count: 12, revenue: 2000 },
-    enterprise: { count: 4, revenue: 1258 },
-  },
-  monthlyTrend: [
-    { month: 'Jan', revenue: 3200 },
-    { month: 'Feb', revenue: 3600 },
-    { month: 'Mar', revenue: 4100 },
-    { month: 'Apr', revenue: 4850 },
-  ],
-  planDistribution: {
-    starter: 33,
-    professional: 50,
-    enterprise: 17,
-  },
-  churnMetrics: {
-    monthlyChurn: 2.5,
-    atlRiskClients: 3,
-    downgradeRisk: 2,
-  },
-  atRiskClients: [
-    { id: 'org_4', name: 'Design Studio', reason: 'Low health score', daysInactive: 5 },
-    { id: 'org_2', name: 'Tech Startup Inc', reason: 'Considering downgrade', daysInactive: 3 },
-    { id: 'org_5', name: 'Enterprise Solutions', reason: 'Payment issues', daysInactive: 0 },
-  ],
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface PlanData {
+  count: number;
+  revenue: number;
+}
+
+interface RevenueData {
+  mrr: number;
+  mrrByPlan: Record<string, PlanData>;
+  monthlyTrend: { month: string; revenue: number }[];
+  activeSubscribers: number;
+  churnRate: number;
+  avgRevenuePerUser: number;
+  recentTransactions: {
+    id: string;
+    customerName: string;
+    amount: number;
+    date: string;
+    status: string;
+    description: string;
+  }[];
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const PLAN_COLORS: Record<string, string> = {
+  starter: "#3b82f6",
+  growth: "#8b5cf6",
+  domination: "#f59e0b",
 };
 
-export default function RevenuePage() {
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse bg-slate-700 rounded ${className ?? ""}`} />;
+}
+
+// ─── KPI Card ─────────────────────────────────────────────────────────────────
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: string;
+}) {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-white mb-8">Revenue Dashboard</h1>
+    <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <p className="text-sm text-slate-400 font-medium mb-1">{label}</p>
+      <p className={`text-3xl font-bold ${accent ?? "text-white"}`}>{value}</p>
+      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
+    </div>
+  );
+}
 
-      {/* MRR Card */}
-      <Card className="bg-slate-800 border-slate-700 p-8 mb-8">
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-slate-400 text-lg font-medium mb-2">
-              Monthly Recurring Revenue
-            </div>
-            <div className="text-5xl font-bold text-green-400">
-              ${mockRevenueData.mrr.toLocaleString()}
-            </div>
-          </div>
-          <div className={`text-2xl font-bold ${mockRevenueData.mrrChange > 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {mockRevenueData.mrrChange > 0 ? '+' : ''}
-            {mockRevenueData.mrrChange}%
-          </div>
+// ─── Revenue Page ─────────────────────────────────────────────────────────────
+
+export default function RevenuePage() {
+  const [data, setData] = useState<RevenueData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/revenue")
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load revenue data");
+        return r.json();
+      })
+      .then((json) => setData(json.data))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-8 space-y-6">
+        <Skeleton className="h-10 w-64" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
-      </Card>
+        <Skeleton className="h-64" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton key="a" className="h-64" />
+          <Skeleton key="b" className="h-64" />
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
+  }
 
-      {/* Revenue Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* MRR by Plan */}
-        <Card className="bg-slate-800 border-slate-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-4">MRR by Plan</h2>
-          <div className="space-y-4">
-            {Object.entries(mockRevenueData.mrrByPlan).map(
-              ([plan, data]) => (
-                <div key={plan}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-300 capitalize font-medium">
-                      {plan}
-                    </span>
-                    <span className="text-white font-bold">
-                      ${(data as any).revenue.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex gap-2 text-xs text-slate-400">
-                    <span>{(data as any).count} clients</span>
-                    <span>
-                      ${(((data as any).revenue / (data as any).count) | 0).toLocaleString()}/client
-                    </span>
-                  </div>
-                </div>
-              )
-            )}
-          </div>
-        </Card>
+  if (error || !data) {
+    return (
+      <div className="p-8">
+        <h1 className="text-3xl font-bold text-white mb-4">Revenue Dashboard</h1>
+        <div className="bg-red-900/20 border border-red-800 rounded-xl p-6 text-red-400">
+          {error || "Failed to load revenue data"}
+        </div>
+      </div>
+    );
+  }
 
-        {/* Churn Metrics */}
-        <Card className="bg-slate-800 border-slate-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Churn Metrics</h2>
-          <div className="space-y-4">
-            <div>
-              <div className="text-slate-400 text-sm mb-1">Monthly Churn Rate</div>
-              <div className="text-3xl font-bold text-red-400">
-                {mockRevenueData.churnMetrics.monthlyChurn}%
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700">
-              <div>
-                <div className="text-slate-400 text-sm mb-1">At-Risk Clients</div>
-                <div className="text-2xl font-bold text-yellow-400">
-                  {mockRevenueData.churnMetrics.atlRiskClients}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-400 text-sm mb-1">Downgrade Risk</div>
-                <div className="text-2xl font-bold text-orange-400">
-                  {mockRevenueData.churnMetrics.downgradeRisk}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
+  const pieData = Object.entries(data.mrrByPlan)
+    .filter(([, d]) => d.count > 0)
+    .map(([plan, d]) => ({
+      name: plan.charAt(0).toUpperCase() + plan.slice(1),
+      value: d.count,
+      revenue: d.revenue,
+    }));
+
+  const totalSubs = Object.values(data.mrrByPlan).reduce((s, d) => s + d.count, 0);
+
+  return (
+    <div className="p-8 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Revenue Dashboard</h1>
+        <p className="text-slate-400 mt-1 text-sm">
+          Live data from Stripe · refreshes every 5 minutes
+        </p>
       </div>
 
-      {/* Plan Distribution Chart */}
-      <Card className="bg-slate-800 border-slate-700 p-6 mb-8">
-        <h2 className="text-xl font-bold text-white mb-4">Plan Distribution</h2>
-        <div className="flex gap-8">
-          {Object.entries(mockRevenueData.planDistribution).map(([plan, percentage]) => (
-            <div key={plan} className="flex-1">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-slate-300 capitalize">{plan}</span>
-                <span className="text-white font-bold">{percentage}%</span>
-              </div>
-              <div className="w-full bg-slate-700 rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-full rounded-full ${
-                    plan === 'starter'
-                      ? 'bg-blue-600'
-                      : plan === 'professional'
-                        ? 'bg-purple-600'
-                        : 'bg-red-600'
-                  }`}
-                  style={{ width: `${percentage}%` }}
-                ></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KpiCard
+          label="Total MRR"
+          value={`$${data.mrr.toLocaleString()}`}
+          accent="text-green-400"
+        />
+        <KpiCard
+          label="Active Subscribers"
+          value={String(data.activeSubscribers)}
+          sub="active subscriptions"
+        />
+        <KpiCard
+          label="Churn Rate"
+          value={`${data.churnRate}%`}
+          sub="this month"
+          accent={data.churnRate > 5 ? "text-red-400" : "text-yellow-400"}
+        />
+        <KpiCard
+          label="Avg Revenue / User"
+          value={`$${data.avgRevenuePerUser.toLocaleString()}`}
+          sub="per month"
+          accent="text-teal-400"
+        />
+      </div>
 
-      {/* TODO: 12-month trend line chart using Recharts */}
-      <Card className="bg-slate-800 border-slate-700 p-6 mb-8">
-        <h2 className="text-xl font-bold text-white mb-4">Monthly Trend</h2>
-        <div className="text-slate-400 py-8 text-center">
-          Chart placeholder - TODO: Integrate Recharts LineChart
-        </div>
-      </Card>
+      {/* MRR Trend */}
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-white mb-5">MRR Trend — Last 12 Months</h2>
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={data.monthlyTrend} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <XAxis dataKey="month" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis
+              tick={{ fill: "#94a3b8", fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
+              labelStyle={{ color: "#e2e8f0" }}
+              formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]}
+            />
+            <Area
+              type="monotone"
+              dataKey="revenue"
+              stroke="#14b8a6"
+              strokeWidth={2}
+              fill="url(#mrrGradient)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-      {/* At-Risk Clients */}
-      <Card className="bg-slate-800 border-slate-700 p-6">
-        <h2 className="text-xl font-bold text-white mb-4">At-Risk Clients</h2>
-        <div className="space-y-3">
-          {mockRevenueData.atRiskClients.map((client) => (
-            <div
-              key={client.id}
-              className="flex items-center justify-between p-4 bg-slate-700/50 rounded-md border border-slate-600"
-            >
-              <div>
-                <div className="font-medium text-white">{client.name}</div>
-                <div className="text-sm text-slate-400">{client.reason}</div>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-400">
-                  {client.daysInactive > 0
-                    ? `${client.daysInactive} days inactive`
-                    : 'Active'}
-                </span>
-                <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors">
-                  Action
-                </button>
-              </div>
-            </div>
-          ))}
+      {/* Plan Breakdown + Pie */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-5">MRR by Plan</h2>
+          <div className="space-y-4">
+            {Object.entries(data.mrrByPlan).map(([plan, d]) => {
+              const pct = data.mrr > 0 ? Math.round((d.revenue / data.mrr) * 100) : 0;
+              return (
+                <div key={plan}>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: PLAN_COLORS[plan] ?? "#64748b" }}
+                      />
+                      <span className="text-sm font-medium text-slate-300 capitalize">{plan}</span>
+                      <span className="text-xs text-slate-500">{d.count} subs</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-bold text-white">${d.revenue.toLocaleString()}</span>
+                      <span className="text-xs text-slate-500 ml-1.5">{pct}%</span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${pct}%`, backgroundColor: PLAN_COLORS[plan] ?? "#64748b" }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+            {Object.keys(data.mrrByPlan).length === 0 && (
+              <p className="text-slate-500 text-sm">No active subscriptions</p>
+            )}
+          </div>
         </div>
-      </Card>
+
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-5">Plan Distribution</h2>
+          {pieData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {pieData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={PLAN_COLORS[entry.name.toLowerCase()] ?? "#64748b"}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
+                  formatter={(v: number, _name: string, props: { payload?: { revenue?: number } }) => [
+                    `${v} subs · $${props.payload?.revenue?.toLocaleString() ?? 0}/mo`,
+                  ]}
+                />
+                <Legend
+                  formatter={(value) => <span style={{ color: "#94a3b8", fontSize: 12 }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
+              No active subscriptions
+            </div>
+          )}
+          {totalSubs > 0 && (
+            <p className="text-center text-xs text-slate-500 mt-2">{totalSubs} total active subscribers</p>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-white mb-5">Recent Transactions</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-700">
+                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Customer</th>
+                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Description</th>
+                <th className="text-right text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Amount</th>
+                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Date</th>
+                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-700/50">
+              {data.recentTransactions.map((tx) => (
+                <tr key={tx.id} className="hover:bg-slate-700/30 transition-colors">
+                  <td className="py-3 pr-4 font-medium text-slate-200">{tx.customerName}</td>
+                  <td className="py-3 pr-4 text-slate-400 max-w-xs truncate">{tx.description || "—"}</td>
+                  <td className="py-3 pr-4 text-right font-mono text-slate-200">
+                    ${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className="py-3 pr-4 text-slate-400">
+                    {new Date(tx.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                  </td>
+                  <td className="py-3">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        tx.status === "paid"
+                          ? "bg-green-900/30 text-green-400"
+                          : tx.status === "open"
+                          ? "bg-amber-900/30 text-amber-400"
+                          : "bg-red-900/30 text-red-400"
+                      }`}
+                    >
+                      {tx.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {data.recentTransactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-slate-500">
+                    No transactions found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

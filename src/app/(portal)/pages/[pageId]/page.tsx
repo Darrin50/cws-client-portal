@@ -6,27 +6,90 @@ import {
   ArrowLeft,
   ExternalLink,
   Monitor,
-  Smartphone,
   Tablet,
+  Smartphone,
+  Camera,
   Send,
   X,
   Paperclip,
-  Camera,
-  RefreshCw,
-  Loader2,
 } from "lucide-react";
 
-const mockPage = {
-  id: "1",
-  name: "Homepage",
-  url: "https://caliberwebstudio.com",
-  path: "/",
-  lastUpdated: "2 days ago",
-  metadata: {
-    title: "Caliber Web Studio - Premium Web Design",
-    description:
-      "Detroit's premier AI web agency. We build high-performance websites for growth-focused businesses.",
-    keywords: "web design, Detroit, AI websites, web development",
+// ─── Device definitions ────────────────────────────────────────────────────────
+const DEVICES = [
+  { id: "desktop", label: "Desktop", Icon: Monitor, width: 1280, height: 800 },
+  { id: "tablet",  label: "Tablet",  Icon: Tablet,     width: 768,  height: 1024 },
+  { id: "mobile",  label: "Mobile",  Icon: Smartphone, width: 375,  height: 812 },
+] as const;
+
+type DeviceId = typeof DEVICES[number]["id"];
+
+// ─── Mock page data keyed by pageId ───────────────────────────────────────────
+const mockPagesData: Record<string, {
+  name: string; url: string; path: string; lastUpdated: string; gradient: string;
+  metadata: { title: string; description: string; keywords: string };
+}> = {
+  "1": {
+    name: "Homepage", url: "https://www.caliberwebstudio.com/", path: "/",
+    lastUpdated: "2 days ago", gradient: "from-blue-600 to-indigo-700",
+    metadata: {
+      title: "Caliber Web Studio - Premium Web Design",
+      description: "Detroit's premier AI web agency. We build high-performance websites for growth-focused businesses.",
+      keywords: "web design, Detroit, AI websites, web development",
+    },
+  },
+  "2": {
+    name: "About", url: "https://www.caliberwebstudio.com/about", path: "/about",
+    lastUpdated: "5 days ago", gradient: "from-violet-600 to-purple-700",
+    metadata: {
+      title: "About Caliber Web Studio",
+      description: "Learn about Caliber Web Studio, Detroit's premier AI-powered web design agency.",
+      keywords: "about, Caliber Web Studio, Detroit web agency",
+    },
+  },
+  "3": {
+    name: "Services", url: "https://www.caliberwebstudio.com/services", path: "/services",
+    lastUpdated: "1 week ago", gradient: "from-teal-500 to-cyan-700",
+    metadata: {
+      title: "Web Design & Development Services",
+      description: "Full-service web design, development, and AI-powered solutions for growing businesses.",
+      keywords: "web design services, web development, AI websites",
+    },
+  },
+  "4": {
+    name: "Case Studies", url: "https://www.caliberwebstudio.com/case-studies", path: "/case-studies",
+    lastUpdated: "3 days ago", gradient: "from-rose-500 to-pink-700",
+    metadata: {
+      title: "Client Case Studies - Caliber Web Studio",
+      description: "See how we've helped businesses grow with high-performance websites.",
+      keywords: "case studies, portfolio, client results",
+    },
+  },
+  "5": {
+    name: "Blog", url: "https://www.caliberwebstudio.com/blog", path: "/blog",
+    lastUpdated: "1 day ago", gradient: "from-green-500 to-emerald-700",
+    metadata: {
+      title: "Web Design & AI Blog - Caliber Web Studio",
+      description: "Articles on web design, AI, and business growth strategies.",
+      keywords: "web design blog, AI, business growth",
+    },
+  },
+  "6": {
+    name: "Pricing", url: "https://www.caliberwebstudio.com/pricing", path: "/pricing",
+    lastUpdated: "4 days ago", gradient: "from-amber-500 to-orange-700",
+    metadata: {
+      title: "Pricing Plans - Caliber Web Studio",
+      description: "Monthly plans starting at $197. Starter, Growth, and Domination tiers.",
+      keywords: "web design pricing, monthly plans, affordable websites",
+    },
+  },
+  "7": {
+    name: "Contact", url: "https://www.caliberwebstudio.com/contact", path: "/contact",
+    lastUpdated: "1 week ago", gradient: "from-sky-500 to-blue-700",
+    metadata: {
+      title: "Contact Caliber Web Studio",
+      description: "Get in touch with our Detroit web design team.",
+      keywords: "contact, Detroit web design, get a quote",
+    },
   },
 };
 
@@ -75,128 +138,10 @@ const statusConfig = {
   completed: { label: "Completed", bg: "bg-green-50", text: "text-green-600", darkBg: "dark:bg-green-900/20", darkText: "dark:text-green-400" },
 };
 
-const devices = [
-  { label: "Desktop", icon: Monitor, viewportWidth: 1440, viewportHeight: 900 },
-  { label: "Tablet", icon: Tablet, viewportWidth: 768, viewportHeight: 1024 },
-  { label: "Mobile", icon: Smartphone, viewportWidth: 390, viewportHeight: 844 },
-] as const;
-
-type DeviceLabel = (typeof devices)[number]["label"];
-
-// Scaled live iframe for a given viewport
-function LivePreview({ url, viewportWidth, viewportHeight }: { url: string; viewportWidth: number; viewportHeight: number }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(0.4);
-  const [blocked, setBlocked] = useState(false);
-
-  useEffect(() => {
-    function recalc() {
-      if (containerRef.current) {
-        const w = containerRef.current.offsetWidth;
-        setScale(w / viewportWidth);
-      }
-    }
-    recalc();
-    window.addEventListener("resize", recalc);
-    return () => window.removeEventListener("resize", recalc);
-  }, [viewportWidth]);
-
-  const containerHeight = Math.round(viewportHeight * scale);
-
+function InitialsAvatar({ initials, size = "sm" }: { initials: string; size?: "sm" | "md" }) {
+  const sizeClass = size === "sm" ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm";
   return (
-    <div
-      ref={containerRef}
-      className="w-full relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white"
-      style={{ height: `${Math.max(containerHeight, 320)}px` }}
-    >
-      {blocked ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 gap-3">
-          <Monitor className="w-12 h-12 text-slate-300" />
-          <div className="text-center">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Live preview unavailable</p>
-            <p className="text-xs text-slate-500 mt-1">This site blocks embedding</p>
-          </div>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 no-underline"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Open in new tab
-          </a>
-        </div>
-      ) : (
-        <iframe
-          src={url}
-          title={`Preview at ${viewportWidth}px`}
-          style={{
-            width: `${viewportWidth}px`,
-            height: `${viewportHeight}px`,
-            transform: `scale(${scale})`,
-            transformOrigin: "top left",
-            border: "none",
-            pointerEvents: "none",
-          }}
-          onError={() => setBlocked(true)}
-          sandbox="allow-scripts allow-same-origin allow-forms"
-        />
-      )}
-    </div>
-  );
-}
-
-// Screenshot image fetched from thum.io (free, no API key needed)
-function ScreenshotView({
-  url,
-  viewportWidth,
-  cacheKey,
-}: {
-  url: string;
-  viewportWidth: number;
-  cacheKey: number;
-}) {
-  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
-
-  // Reset when cacheKey changes (refresh button)
-  useEffect(() => {
-    setStatus("loading");
-  }, [cacheKey]);
-
-  // thum.io free screenshot service — no API key required
-  const screenshotUrl = `https://image.thum.io/get/width/${viewportWidth}/crop/900/${encodeURIComponent(url)}?t=${cacheKey}`;
-
-  return (
-    <div className="w-full rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50 dark:bg-slate-900 relative min-h-[320px]">
-      {status === "loading" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
-          <p className="text-sm text-slate-500">Capturing screenshot…</p>
-          <p className="text-xs text-slate-400">This may take 5–15 seconds</p>
-        </div>
-      )}
-      {status === "error" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-          <Camera className="w-10 h-10 text-slate-300" />
-          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Screenshot unavailable</p>
-          <p className="text-xs text-slate-400">Try refreshing or open the live site</p>
-        </div>
-      )}
-      <img
-        key={cacheKey}
-        src={screenshotUrl}
-        alt={`Screenshot at ${viewportWidth}px`}
-        className={`w-full h-auto rounded-xl transition-opacity duration-300 ${status === "loaded" ? "opacity-100" : "opacity-0 absolute inset-0"}`}
-        onLoad={() => setStatus("loaded")}
-        onError={() => setStatus("error")}
-      />
-    </div>
-  );
-}
-
-function InitialsAvatar({ initials }: { initials: string }) {
-  return (
-    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+    <div className={`${sizeClass} rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold flex-shrink-0`}>
       {initials}
     </div>
   );
@@ -279,10 +224,7 @@ function AddRequestForm({ onClose, onSuccess }: { onClose: () => void; onSuccess
             </select>
           </div>
           <div>
-            <button
-              type="button"
-              className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
+            <button type="button" className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
               <Paperclip className="w-4 h-4" />
               Attach a file (optional)
             </button>
@@ -321,20 +263,147 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
   );
 }
 
+// ─── Live device preview ───────────────────────────────────────────────────────
+function DevicePreview({
+  url,
+  pageName,
+  device,
+  containerWidth,
+}: {
+  url: string;
+  pageName: string;
+  device: typeof DEVICES[number];
+  containerWidth: number;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const scale = containerWidth > 0 ? Math.min(1, containerWidth / device.width) : 1;
+  const scaledHeight = Math.round(device.height * scale);
+
+  // Reset loaded state when url or device changes
+  useEffect(() => { setLoaded(false); }, [url, device.id]);
+
+  const iframeStyle: React.CSSProperties = {
+    width: device.width,
+    height: device.height,
+    border: "none",
+    transform: `scale(${scale})`,
+    transformOrigin: "top left",
+    display: "block",
+    flexShrink: 0,
+  };
+
+  const iframeEl = (
+    <div style={{ width: device.width * scale, height: scaledHeight, overflow: "hidden", position: "relative" }}>
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 z-10">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <iframe
+        src={url}
+        style={iframeStyle}
+        onLoad={() => setLoaded(true)}
+        sandbox="allow-scripts allow-same-origin"
+        title={`${pageName} — ${device.label} preview`}
+        loading="lazy"
+      />
+    </div>
+  );
+
+  if (device.id === "desktop") {
+    return (
+      <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 w-full">
+        {/* Browser chrome */}
+        <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 flex items-center gap-2 border-b border-slate-200 dark:border-slate-700">
+          <div className="w-3 h-3 rounded-full bg-red-400" />
+          <div className="w-3 h-3 rounded-full bg-yellow-400" />
+          <div className="w-3 h-3 rounded-full bg-green-400" />
+          <div className="ml-3 flex-1 bg-white dark:bg-slate-700 rounded px-3 py-1 text-xs text-slate-400 dark:text-slate-400 font-mono truncate">
+            {url}
+          </div>
+        </div>
+        {iframeEl}
+      </div>
+    );
+  }
+
+  if (device.id === "tablet") {
+    return (
+      <div className="flex justify-center py-4">
+        <div
+          className="rounded-2xl border-[6px] border-slate-700 dark:border-slate-500 shadow-2xl overflow-hidden"
+          style={{ width: device.width * scale, height: scaledHeight }}
+        >
+          {iframeEl}
+        </div>
+      </div>
+    );
+  }
+
+  // mobile
+  return (
+    <div className="flex justify-center py-4">
+      <div
+        className="rounded-3xl border-[8px] border-slate-700 dark:border-slate-500 shadow-2xl overflow-hidden"
+        style={{ width: device.width * scale, height: scaledHeight }}
+      >
+        {/* Notch bar */}
+        <div className="bg-slate-800 flex items-center justify-center" style={{ height: 20 }}>
+          <div className="w-14 h-1 bg-slate-600 rounded-full" />
+        </div>
+        <div style={{ height: scaledHeight - 20, overflow: "hidden" }}>
+          <div style={{ width: device.width, height: device.height - 20, transform: `scale(${scale})`, transformOrigin: "top left", display: "block", flexShrink: 0 }}>
+            {!loaded && (
+              <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            <iframe
+              src={url}
+              style={{ width: device.width, height: device.height, border: "none", display: "block" }}
+              onLoad={() => setLoaded(true)}
+              sandbox="allow-scripts allow-same-origin"
+              title={`${pageName} — ${device.label} preview`}
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main page component ───────────────────────────────────────────────────────
 export default function PageDetailPage({
   params,
 }: {
   params: { pageId: string };
 }) {
-  const [activeDevice, setActiveDevice] = useState<DeviceLabel>("Desktop");
-  const [viewMode, setViewMode] = useState<"live" | "screenshot">("live");
-  const [screenshotCacheKey, setScreenshotCacheKey] = useState(1);
+  const mockPage = mockPagesData[params.pageId] ?? mockPagesData["1"];
+
   const [newComment, setNewComment] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [activeDevice, setActiveDevice] = useState<DeviceId>("desktop");
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
+  const [screenshotCapturedAt, setScreenshotCapturedAt] = useState<Date | null>(null);
+  const [screenshotLoading, setScreenshotLoading] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const currentDevice = devices.find((d) => d.label === activeDevice)!;
+  const device = DEVICES.find((d) => d.id === activeDevice)!;
+
+  // Track container width for iframe scaling
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      setContainerWidth(entries[0].contentRect.width);
+    });
+    observer.observe(containerRef.current);
+    setContainerWidth(containerRef.current.getBoundingClientRect().width);
+    return () => observer.disconnect();
+  }, []);
 
   function showSuccessToast(msg: string) {
     setToastMessage(msg);
@@ -342,15 +411,40 @@ export default function PageDetailPage({
     setTimeout(() => setShowToast(false), 4000);
   }
 
-  function handleCaptureScreenshot() {
-    setViewMode("screenshot");
-    setScreenshotCacheKey(Date.now());
-  }
-
   function handleSubmitComment() {
     if (!newComment.trim()) return;
     setNewComment("");
     showSuccessToast("Comment added successfully.");
+  }
+
+  async function handleTakeScreenshot() {
+    setScreenshotLoading(true);
+    try {
+      const res = await fetch(`/api/pages/${params.pageId}/screenshot`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Screenshot failed");
+      }
+      const { data } = await res.json();
+      setScreenshotUrl(data.screenshotUrl);
+      setScreenshotCapturedAt(new Date(data.capturedAt));
+      showSuccessToast("Screenshot captured!");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Screenshot failed";
+      showSuccessToast(`Error: ${msg}`);
+    } finally {
+      setScreenshotLoading(false);
+    }
+  }
+
+  function timeSince(date: Date): string {
+    const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (secs < 60) return "just now";
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} hour${hrs !== 1 ? "s" : ""} ago`;
+    return `${Math.floor(hrs / 24)} days ago`;
   }
 
   return (
@@ -384,101 +478,83 @@ export default function PageDetailPage({
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Preview + Metadata */}
+        {/* Left: Live Preview and Metadata */}
         <div className="lg:col-span-2 space-y-5">
 
-          {/* Preview Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            {/* Preview Toolbar */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 gap-3 flex-wrap">
-              {/* Device Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                {devices.map((device) => {
-                  const Icon = device.icon;
-                  const isActive = activeDevice === device.label;
-                  return (
-                    <button
-                      key={device.label}
-                      onClick={() => setActiveDevice(device.label)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
-                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      {device.label}
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 hidden sm:inline">
-                        {device.viewportWidth}px
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Right controls */}
-              <div className="flex items-center gap-2">
-                {/* Live / Screenshot toggle */}
-                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode("live")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                      viewMode === "live"
-                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
-                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                  >
-                    Live
-                  </button>
-                  <button
-                    onClick={() => setViewMode("screenshot")}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                      viewMode === "screenshot"
-                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm"
-                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                  >
-                    Screenshot
-                  </button>
-                </div>
-
-                {/* Capture / Refresh button */}
+          {/* Device Tabs + Screenshot Button */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            {/* Segmented control */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+              {DEVICES.map(({ id, label, Icon }) => (
                 <button
-                  onClick={handleCaptureScreenshot}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                  key={id}
+                  onClick={() => setActiveDevice(id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    activeDevice === id
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
                 >
-                  {viewMode === "screenshot" ? (
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  ) : (
-                    <Camera className="w-3.5 h-3.5" />
-                  )}
-                  {viewMode === "screenshot" ? "Refresh" : "Capture Screenshot"}
+                  <Icon className="w-4 h-4" />
+                  {label}
                 </button>
-              </div>
+              ))}
             </div>
 
-            {/* Preview Area */}
-            <div className="p-4">
-              {viewMode === "live" ? (
-                <LivePreview
-                  url={mockPage.url}
-                  viewportWidth={currentDevice.viewportWidth}
-                  viewportHeight={currentDevice.viewportHeight}
-                />
+            {/* Screenshot Button */}
+            <button
+              onClick={handleTakeScreenshot}
+              disabled={screenshotLoading}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {screenshotLoading ? (
+                <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <ScreenshotView
-                  url={mockPage.url}
-                  viewportWidth={currentDevice.viewportWidth}
-                  cacheKey={screenshotCacheKey}
-                />
+                <Camera className="w-4 h-4" />
               )}
-              <p className="text-[11px] text-slate-400 mt-2 text-center">
-                {viewMode === "live"
-                  ? `Live rendering at ${currentDevice.viewportWidth}px — interactions are disabled`
-                  : `Static screenshot at ${currentDevice.viewportWidth}px — click Refresh to update`}
-              </p>
-            </div>
+              {screenshotLoading ? "Capturing…" : "Capture Screenshot"}
+            </button>
           </div>
+
+          {/* Live iframe preview */}
+          <div ref={containerRef} className="w-full">
+            <DevicePreview
+              url={mockPage.url}
+              pageName={mockPage.name}
+              device={device}
+              containerWidth={containerWidth}
+            />
+          </div>
+
+          {/* Screenshot result */}
+          {screenshotUrl && screenshotCapturedAt && (
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Last Screenshot</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Last captured: {timeSince(screenshotCapturedAt)}
+                  </p>
+                </div>
+                <a
+                  href={screenshotUrl}
+                  download={`${mockPage.name.toLowerCase()}-screenshot.jpg`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Download
+                </a>
+              </div>
+              <a href={screenshotUrl} target="_blank" rel="noopener noreferrer" className="block">
+                <img
+                  src={screenshotUrl}
+                  alt={`Screenshot of ${mockPage.name}`}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 hover:opacity-90 transition-opacity"
+                />
+              </a>
+            </div>
+          )}
 
           {/* Metadata */}
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
@@ -500,8 +576,9 @@ export default function PageDetailPage({
           </div>
         </div>
 
-        {/* Right: Actions + Comments */}
+        {/* Right: Actions and Comments */}
         <div className="space-y-5">
+          {/* Quick Actions */}
           <div className="space-y-2">
             <button
               onClick={() => setShowRequestForm(true)}
@@ -525,11 +602,14 @@ export default function PageDetailPage({
                 Feedback ({mockComments.length})
               </h2>
             </div>
+
             <div className="overflow-y-auto max-h-[480px]">
               {mockComments.map((comment) => (
                 <CommentCard key={comment.id} comment={comment} />
               ))}
             </div>
+
+            {/* Add Comment */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800">
               <div className="flex gap-2">
                 <textarea
@@ -555,6 +635,7 @@ export default function PageDetailPage({
         </div>
       </div>
 
+      {/* Add Request Modal */}
       {showRequestForm && (
         <AddRequestForm
           onClose={() => setShowRequestForm(false)}
@@ -562,8 +643,12 @@ export default function PageDetailPage({
         />
       )}
 
+      {/* Toast Notification */}
       {showToast && (
-        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
+        <Toast
+          message={toastMessage}
+          onClose={() => setShowToast(false)}
+        />
       )}
     </div>
   );
