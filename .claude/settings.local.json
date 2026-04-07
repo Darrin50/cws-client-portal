@@ -6,7 +6,9 @@
       "Bash(npm install:*)",
       "Bash(node -e \"require\\(''''next-themes''''\\); console.log\\(''''next-themes OK''''\\)\")",
       "Bash(npm run:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Read(//c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/**)",
+      "Bash(npx vercel:*)"
     ]
   }
 }
