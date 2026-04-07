@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Save, Send, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface OrgData {
   id: string;
@@ -12,6 +13,8 @@ interface OrgData {
   planTier: string;
   healthScore: number;
   healthBreakdown: Record<string, { score: number; weight: number }> | null;
+  weeklyFocus: { title: string; description: string; status: WeeklyFocusStatus } | null;
+  lastBriefingSentAt: string | null;
   isActive: boolean;
   websiteUrl: string | null;
   businessEmail: string | null;
@@ -21,6 +24,8 @@ interface OrgData {
   stripeCustomerId: string | null;
   createdAt: string;
 }
+
+type WeeklyFocusStatus = 'in_progress' | 'starting_soon' | 'completed';
 
 interface Page {
   id: string;
@@ -44,16 +49,11 @@ interface Message {
   createdAt: string;
 }
 
-interface Report {
-  id: string;
-  title: string;
-  createdAt: string;
-}
-
 const PLAN_PRICES: Record<string, number> = { starter: 197, growth: 397, domination: 697 };
 
 const tabs = [
   { id: 'overview', label: 'Overview' },
+  { id: 'focus', label: 'Weekly Focus' },
   { id: 'pages', label: 'Pages' },
   { id: 'brand', label: 'Brand Assets' },
   { id: 'messages', label: 'Messages' },
@@ -64,7 +64,6 @@ const tabs = [
 
 export default function ClientDetailPage() {
   const params = useParams<{ 'orgId/': string }>();
-  // Next.js route segment with slash in folder name — orgId is in params['orgId/']
   const orgId = params['orgId/'] ?? (params as Record<string, string>).orgId ?? '';
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -72,12 +71,22 @@ export default function ClientDetailPage() {
   const [pages, setPages] = useState<Page[]>([]);
   const [brandAssets, setBrandAssets] = useState<BrandAsset[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Weekly Focus form state
+  const [focusTitle, setFocusTitle] = useState('');
+  const [focusDesc, setFocusDesc] = useState('');
+  const [focusStatus, setFocusStatus] = useState<WeeklyFocusStatus>('in_progress');
+  const [focusSaving, setFocusSaving] = useState(false);
+  const [focusSaved, setFocusSaved] = useState(false);
+
+  // Send Briefing state
+  const [briefingSending, setBriefingSending] = useState(false);
+  const [briefingResult, setBriefingResult] = useState<{ sentTo?: string; error?: string } | null>(null);
 
   useEffect(() => {
     if (!orgId) return;
-    loadData();
+    void loadData();
   }, [orgId]);
 
   async function loadData() {
@@ -91,23 +100,77 @@ export default function ClientDetailPage() {
       ]);
 
       if (orgRes.ok) {
-        const d = await orgRes.json();
-        setOrg(d.data ?? d);
+        const d = await orgRes.json() as { data?: OrgData } & OrgData;
+        const orgData = d.data ?? d;
+        setOrg(orgData);
+        if (orgData.weeklyFocus) {
+          setFocusTitle(orgData.weeklyFocus.title);
+          setFocusDesc(orgData.weeklyFocus.description);
+          setFocusStatus(orgData.weeklyFocus.status);
+        }
       }
       if (pagesRes.ok) {
-        const d = await pagesRes.json();
+        const d = await pagesRes.json() as { data?: { pages: Page[] } };
         setPages(d.data?.pages ?? []);
       }
       if (assetsRes.ok) {
-        const d = await assetsRes.json();
+        const d = await assetsRes.json() as { data?: { assets: BrandAsset[] } };
         setBrandAssets(d.data?.assets ?? []);
       }
       if (msgsRes.ok) {
-        const d = await msgsRes.json();
+        const d = await msgsRes.json() as { data?: { messages: Message[] } };
         setMessages(d.data?.messages ?? []);
       }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function saveFocus() {
+    if (!focusTitle.trim() || !focusDesc.trim()) return;
+    setFocusSaving(true);
+    setFocusSaved(false);
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}/weekly-focus`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: focusTitle.trim(), description: focusDesc.trim(), status: focusStatus }),
+      });
+      if (res.ok) {
+        setFocusSaved(true);
+        setTimeout(() => setFocusSaved(false), 3000);
+        if (org) {
+          setOrg({ ...org, weeklyFocus: { title: focusTitle.trim(), description: focusDesc.trim(), status: focusStatus } });
+        }
+      }
+    } finally {
+      setFocusSaving(false);
+    }
+  }
+
+  async function clearFocus() {
+    await fetch(`/api/admin/organizations/${orgId}/weekly-focus`, { method: 'DELETE' });
+    setFocusTitle('');
+    setFocusDesc('');
+    setFocusStatus('in_progress');
+    if (org) setOrg({ ...org, weeklyFocus: null });
+  }
+
+  async function sendBriefing() {
+    setBriefingSending(true);
+    setBriefingResult(null);
+    try {
+      const res = await fetch(`/api/admin/organizations/${orgId}/send-briefing`, { method: 'POST' });
+      const d = await res.json() as { data?: { sentTo: string }; error?: string };
+      if (res.ok && d.data) {
+        setBriefingResult({ sentTo: d.data.sentTo });
+        // Update lastBriefingSentAt in local state
+        if (org) setOrg({ ...org, lastBriefingSentAt: new Date().toISOString() });
+      } else {
+        setBriefingResult({ error: d.error ?? 'Failed to send briefing' });
+      }
+    } finally {
+      setBriefingSending(false);
     }
   }
 
@@ -138,6 +201,10 @@ export default function ClientDetailPage() {
     return months < 1 ? '< 1 month' : `${months} month${months !== 1 ? 's' : ''}`;
   })();
 
+  const lastBriefingLabel = org.lastBriefingSentAt
+    ? new Date(org.lastBriefingSentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : null;
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -145,11 +212,41 @@ export default function ClientDetailPage() {
         <Link href="/admin/clients" className="text-blue-400 hover:underline text-sm">
           ← Back to Clients
         </Link>
-        <h1 className="text-3xl font-bold text-white mt-4 mb-2">{org.name}</h1>
-        <div className="flex gap-4 items-center">
-          <Badge className="bg-purple-600 text-white capitalize">{org.planTier}</Badge>
-          {!org.isActive && <Badge className="bg-red-700 text-white">Inactive</Badge>}
-          <span className="text-slate-400 text-sm">ID: {orgId}</span>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">{org.name}</h1>
+            <div className="flex gap-4 items-center">
+              <Badge className="bg-purple-600 text-white capitalize">{org.planTier}</Badge>
+              {!org.isActive && <Badge className="bg-red-700 text-white">Inactive</Badge>}
+              <span className="text-slate-400 text-sm">ID: {orgId}</span>
+            </div>
+          </div>
+          {/* Send Weekly Briefing */}
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={() => void sendBriefing()}
+              disabled={briefingSending}
+              className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              {briefingSending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              Send Weekly Briefing
+            </button>
+            {lastBriefingLabel && !briefingResult && (
+              <p className="text-xs text-slate-500">Last sent: {lastBriefingLabel}</p>
+            )}
+            {briefingResult?.sentTo && (
+              <p className="text-xs text-green-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Sent to {briefingResult.sentTo}
+              </p>
+            )}
+            {briefingResult?.error && (
+              <p className="text-xs text-red-400">{briefingResult.error}</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -241,7 +338,6 @@ export default function ClientDetailPage() {
             </Card>
           </div>
 
-          {/* Health Breakdown */}
           <Card className="bg-slate-800 border-slate-700 p-6">
             <h2 className="text-xl font-bold text-white mb-4">Health Breakdown</h2>
             {Object.keys(breakdown).length === 0 ? (
@@ -265,6 +361,100 @@ export default function ClientDetailPage() {
               </div>
             )}
           </Card>
+        </div>
+      )}
+
+      {activeTab === 'focus' && (
+        <div className="max-w-2xl space-y-6">
+          <Card className="bg-slate-800 border-slate-700 p-6">
+            <h2 className="text-xl font-bold text-white mb-1">Weekly Focus</h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Set the single priority shown on this client&apos;s dashboard this week.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Title</label>
+                <input
+                  type="text"
+                  value={focusTitle}
+                  onChange={(e) => setFocusTitle(e.target.value)}
+                  placeholder="e.g. Services Page Rewrite"
+                  maxLength={200}
+                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+                <textarea
+                  value={focusDesc}
+                  onChange={(e) => setFocusDesc(e.target.value)}
+                  placeholder="e.g. Your most-visited page converts at 1.8% — we're rebuilding it this week"
+                  maxLength={1000}
+                  rows={3}
+                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Status</label>
+                <select
+                  value={focusStatus}
+                  onChange={(e) => setFocusStatus(e.target.value as WeeklyFocusStatus)}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="starting_soon">Starting Soon</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => void saveFocus()}
+                  disabled={focusSaving || !focusTitle.trim() || !focusDesc.trim()}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                  {focusSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : focusSaved ? (
+                    <CheckCircle2 className="w-4 h-4" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  {focusSaved ? 'Saved!' : 'Save Focus'}
+                </button>
+
+                {org.weeklyFocus && (
+                  <button
+                    onClick={() => void clearFocus()}
+                    className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm rounded-lg transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* Current focus preview */}
+          {org.weeklyFocus && (
+            <Card className="bg-slate-800 border-teal-700 border p-5">
+              <p className="text-xs font-semibold text-teal-400 mb-2 uppercase tracking-wider">Currently showing on client dashboard</p>
+              <p className="text-white font-semibold">{org.weeklyFocus.title}</p>
+              <p className="text-slate-400 text-sm mt-1">{org.weeklyFocus.description}</p>
+              <span className={`inline-block mt-2 text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                org.weeklyFocus.status === 'completed'
+                  ? 'bg-green-900/30 text-green-400'
+                  : org.weeklyFocus.status === 'in_progress'
+                  ? 'bg-teal-900/30 text-teal-400'
+                  : 'bg-amber-900/30 text-amber-400'
+              }`}>
+                {org.weeklyFocus.status.replace('_', ' ')}
+              </span>
+            </Card>
+          )}
         </div>
       )}
 
