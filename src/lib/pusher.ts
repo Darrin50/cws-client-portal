@@ -4,7 +4,7 @@ import PusherClient from "pusher-js";
 // Server instance
 export const pusherServer = new PusherServer({
   appId: process.env.PUSHER_APP_ID || "",
-  key: process.env.NEXT_PUBLIC_PUSHER_KEY || "",
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY || "",
   secret: process.env.PUSHER_SECRET || "",
   cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "mt1",
   useTLS: true,
@@ -12,14 +12,14 @@ export const pusherServer = new PusherServer({
 
 // Client config export
 export const pusherClientConfig = {
-  key: process.env.NEXT_PUBLIC_PUSHER_KEY,
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
   cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
 };
 
 // Initialize client instance
 export function getPusherClient() {
   return new PusherClient(
-    process.env.NEXT_PUBLIC_PUSHER_KEY || "",
+    process.env.NEXT_PUBLIC_PUSHER_APP_KEY || "",
     {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "mt1",
       authEndpoint: "/api/pusher/auth",

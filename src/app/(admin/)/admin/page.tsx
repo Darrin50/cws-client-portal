@@ -1,88 +1,102 @@
 import type { Metadata } from 'next';
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { db } from '@/db';
+import { organizationsTable, commentsTable, auditLogTable, usersTable } from '@/db/schema';
+import { eq, count, desc, sql } from 'drizzle-orm';
 import { Card } from '@/components/ui/card';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
 };
 
-// TODO: Replace with real data from database
-const mockStats = {
-  totalClients: 24,
-  mrr: 4850,
-  openRequests: 7,
-  avgResponseTime: '2.4h',
+const PLAN_PRICES: Record<string, number> = {
+  starter: 197,
+  growth: 397,
+  domination: 697,
 };
 
-const mockRecentActivity = [
-  {
-    id: 1,
-    type: 'request_created',
-    client: 'Acme Corp',
-    description: 'New page design request',
-    timestamp: '2 hours ago',
-  },
-  {
-    id: 2,
-    type: 'payment_received',
-    client: 'Tech Startup Inc',
-    description: 'Invoice #2024-001 paid',
-    timestamp: '4 hours ago',
-  },
-  {
-    id: 3,
-    type: 'page_completed',
-    client: 'Local Services LLC',
-    description: 'Homepage redesign completed',
-    timestamp: '1 day ago',
-  },
-  {
-    id: 4,
-    type: 'request_created',
-    client: 'Design Studio',
-    description: 'Content update request',
-    timestamp: '1 day ago',
-  },
-];
+function timeAgo(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const { userId, sessionClaims } = await auth();
+  if (!userId) redirect('/login');
+
+  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+  if (role !== 'admin') redirect('/dashboard');
+
+  // Total active clients
+  const totalClientsRows = await db
+    .select({ count: count() })
+    .from(organizationsTable)
+    .where(eq(organizationsTable.isActive, true));
+  const totalClients = totalClientsRows[0]?.count ?? 0;
+
+  // MRR: sum(plan_price * count) per plan tier
+  const planCounts = await db
+    .select({ planTier: organizationsTable.planTier, count: count() })
+    .from(organizationsTable)
+    .where(eq(organizationsTable.isActive, true))
+    .groupBy(organizationsTable.planTier);
+
+  const mrr = planCounts.reduce((sum, row) => {
+    return sum + (PLAN_PRICES[row.planTier] ?? 0) * row.count;
+  }, 0);
+
+  // Open requests
+  const openRequestsRows = await db
+    .select({ count: count() })
+    .from(commentsTable)
+    .where(sql`${commentsTable.status} IN ('new', 'in_progress')`);
+  const openRequests = openRequestsRows[0]?.count ?? 0;
+
+  // Recent audit log (global)
+  const recentActivity = await db
+    .select({
+      id: auditLogTable.id,
+      action: auditLogTable.action,
+      entityType: auditLogTable.entityType,
+      organizationId: auditLogTable.organizationId,
+      createdAt: auditLogTable.createdAt,
+    })
+    .from(auditLogTable)
+    .orderBy(desc(auditLogTable.createdAt))
+    .limit(10);
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold text-white mb-8">Admin Dashboard</h1>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card className="bg-slate-800 border-slate-700 p-6">
-          <div className="text-slate-400 text-sm font-medium mb-2">
-            Total Clients
-          </div>
-          <div className="text-3xl font-bold text-white">
-            {mockStats.totalClients}
-          </div>
+          <div className="text-slate-400 text-sm font-medium mb-2">Total Clients</div>
+          <div className="text-3xl font-bold text-white">{totalClients}</div>
         </Card>
 
         <Card className="bg-slate-800 border-slate-700 p-6">
           <div className="text-slate-400 text-sm font-medium mb-2">MRR</div>
-          <div className="text-3xl font-bold text-green-400">
-            ${mockStats.mrr.toLocaleString()}
+          <div className="text-3xl font-bold text-green-400">${mrr.toLocaleString()}</div>
+          <div className="mt-2 space-y-1">
+            {planCounts.map((row) => (
+              <div key={row.planTier} className="flex justify-between text-xs text-slate-400">
+                <span className="capitalize">{row.planTier}</span>
+                <span>{row.count} × ${PLAN_PRICES[row.planTier] ?? 0} = ${(row.count * (PLAN_PRICES[row.planTier] ?? 0)).toLocaleString()}</span>
+              </div>
+            ))}
           </div>
         </Card>
 
         <Card className="bg-slate-800 border-slate-700 p-6">
-          <div className="text-slate-400 text-sm font-medium mb-2">
-            Open Requests
-          </div>
-          <div className="text-3xl font-bold text-yellow-400">
-            {mockStats.openRequests}
-          </div>
-        </Card>
-
-        <Card className="bg-slate-800 border-slate-700 p-6">
-          <div className="text-slate-400 text-sm font-medium mb-2">
-            Avg Response Time
-          </div>
-          <div className="text-3xl font-bold text-blue-400">
-            {mockStats.avgResponseTime}
-          </div>
+          <div className="text-slate-400 text-sm font-medium mb-2">Open Requests</div>
+          <div className="text-3xl font-bold text-yellow-400">{openRequests}</div>
         </Card>
       </div>
 
@@ -106,27 +120,29 @@ export default function AdminDashboard() {
       <Card className="bg-slate-800 border-slate-700">
         <div className="p-6">
           <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {mockRecentActivity.map((activity) => (
-              <div
-                key={activity.id}
-                className="flex items-start justify-between pb-4 border-b border-slate-700 last:border-0"
-              >
-                <div>
-                  <div className="font-medium text-white">{activity.client}</div>
-                  <div className="text-sm text-slate-400">
-                    {activity.description}
+          {recentActivity.length === 0 ? (
+            <p className="text-slate-400 text-sm">No recent activity.</p>
+          ) : (
+            <div className="space-y-4">
+              {recentActivity.map((activity) => (
+                <div
+                  key={activity.id}
+                  className="flex items-start justify-between pb-4 border-b border-slate-700 last:border-0"
+                >
+                  <div>
+                    <div className="font-medium text-white capitalize">
+                      {activity.action.replace(/_/g, ' ')}
+                    </div>
+                    <div className="text-sm text-slate-400">{activity.entityType}</div>
+                    <div className="text-xs text-slate-500 mt-1">{timeAgo(activity.createdAt)}</div>
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    {activity.timestamp}
+                  <div className="text-xs px-2 py-1 bg-slate-700 text-slate-300 rounded">
+                    {activity.entityType}
                   </div>
                 </div>
-                <div className="text-xs px-2 py-1 bg-slate-700 text-slate-300 rounded">
-                  {activity.type.replace('_', ' ')}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </Card>
     </div>

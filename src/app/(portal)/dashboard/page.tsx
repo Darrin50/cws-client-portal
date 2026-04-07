@@ -1,6 +1,15 @@
-"use client";
-
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/db";
+import {
+  organizationsTable,
+  commentsTable,
+  auditLogTable,
+  messagesTable,
+  usersTable,
+  organizationMembersTable,
+} from "@/db/schema";
+import { eq, and, inArray, count, desc, sql } from "drizzle-orm";
 import {
   Activity,
   FileText,
@@ -15,102 +24,7 @@ import {
   Plus,
 } from "lucide-react";
 
-const mockHealthScore = 87;
-const mockOpenRequests = { high: 2, medium: 5, low: 3 };
-const urgentCount = mockOpenRequests.high;
-
-const mockActivityFeed = [
-  {
-    id: "1",
-    title: "Your homepage update was completed",
-    timestamp: "2 hours ago",
-    dot: "bg-green-500",
-  },
-  {
-    id: "2",
-    title: "Sarah from CWS sent you a message",
-    timestamp: "4 hours ago",
-    dot: "bg-blue-500",
-  },
-  {
-    id: "3",
-    title: "Your brand guidelines file was uploaded",
-    timestamp: "1 day ago",
-    dot: "bg-blue-500",
-  },
-  {
-    id: "4",
-    title: "Contact page update is in progress",
-    timestamp: "2 days ago",
-    dot: "bg-amber-500",
-  },
-  {
-    id: "5",
-    title: "Your March report is ready to view",
-    timestamp: "3 days ago",
-    dot: "bg-blue-500",
-  },
-];
-
-const healthFactors = [
-  { label: "Online Time", score: 99, color: "bg-green-500" },
-  { label: "Page Speed", score: 82, color: "bg-blue-500" },
-  { label: "Google Visibility", score: 78, color: "bg-amber-500" },
-  { label: "Security", score: 100, color: "bg-green-500" },
-  { label: "Content Updates", score: 85, color: "bg-blue-500" },
-];
-
-function getScoreLabel(score: number): { label: string; color: string } {
-  if (score >= 90) return { label: "Great", color: "text-green-600" };
-  if (score >= 70) return { label: "Good", color: "text-blue-600" };
-  return { label: "Needs Work", color: "text-amber-600" };
-}
-
-function getGrade(score: number): string {
-  if (score >= 80) return "A";
-  if (score >= 60) return "B";
-  if (score >= 40) return "C";
-  return "D";
-}
-
-const statCards = [
-  {
-    label: "Website Grade",
-    value: getGrade(mockHealthScore),
-    subtext: "Your site is healthy",
-    icon: Activity,
-    iconBg: "bg-green-100 dark:bg-green-900/30",
-    iconColor: "text-green-600",
-    accent: "text-green-600",
-  },
-  {
-    label: "Changes in Progress",
-    value: "10",
-    subtext: "2 need your attention",
-    icon: FileText,
-    iconBg: "bg-amber-100 dark:bg-amber-900/30",
-    iconColor: "text-amber-600",
-    accent: "text-amber-600",
-  },
-  {
-    label: "New Messages",
-    value: "3",
-    subtext: "from your CWS team",
-    icon: MessageSquare,
-    iconBg: "bg-blue-100 dark:bg-blue-900/30",
-    iconColor: "text-blue-600",
-    accent: "text-blue-600",
-  },
-  {
-    label: "Website Online",
-    value: "99.9%",
-    subtext: "No downtime this month",
-    icon: Wifi,
-    iconBg: "bg-green-100 dark:bg-green-900/30",
-    iconColor: "text-green-600",
-    accent: "text-green-600",
-  },
-];
+// ── helpers ────────────────────────────────────────────────────────────────
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -118,6 +32,45 @@ function getGreeting() {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
+
+function getGrade(score: number): string {
+  if (score >= 90) return "A";
+  if (score >= 80) return "B";
+  if (score >= 70) return "C";
+  if (score >= 40) return "D";
+  return "F";
+}
+
+function getScoreLabel(score: number): { label: string; color: string } {
+  if (score >= 90) return { label: "Great", color: "text-green-600" };
+  if (score >= 70) return { label: "Good", color: "text-blue-600" };
+  return { label: "Needs Work", color: "text-amber-600" };
+}
+
+function dotColor(action: string): string {
+  if (action.includes("completed") || action.includes("paid")) return "bg-green-500";
+  if (action.includes("message") || action.includes("report")) return "bg-blue-500";
+  return "bg-amber-500";
+}
+
+function timeAgo(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
+
+const PLAN_PRICE: Record<string, number> = { starter: 197, growth: 397, domination: 697 };
+const PLAN_NAME: Record<string, string> = {
+  starter: "Starter",
+  growth: "Growth",
+  domination: "Domination",
+};
+
+// ── component ──────────────────────────────────────────────────────────────
 
 function HealthScoreRing({ score }: { score: number }) {
   const size = 160;
@@ -129,26 +82,14 @@ function HealthScoreRing({ score }: { score: number }) {
 
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
-      <svg
-        width={size}
-        height={size}
-        className="-rotate-90"
-        viewBox={`0 0 ${size} ${size}`}
-      >
+      <svg width={size} height={size} className="-rotate-90" viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#22c55e" />
             <stop offset="100%" stopColor="#3b82f6" />
           </linearGradient>
         </defs>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#e2e8f0"
-          strokeWidth={strokeWidth}
-        />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={strokeWidth} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -170,7 +111,144 @@ function HealthScoreRing({ score }: { score: number }) {
   );
 }
 
-export default function DashboardPage() {
+// ── page (server component) ────────────────────────────────────────────────
+
+export default async function DashboardPage() {
+  const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
+
+  // Resolve the DB organization for the current user
+  let org: typeof organizationsTable.$inferSelect | null = null;
+  let dbUserId: string | null = null;
+
+  if (clerkOrgId) {
+    const rows = await db
+      .select()
+      .from(organizationsTable)
+      .where(eq(organizationsTable.clerkOrgId, clerkOrgId))
+      .limit(1);
+    org = rows[0] ?? null;
+  }
+
+  // If no Clerk org, fall back to looking up the user's membership
+  if (!org && clerkUserId) {
+    const userRows = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.clerkUserId, clerkUserId))
+      .limit(1);
+    dbUserId = userRows[0]?.id ?? null;
+
+    if (dbUserId) {
+      const memberRows = await db
+        .select({ organizationId: organizationMembersTable.organizationId })
+        .from(organizationMembersTable)
+        .where(eq(organizationMembersTable.userId, dbUserId))
+        .limit(1);
+
+      if (memberRows[0]) {
+        const orgRows = await db
+          .select()
+          .from(organizationsTable)
+          .where(eq(organizationsTable.id, memberRows[0].organizationId))
+          .limit(1);
+        org = orgRows[0] ?? null;
+      }
+    }
+  }
+
+  // ── fetch dashboard data ─────────────────────────────────────────────
+
+  const healthScore = org?.healthScore ?? 100;
+  const healthBreakdown = (org?.healthBreakdown ?? {}) as Record<string, { score: number; weight: number }>;
+
+  // Open change requests by priority
+  let openHighCount = 0;
+  let openMediumCount = 0;
+  let openLowCount = 0;
+  let unreadMessages = 0;
+  let recentActivity: Array<{ id: string; title: string; createdAt: Date }> = [];
+
+  if (org) {
+    const requestCounts = await db
+      .select({ priority: commentsTable.priority, count: count() })
+      .from(commentsTable)
+      .where(
+        and(
+          eq(commentsTable.organizationId, org.id),
+          sql`${commentsTable.status} IN ('new', 'in_progress')`,
+        ),
+      )
+      .groupBy(commentsTable.priority);
+
+    for (const row of requestCounts) {
+      if (row.priority === "urgent") openHighCount = row.count;
+      else if (row.priority === "important") openMediumCount = row.count;
+      else openLowCount = row.count;
+    }
+
+    // Unread messages
+    const unreadRows = await db
+      .select({ count: count() })
+      .from(messagesTable)
+      .where(
+        and(
+          eq(messagesTable.organizationId, org.id),
+          eq(messagesTable.isRead, false),
+        ),
+      );
+    unreadMessages = unreadRows[0]?.count ?? 0;
+
+    // Recent audit log activity
+    const activityRows = await db
+      .select({ id: auditLogTable.id, action: auditLogTable.action, entityType: auditLogTable.entityType, createdAt: auditLogTable.createdAt })
+      .from(auditLogTable)
+      .where(eq(auditLogTable.organizationId, org.id))
+      .orderBy(desc(auditLogTable.createdAt))
+      .limit(5);
+
+    recentActivity = activityRows.map((r) => ({
+      id: r.id,
+      title: `${r.action.replace(/_/g, " ")} — ${r.entityType}`,
+      createdAt: r.createdAt,
+    }));
+  }
+
+  // ── derived display values ───────────────────────────────────────────
+
+  const urgentCount = openHighCount;
+  const totalOpen = openHighCount + openMediumCount + openLowCount;
+  const planTier = org?.planTier ?? "starter";
+  const planPrice = PLAN_PRICE[planTier] ?? 0;
+  const planLabel = PLAN_NAME[planTier] ?? planTier;
+
+  const healthFactors = [
+    {
+      label: "Online Time",
+      score: Math.round(((healthBreakdown.uptime?.score ?? 23) / (healthBreakdown.uptime?.weight ?? 25)) * 100),
+      color: "bg-green-500",
+    },
+    {
+      label: "Page Speed",
+      score: Math.round(((healthBreakdown.speed?.score ?? 16) / (healthBreakdown.speed?.weight ?? 20)) * 100),
+      color: "bg-blue-500",
+    },
+    {
+      label: "SEO / Visibility",
+      score: Math.round(((healthBreakdown.seo?.score ?? 14) / (healthBreakdown.seo?.weight ?? 20)) * 100),
+      color: "bg-amber-500",
+    },
+    {
+      label: "Security (SSL)",
+      score: Math.round(((healthBreakdown.ssl?.score ?? 10) / (healthBreakdown.ssl?.weight ?? 10)) * 100),
+      color: "bg-green-500",
+    },
+    {
+      label: "Content Freshness",
+      score: Math.round(((healthBreakdown.freshness?.score ?? 12) / (healthBreakdown.freshness?.weight ?? 15)) * 100),
+      color: "bg-blue-500",
+    },
+  ];
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -187,7 +265,7 @@ export default function DashboardPage() {
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
-          {getGreeting()}, Darrin
+          {getGreeting()}
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {summaryText} &middot; {today}
@@ -199,8 +277,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-5 py-4">
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
           <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-            You have {urgentCount} urgent request{urgentCount > 1 ? "s" : ""}{" "}
-            waiting for review
+            You have {urgentCount} urgent request{urgentCount > 1 ? "s" : ""} waiting for review
           </p>
           <Link
             href="/pages"
@@ -213,27 +290,56 @@ export default function DashboardPage() {
 
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {statCards.map((card) => {
+        {[
+          {
+            label: "Website Grade",
+            value: getGrade(healthScore),
+            subtext: healthScore >= 90 ? "Your site is excellent" : healthScore >= 70 ? "Your site is healthy" : "Needs attention",
+            icon: Activity,
+            iconBg: "bg-green-100 dark:bg-green-900/30",
+            iconColor: "text-green-600",
+            accent: "text-green-600",
+          },
+          {
+            label: "Changes in Progress",
+            value: String(totalOpen),
+            subtext: urgentCount > 0 ? `${urgentCount} need your attention` : "All on track",
+            icon: FileText,
+            iconBg: "bg-amber-100 dark:bg-amber-900/30",
+            iconColor: "text-amber-600",
+            accent: "text-amber-600",
+          },
+          {
+            label: "New Messages",
+            value: String(unreadMessages),
+            subtext: "from your CWS team",
+            icon: MessageSquare,
+            iconBg: "bg-blue-100 dark:bg-blue-900/30",
+            iconColor: "text-blue-600",
+            accent: "text-blue-600",
+          },
+          {
+            label: "Health Score",
+            value: `${healthScore}`,
+            subtext: healthScore >= 90 ? "No issues found" : "See details below",
+            icon: Wifi,
+            iconBg: "bg-green-100 dark:bg-green-900/30",
+            iconColor: "text-green-600",
+            accent: "text-green-600",
+          },
+        ].map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
               className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 p-6"
             >
-              <div
-                className={`w-10 h-10 rounded-full ${card.iconBg} flex items-center justify-center mb-4`}
-              >
+              <div className={`w-10 h-10 rounded-full ${card.iconBg} flex items-center justify-center mb-4`}>
                 <Icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
-              <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                {card.value}
-              </div>
-              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">
-                {card.label}
-              </div>
-              <div className={`text-xs mt-1.5 ${card.accent}`}>
-                {card.subtext}
-              </div>
+              <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{card.value}</div>
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">{card.label}</div>
+              <div className={`text-xs mt-1.5 ${card.accent}`}>{card.subtext}</div>
             </div>
           );
         })}
@@ -247,26 +353,17 @@ export default function DashboardPage() {
             Website Health
           </h2>
           <div className="flex flex-col items-center">
-            <HealthScoreRing score={mockHealthScore} />
+            <HealthScoreRing score={healthScore} />
             <div className="w-full mt-8 space-y-3 max-w-sm mx-auto">
               {healthFactors.map((factor) => {
                 const scoreLabel = getScoreLabel(factor.score);
                 return (
                   <div key={factor.label} className="flex items-center gap-3">
-                    <span className="text-sm text-slate-600 dark:text-slate-400 w-36 flex-shrink-0">
-                      {factor.label}
-                    </span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400 w-36 flex-shrink-0">{factor.label}</span>
                     <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${factor.color} rounded-full transition-all duration-1000`}
-                        style={{ width: `${factor.score}%` }}
-                      />
+                      <div className={`h-full ${factor.color} rounded-full transition-all duration-1000`} style={{ width: `${factor.score}%` }} />
                     </div>
-                    <span
-                      className={`text-xs font-semibold w-20 text-right ${scoreLabel.color}`}
-                    >
-                      {scoreLabel.label}
-                    </span>
+                    <span className={`text-xs font-semibold w-20 text-right ${scoreLabel.color}`}>{scoreLabel.label}</span>
                   </div>
                 );
               })}
@@ -280,44 +377,29 @@ export default function DashboardPage() {
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
               Changes in Progress
             </h2>
-            <Link
-              href="/pages"
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5 no-underline"
-            >
+            <Link href="/pages" className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-0.5 no-underline">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
               <div>
-                <div className="text-2xl font-bold text-red-600">
-                  {mockOpenRequests.high}
-                </div>
-                <div className="text-sm font-medium text-red-600/80 dark:text-red-400 mt-0.5">
-                  Need your attention
-                </div>
+                <div className="text-2xl font-bold text-red-600">{openHighCount}</div>
+                <div className="text-sm font-medium text-red-600/80 dark:text-red-400 mt-0.5">Need your attention</div>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-300" />
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500">
               <div>
-                <div className="text-2xl font-bold text-amber-600">
-                  {mockOpenRequests.medium}
-                </div>
-                <div className="text-sm font-medium text-amber-600/80 dark:text-amber-400 mt-0.5">
-                  In progress
-                </div>
+                <div className="text-2xl font-bold text-amber-600">{openMediumCount}</div>
+                <div className="text-sm font-medium text-amber-600/80 dark:text-amber-400 mt-0.5">In progress</div>
               </div>
               <Clock className="w-8 h-8 text-amber-300" />
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500">
               <div>
-                <div className="text-2xl font-bold text-green-600">
-                  {mockOpenRequests.low}
-                </div>
-                <div className="text-sm font-medium text-green-600/80 dark:text-green-400 mt-0.5">
-                  Queued
-                </div>
+                <div className="text-2xl font-bold text-green-600">{openLowCount}</div>
+                <div className="text-sm font-medium text-green-600/80 dark:text-green-400 mt-0.5">Queued</div>
               </div>
               <CheckCircle2 className="w-8 h-8 text-green-300" />
             </div>
@@ -333,20 +415,20 @@ export default function DashboardPage() {
             Recent Activity
           </h2>
           <div className="space-y-0.5">
-            {mockActivityFeed.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-              >
+            {recentActivity.length === 0 ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center">No recent activity yet</p>
+            ) : (
+              recentActivity.map((item) => (
                 <div
-                  className={`w-2 h-2 rounded-full ${item.dot} flex-shrink-0`}
-                />
-                <p className="text-sm text-slate-700 dark:text-slate-300 flex-1">{item.title}</p>
-                <span className="text-xs text-slate-500 dark:text-slate-500 flex-shrink-0 whitespace-nowrap">
-                  {item.timestamp}
-                </span>
-              </div>
-            ))}
+                  key={item.id}
+                  className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <div className={`w-2 h-2 rounded-full ${dotColor(item.title)} flex-shrink-0`} />
+                  <p className="text-sm text-slate-700 dark:text-slate-300 flex-1 capitalize">{item.title}</p>
+                  <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">{timeAgo(item.createdAt)}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -356,46 +438,21 @@ export default function DashboardPage() {
             Quick Actions
           </h2>
           <div className="space-y-3">
-            <Link href="/pages/request/new" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-200 flex-shrink-0">
-                  <Plus className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+            {[
+              { href: "/pages/request/new", label: "Request a Website Change", icon: Plus, colors: { bg: "bg-blue-100 dark:bg-blue-900/30", hover: "hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20", icon: "text-blue-600", hoverIcon: "group-hover:bg-blue-500", text: "group-hover:text-blue-700 dark:group-hover:text-blue-400" } },
+              { href: "/brand", label: "Upload a File", icon: Upload, colors: { bg: "bg-purple-100 dark:bg-purple-900/30", hover: "hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20", icon: "text-purple-600", hoverIcon: "group-hover:bg-purple-500", text: "group-hover:text-purple-700 dark:group-hover:text-purple-400" } },
+              { href: "/reports", label: "View My Report", icon: FileText, colors: { bg: "bg-green-100 dark:bg-green-900/30", hover: "hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20", icon: "text-green-600", hoverIcon: "group-hover:bg-green-500", text: "group-hover:text-green-700 dark:group-hover:text-green-400" } },
+              { href: "/messages", label: "Message My Team", icon: MessageSquare, colors: { bg: "bg-amber-100 dark:bg-amber-900/30", hover: "hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20", icon: "text-amber-600", hoverIcon: "group-hover:bg-amber-500", text: "group-hover:text-amber-700 dark:group-hover:text-amber-400" } },
+            ].map(({ href, label, icon: Icon, colors }) => (
+              <Link href={href} key={href} className="no-underline block">
+                <div className={`flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 ${colors.hover} transition-all duration-200 cursor-pointer group`}>
+                  <div className={`w-10 h-10 rounded-full ${colors.bg} flex items-center justify-center ${colors.hoverIcon} transition-colors duration-200 flex-shrink-0`}>
+                    <Icon className={`w-5 h-5 ${colors.icon} group-hover:text-white transition-colors`} />
+                  </div>
+                  <span className={`text-sm font-medium text-slate-700 dark:text-slate-300 ${colors.text}`}>{label}</span>
                 </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-700 dark:group-hover:text-blue-400">
-                  Request a Website Change
-                </span>
-              </div>
-            </Link>
-            <Link href="/brand" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center group-hover:bg-purple-500 transition-colors duration-200 flex-shrink-0">
-                  <Upload className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
-                </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-purple-700 dark:group-hover:text-purple-400">
-                  Upload a File
-                </span>
-              </div>
-            </Link>
-            <Link href="/reports" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-500 transition-colors duration-200 flex-shrink-0">
-                  <FileText className="w-5 h-5 text-green-600 group-hover:text-white transition-colors" />
-                </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-green-700 dark:group-hover:text-green-400">
-                  View My Report
-                </span>
-              </div>
-            </Link>
-            <Link href="/messages" className="no-underline block">
-              <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-200 cursor-pointer group">
-                <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center group-hover:bg-amber-500 transition-colors duration-200 flex-shrink-0">
-                  <MessageSquare className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
-                </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-400">
-                  Message My Team
-                </span>
-              </div>
-            </Link>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -409,13 +466,10 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Your Plan: Growth &mdash; $197/month
+                Your Plan: {planLabel} &mdash; ${planPrice}/month
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Next payment: May 6, 2026
-              </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                Payment method: Visa ending 4242
+                {org?.isActive ? "Subscription active" : "Subscription inactive — please update billing"}
               </p>
             </div>
           </div>

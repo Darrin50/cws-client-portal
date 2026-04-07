@@ -1,47 +1,102 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { auth } from '@clerk/nextjs/server';
+import { db } from '@/db';
 import {
-  withAuth,
+  organizationsTable,
+  brandAssetsTable,
+  usersTable,
+  organizationMembersTable,
+} from '@/db/schema';
+import { eq, and } from 'drizzle-orm';
+import {
   validateRequest,
   jsonResponse,
   errorResponse,
   unauthorizedResponse,
+  forbiddenResponse,
 } from '@/lib/api-helpers';
+
+const VALID_ASSET_TYPES = [
+  'primary_logo',
+  'secondary_logo',
+  'icon',
+  'favicon',
+  'color',
+  'font',
+  'guidelines',
+  'photo',
+] as const;
 
 const CreateAssetSchema = z.object({
   name: z.string().min(1),
-  type: z.enum(['logo', 'color', 'font', 'image']),
-  url: z.string().url(),
-  metadata: z.record(z.any()).optional(),
+  assetType: z.enum(VALID_ASSET_TYPES),
+  fileUrl: z.string().url().optional(),
+  fileName: z.string().optional(),
+  fileSize: z.number().int().optional(),
+  mimeType: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
+
+/** Resolve DB org from Clerk auth. */
+async function resolveOrg(clerkUserId: string, clerkOrgId: string | null) {
+  if (clerkOrgId) {
+    const rows = await db
+      .select()
+      .from(organizationsTable)
+      .where(eq(organizationsTable.clerkOrgId, clerkOrgId))
+      .limit(1);
+    if (rows[0]) return rows[0];
+  }
+
+  const userRows = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.clerkUserId, clerkUserId))
+    .limit(1);
+  const dbUserId = userRows[0]?.id;
+  if (!dbUserId) return null;
+
+  const memberRows = await db
+    .select({ organizationId: organizationMembersTable.organizationId })
+    .from(organizationMembersTable)
+    .where(eq(organizationMembersTable.userId, dbUserId))
+    .limit(1);
+  if (!memberRows[0]) return null;
+
+  const orgRows = await db
+    .select()
+    .from(organizationsTable)
+    .where(eq(organizationsTable.id, memberRows[0].organizationId))
+    .limit(1);
+  return orgRows[0] ?? null;
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await withAuth(request);
+    const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
+    if (!clerkUserId) return unauthorizedResponse();
 
-    if (!auth.authenticated) {
-      return unauthorizedResponse();
-    }
+    const org = await resolveOrg(clerkUserId, clerkOrgId ?? null);
+    if (!org) return forbiddenResponse();
 
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const assetType = searchParams.get('assetType') ?? searchParams.get('type');
 
-    // TODO: Fetch assets from database scoped to org
-    const assets = [
-      {
-        id: 'asset_1',
-        name: 'Logo',
-        type: 'logo',
-        url: 'https://example.com/logo.png',
-        createdAt: new Date().toISOString(),
-      },
-    ];
+    const conditions = [eq(brandAssetsTable.organizationId, org.id)];
+    if (assetType && VALID_ASSET_TYPES.includes(assetType as (typeof VALID_ASSET_TYPES)[number])) {
+      conditions.push(
+        eq(brandAssetsTable.assetType, assetType as (typeof VALID_ASSET_TYPES)[number]),
+      );
+    }
 
-    return jsonResponse({
-      assets,
-      total: assets.length,
-    });
+    const assets = await db
+      .select()
+      .from(brandAssetsTable)
+      .where(and(...conditions))
+      .orderBy(brandAssetsTable.sortOrder);
+
+    return jsonResponse({ assets, total: assets.length });
   } catch (err) {
     console.error('GET /api/brand-assets error:', err);
     return errorResponse('Internal server error', 500);
@@ -50,28 +105,34 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await withAuth(request);
+    const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
+    if (!clerkUserId) return unauthorizedResponse();
 
-    if (!auth.authenticated) {
-      return unauthorizedResponse();
-    }
+    const org = await resolveOrg(clerkUserId, clerkOrgId ?? null);
+    if (!org) return forbiddenResponse();
 
-    // TODO: Verify user has upload permission (admin)
     const body = await request.json();
     const validation = validateRequest(CreateAssetSchema, body);
-
     if (!validation.success) {
-      return errorResponse(validation.error || 'Validation failed', 400);
+      return errorResponse(validation.error ?? 'Validation failed', 400);
     }
 
-    // TODO: Upload asset and save to database
-    const newAsset = {
-      id: `asset_${Date.now()}`,
-      ...validation.data,
-      createdAt: new Date().toISOString(),
-    };
+    const data = validation.data!;
+    const inserted = await db
+      .insert(brandAssetsTable)
+      .values({
+        organizationId: org.id,
+        assetType: data.assetType,
+        name: data.name,
+        fileUrl: data.fileUrl,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        mimeType: data.mimeType,
+        metadata: data.metadata as Record<string, unknown> | undefined,
+      })
+      .returning();
 
-    return jsonResponse(newAsset, 201);
+    return jsonResponse(inserted[0], 201);
   } catch (err) {
     console.error('POST /api/brand-assets error:', err);
     return errorResponse('Internal server error', 500);
