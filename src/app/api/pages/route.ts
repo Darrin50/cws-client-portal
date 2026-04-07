@@ -14,6 +14,7 @@ import {
   unauthorizedResponse,
   forbiddenResponse,
 } from '@/lib/api-helpers';
+import { rateLimit, getIp } from '@/lib/rate-limit';
 
 /** Resolve the DB organization for the authenticated user. */
 async function resolveOrg(clerkUserId: string, clerkOrgId: string | null) {
@@ -89,6 +90,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { success } = rateLimit(getIp(request));
+    if (!success) return errorResponse('Too many requests', 429);
+
     const { userId: clerkUserId, orgId: clerkOrgId, sessionClaims } = await auth();
     if (!clerkUserId) return unauthorizedResponse();
 

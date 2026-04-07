@@ -1,20 +1,17 @@
-import React from "react"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface EmptyStateProps {
-  icon?: React.ReactNode
+  icon: LucideIcon
   title: string
   description?: string
-  action?: {
-    label: string
-    onClick: () => void
-  }
+  action?: { label: string; href: string }
   className?: string
 }
 
 export function EmptyState({
-  icon,
+  icon: Icon,
   title,
   description,
   action,
@@ -23,30 +20,28 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-12 px-4 text-center",
+        "flex flex-col items-center justify-center py-16 px-6 text-center",
         className
       )}
     >
-      {icon && (
-        <div className="mb-4 text-4xl opacity-50">
-          {icon}
-        </div>
-      )}
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+      <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-5">
+        <Icon className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+      </div>
+      <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
         {title}
       </h3>
       {description && (
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-xs">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
           {description}
         </p>
       )}
       {action && (
-        <Button
-          onClick={action.onClick}
-          className="mt-6"
+        <Link
+          href={action.href}
+          className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors no-underline"
         >
           {action.label}
-        </Button>
+        </Link>
       )}
     </div>
   )

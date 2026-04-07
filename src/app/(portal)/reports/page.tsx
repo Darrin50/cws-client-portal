@@ -68,7 +68,7 @@ export default async function ReportsPage() {
   const hasAccess = planTier === "growth" || planTier === "domination";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

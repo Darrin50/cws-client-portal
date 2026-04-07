@@ -9,7 +9,11 @@
       "Bash(npx tsc:*)",
       "Read(//c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/**)",
       "Bash(npx vercel:*)",
-      "Bash(grep -r \"img\\\\s*src\\\\|<img\" /c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/cranky-wiles/src --include=*.tsx --include=*.ts --include=*.jsx --include=*.js)"
+      "Bash(grep -r \"img\\\\s*src\\\\|<img\" /c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/cranky-wiles/src --include=*.tsx --include=*.ts --include=*.jsx --include=*.js)",
+      "Bash(find \"src/app/\\(admin\" -type f)",
+      "Bash(find \"src/app/\\(portal\\)\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\))",
+      "Bash(find \"src/app/\\(admin\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\))",
+      "Bash(ls \"C:\\\\Users\\\\singe\\\\OneDrive\\\\Desktop\\\\Website-Building\\\\cws-client-portal\\\\.claude\\\\worktrees\\\\agitated-snyder\\\\src\\\\app\\\\\\(admin\")"
     ]
   }
 }

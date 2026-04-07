@@ -32,7 +32,7 @@ export default function PagesPage() {
   );
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 animate-in fade-in duration-300">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
@@ -60,7 +60,7 @@ export default function PagesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredPages.map((page, index) => (
             <Link key={page.id} href={`/pages/${page.id}`} className="no-underline">
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group cursor-pointer">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 overflow-hidden group cursor-pointer">
                 {/* Thumbnail with gradient */}
                 <div
                   className={`relative h-44 bg-gradient-to-br ${gradients[index % gradients.length]} flex flex-col items-center justify-center`}
@@ -105,7 +105,7 @@ export default function PagesPage() {
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-10">
         <Link href="/pages/request/new" className="no-underline">
-          <button className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-xl">
+          <button className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
             <Plus className="w-4 h-4" />
             Request a Change
           </button>
