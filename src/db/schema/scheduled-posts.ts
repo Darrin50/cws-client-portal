@@ -3,7 +3,13 @@ import { relations } from 'drizzle-orm';
 import { organizationsTable } from './organizations';
 import { brandAssetsTable } from './brand-assets';
 
-export const scheduledPostStatusEnum = pgEnum('scheduled_post_status', ['scheduled', 'published', 'cancelled']);
+export const scheduledPostStatusEnum = pgEnum('scheduled_post_status', [
+  'draft',
+  'scheduled',
+  'published',
+  'cancelled',
+  'failed',
+]);
 
 export const scheduledPostsTable = pgTable(
   'cws_scheduled_posts',
@@ -14,6 +20,7 @@ export const scheduledPostsTable = pgTable(
     platform: varchar('platform', { length: 50 }).notNull(),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
     caption: text('caption'),
+    imageUrl: varchar('image_url', { length: 1000 }),
     status: scheduledPostStatusEnum('status').default('scheduled').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

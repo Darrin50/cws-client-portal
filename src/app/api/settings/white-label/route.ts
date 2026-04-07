@@ -56,10 +56,17 @@ export async function PUT(request: NextRequest) {
     return errorResponse('White-label is available on the Domination plan only', 403);
   }
 
-  const body = await request.json();
-  const { logoUrl, primaryColor, companyName, customDomain } = body;
+  const body = await request.json() as {
+    enabled?: boolean;
+    logoUrl?: string | null;
+    primaryColor?: string | null;
+    companyName?: string | null;
+    customDomain?: string | null;
+  };
+  const { enabled, logoUrl, primaryColor, companyName, customDomain } = body;
 
   const whiteLabel = {
+    enabled: enabled ?? false,
     logoUrl: logoUrl ?? null,
     primaryColor: primaryColor ?? null,
     companyName: companyName ?? null,

@@ -5,13 +5,10 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 
-const CALENDLY_URL =
-  "https://calendly.com/singerdarrin50-ds/strategy-call-office-hours";
+const CALENDLY_URL = "https://calendly.com/caliberwebstudio";
 
 interface CalendlyDialogProps {
   variant?: "default" | "ghost" | "outline";
@@ -41,13 +38,28 @@ export function CalendlyDialog({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl w-full p-0 overflow-hidden">
-          <DialogHeader className="px-6 pt-5 pb-0">
-            <DialogTitle className="text-slate-900 dark:text-slate-100">
-              Book a Strategy Call
-            </DialogTitle>
-          </DialogHeader>
-          <div className="h-[580px]">
+        <DialogContent className="max-w-2xl w-full p-0 overflow-hidden gap-0">
+          {/* Caliber Blue Header */}
+          <div className="bg-[#2563eb] px-6 py-5 flex items-start justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-white leading-snug">
+                Book Your Office Hours
+              </h2>
+              <p className="text-blue-100 text-sm mt-1">
+                Book a 30-min Office Hours call with your growth partner
+              </p>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              className="p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white ml-4 flex-shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Calendly Embed */}
+          <div className="h-[600px]">
             <iframe
               src={CALENDLY_URL}
               width="100%"

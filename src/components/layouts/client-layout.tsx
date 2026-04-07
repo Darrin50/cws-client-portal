@@ -47,6 +47,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
+import { useWhiteLabel } from "@/lib/hooks/use-white-label"
 
 // ── Nav tree definition ───────────────────────────────────────────────────────
 
@@ -65,7 +66,14 @@ interface NavItem {
   lockedTooltip?: string
 }
 
-const NAV_TREE: NavItem[] = [
+interface NavSection {
+  type: "section"
+  label: string
+}
+
+type NavEntry = NavItem | NavSection
+
+const NAV_TREE: NavEntry[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -92,8 +100,12 @@ const NAV_TREE: NavItem[] = [
       { label: "Fonts", href: "/brand/fonts", icon: Type },
       { label: "Brand Guidelines", href: "/brand/guidelines", icon: BookOpen },
       { label: "Photos & Files", href: "/brand/photos", icon: ImageIcon },
-      { label: "Content Calendar", href: "/brand/calendar", icon: Calendar },
     ],
+  },
+  {
+    label: "Content Calendar",
+    href: "/dashboard/content-calendar",
+    icon: Calendar,
   },
   {
     label: "Messages",
@@ -108,13 +120,15 @@ const NAV_TREE: NavItem[] = [
     href: "/milestones",
     icon: Trophy,
   },
+  // ── Intelligence ──────────────────────────────────────────────────────────
+  { type: "section", label: "Intelligence" },
   {
     label: "Competitor Pulse",
     href: "/competitors",
     icon: Globe,
   },
   {
-    label: "Site Audit",
+    label: "Website Audit",
     href: "/audit",
     icon: SearchCheck,
   },
@@ -169,6 +183,10 @@ const NAV_TREE: NavItem[] = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function isNavItem(entry: NavEntry): entry is NavItem {
+  return !("type" in entry)
+}
+
 function isActiveHref(href: string, pathname: string) {
   return pathname === href || pathname.startsWith(href + "/")
 }
@@ -178,12 +196,12 @@ function itemHasActiveChild(item: NavItem, pathname: string): boolean {
 }
 
 function getBreadcrumbLabel(pathname: string): string {
-  // Walk tree to find deepest matching label
-  for (const item of NAV_TREE) {
-    for (const child of item.children ?? []) {
+  for (const entry of NAV_TREE) {
+    if (!isNavItem(entry)) continue
+    for (const child of entry.children ?? []) {
       if (isActiveHref(child.href, pathname)) return child.label
     }
-    if (isActiveHref(item.href, pathname)) return item.label
+    if (isActiveHref(entry.href, pathname)) return entry.label
   }
   return "Dashboard"
 }
@@ -362,13 +380,28 @@ export function ClientLayout({
   const [avatarHovered, setAvatarHovered] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme, setTheme } = useTheme()
+  const { config: wl } = useWhiteLabel()
+
+  // Apply CSS custom property for primary color when white-label is enabled
+  useEffect(() => {
+    if (wl.enabled && wl.primaryColor) {
+      document.documentElement.style.setProperty("--wl-primary", wl.primaryColor)
+    } else {
+      document.documentElement.style.removeProperty("--wl-primary")
+    }
+  }, [wl.enabled, wl.primaryColor])
+
+  const primaryColor = wl.enabled && wl.primaryColor ? wl.primaryColor : "#2563eb"
+  const companyName = wl.enabled && wl.companyName ? wl.companyName : "Caliber Web Studio"
+  const logoUrl = wl.enabled && wl.logoUrl ? wl.logoUrl : null
 
   // Track which parent items are expanded. Default: auto-expand active parent.
   const getDefaultExpanded = useCallback(() => {
     const map: Record<string, boolean> = {}
-    for (const item of NAV_TREE) {
-      if (itemHasActiveChild(item, pathname) || isActiveHref(item.href, pathname)) {
-        map[item.href] = true
+    for (const entry of NAV_TREE) {
+      if (!isNavItem(entry)) continue
+      if (itemHasActiveChild(entry, pathname) || isActiveHref(entry.href, pathname)) {
+        map[entry.href] = true
       }
     }
     return map
@@ -380,9 +413,10 @@ export function ClientLayout({
   useEffect(() => {
     setExpanded((prev) => {
       const next = { ...prev }
-      for (const item of NAV_TREE) {
-        if (itemHasActiveChild(item, pathname)) {
-          next[item.href] = true
+      for (const entry of NAV_TREE) {
+        if (!isNavItem(entry)) continue
+        if (itemHasActiveChild(entry, pathname)) {
+          next[entry.href] = true
         }
       }
       return next
@@ -414,20 +448,28 @@ export function ClientLayout({
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Logo */}
+        {/* Logo / Brand */}
         <div className="px-4 py-3.5 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <Image
-              src="/logo.png"
-              alt="CWS"
-              width={28}
-              height={28}
-              className="object-contain flex-shrink-0"
-              priority
-            />
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={companyName}
+                className="h-7 w-7 object-contain flex-shrink-0 rounded"
+              />
+            ) : (
+              <Image
+                src="/logo.png"
+                alt="CWS"
+                width={28}
+                height={28}
+                className="object-contain flex-shrink-0"
+                priority
+              />
+            )}
             <div className="min-w-0">
               <p className="text-white font-semibold text-sm leading-tight truncate">
-                Caliber Web Studio
+                {companyName}
               </p>
               <p className="text-slate-500 text-[10px] leading-tight">Client Portal</p>
             </div>
@@ -439,16 +481,27 @@ export function ClientLayout({
           aria-label="Main navigation"
           className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10"
         >
-          {NAV_TREE.map((item) => (
-            <NavRow
-              key={item.href}
-              item={item}
-              pathname={pathname}
-              expanded={!!expanded[item.href]}
-              onToggleExpand={toggleExpand}
-              onNavigate={() => setMobileMenuOpen(false)}
-            />
-          ))}
+          {NAV_TREE.map((entry, idx) => {
+            if (!isNavItem(entry)) {
+              return (
+                <div key={`section-${idx}`} className="pt-3 pb-1 px-2">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-600">
+                    {entry.label}
+                  </p>
+                </div>
+              )
+            }
+            return (
+              <NavRow
+                key={entry.href}
+                item={entry}
+                pathname={pathname}
+                expanded={!!expanded[entry.href]}
+                onToggleExpand={toggleExpand}
+                onNavigate={() => setMobileMenuOpen(false)}
+              />
+            )
+          })}
         </nav>
 
         {/* User Section */}
@@ -471,7 +524,10 @@ export function ClientLayout({
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-white/15"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-[#2563eb] flex items-center justify-center text-white text-xs font-bold ring-2 ring-white/15">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ring-2 ring-white/15"
+                  style={{ backgroundColor: primaryColor }}
+                >
                   {userInitials}
                 </div>
               )}
@@ -548,7 +604,10 @@ export function ClientLayout({
                 )}
               </button>
 
-              <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-[#2563eb] transition-all bg-[#2563eb] text-white text-xs font-bold flex-shrink-0">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-[#2563eb] transition-all text-white text-xs font-bold flex-shrink-0"
+                style={{ backgroundColor: primaryColor }}
+              >
                 {userInitials}
               </div>
             </div>
