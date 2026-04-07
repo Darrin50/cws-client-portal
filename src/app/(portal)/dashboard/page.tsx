@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: 'Dashboard | Caliber Web Studio',
+  description: 'View your website health, recent activity, and key metrics from your Caliber Web Studio client portal.',
+};
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import {

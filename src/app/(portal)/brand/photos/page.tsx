@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, Trash2, Tag } from "lucide-react";
@@ -26,10 +27,12 @@ function PhotoCard({
     <Card className="overflow-hidden group">
       <div className="relative h-40 bg-slate-700 overflow-hidden">
         {photo.fileUrl ? (
-          <img
+          <Image
             src={photo.fileUrl}
             alt={photo.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-500 text-sm">No preview</div>

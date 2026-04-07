@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = {
+  title: 'Billing | CWS Portal',
+  description: 'Manage your subscription, view invoices, and update your payment method.',
+};
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Download, ExternalLink } from "lucide-react";

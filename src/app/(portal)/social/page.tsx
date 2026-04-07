@@ -374,12 +374,14 @@ export default function SocialPage() {
           )}
 
           {/* Tabs */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Post status filter">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
+                role="tab"
+                aria-selected={activeTab === tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none ${
                   activeTab === tab.key
                     ? "bg-blue-600 text-white"
                     : "bg-slate-700 text-slate-300 hover:bg-slate-600"

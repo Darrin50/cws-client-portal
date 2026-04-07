@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import Link from "next/link";
 import { FileText, Palette, Image, ArrowRight } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: 'My Brand | CWS Portal',
+  description: 'Manage your brand assets — logos, colors, fonts, and photos — in your Caliber Web Studio client portal.',
+};
 
 const sections = [
   {

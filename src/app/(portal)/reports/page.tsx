@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import { auth } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = {
+  title: 'Reports | CWS Portal',
+  description: 'View your monthly website performance reports including traffic, rankings, and lead metrics.',
+};
 import { db } from "@/db";
 import {
   organizationsTable,

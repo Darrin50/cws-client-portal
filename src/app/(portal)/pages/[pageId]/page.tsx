@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -193,8 +194,8 @@ function AddRequestForm({ onClose, onSuccess }: { onClose: () => void; onSuccess
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
           <h2 className="text-base font-semibold text-slate-900 dark:text-white">New Change Request</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500">
-            <X className="w-4 h-4" />
+          <button onClick={onClose} aria-label="Close dialog" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -256,8 +257,8 @@ function Toast({ message, onClose }: { message: string; onClose: () => void }) {
     <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium px-5 py-3.5 rounded-xl shadow-2xl">
       <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
       {message}
-      <button onClick={onClose} className="ml-2 text-slate-400 hover:text-white transition-colors">
-        <X className="w-4 h-4" />
+      <button onClick={onClose} aria-label="Dismiss notification" className="ml-2 text-slate-400 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none rounded">
+        <X className="w-4 h-4" aria-hidden="true" />
       </button>
     </div>
   );
@@ -547,10 +548,13 @@ export default function PageDetailPage({
                 </a>
               </div>
               <a href={screenshotUrl} target="_blank" rel="noopener noreferrer" className="block">
-                <img
+                <Image
                   src={screenshotUrl}
                   alt={`Screenshot of ${mockPage.name}`}
+                  width={1280}
+                  height={800}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 hover:opacity-90 transition-opacity"
+                  unoptimized
                 />
               </a>
             </div>
@@ -625,9 +629,10 @@ export default function PageDetailPage({
                 <button
                   onClick={handleSubmitComment}
                   disabled={!newComment.trim()}
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 self-end"
+                  aria-label="Submit comment"
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 self-end focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none min-h-[44px] min-w-[44px]"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>

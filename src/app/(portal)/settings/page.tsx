@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import Link from "next/link";
 import { CreditCard, Users, Bell, Building2, ArrowRight } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: 'Settings | CWS Portal',
+  description: 'Manage your account settings, billing, team members, and notifications.',
+};
 
 const settingsSections = [
   {

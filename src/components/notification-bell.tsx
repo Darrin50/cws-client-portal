@@ -16,7 +16,7 @@ export function NotificationBell({
     <button
       onClick={onClick}
       className={cn(
-        "relative inline-flex items-center justify-center rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-50",
+        "relative inline-flex items-center justify-center rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-50 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none",
         className
       )}
       aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ""}`}

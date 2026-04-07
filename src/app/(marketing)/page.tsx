@@ -16,9 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Caliber Web Studio — AI-Powered Websites for Small Businesses",
+  title: "Caliber Web Studio | AI-Powered Websites for Small Business | $197/mo",
   description:
     "We build, manage, and grow your AI-powered website — $0 down, cancel anytime. Detroit-built for small businesses.",
+  openGraph: {
+    title: "Caliber Web Studio | AI-Powered Websites for Small Business | $197/mo",
+    description:
+      "AI-powered websites, local SEO, chatbots, and monthly growth — starting at $197/mo. $0 down, cancel anytime.",
+  },
 };
 
 // Hero Section

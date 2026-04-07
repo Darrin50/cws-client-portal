@@ -106,7 +106,7 @@ export function ClientLayout({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
+        <nav aria-label="Main navigation" className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/")
@@ -170,9 +170,12 @@ export function ClientLayout({
               onClick={() => fileInputRef.current?.click()}
             >
               {profilePic ? (
-                <img
+                <Image
                   src={profilePic}
                   alt="Profile"
+                  width={36}
+                  height={36}
+                  unoptimized
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-white/15"
                 />
               ) : (
@@ -197,7 +200,7 @@ export function ClientLayout({
               <p className="text-sm font-medium text-white truncate">{userName}</p>
               <p className="text-xs text-slate-500 truncate">{userEmail}</p>
             </div>
-            <button className="p-1 text-slate-500 hover:text-slate-300 transition-colors rounded-md hover:bg-white/10">
+            <button aria-label="Sign out" className="p-1 text-slate-500 hover:text-slate-300 transition-colors rounded-md hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -212,7 +215,9 @@ export function ClientLayout({
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
             >
               {mobileMenuOpen ? (
                 <X className="h-5 w-5" />
@@ -233,8 +238,8 @@ export function ClientLayout({
               {/* Dark mode toggle */}
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none"
               >
                 {theme === "dark" ? (
                   <Sun className="w-5 h-5 text-slate-400" />
@@ -243,7 +248,7 @@ export function ClientLayout({
                 )}
               </button>
 
-              <button className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <button aria-label="View notifications" className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none">
                 <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 {unreadNotifications > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
