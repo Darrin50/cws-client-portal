@@ -44,7 +44,7 @@ const plans: Plan[] = [
     desc: "For businesses ready to dominate local search and build a brand.",
     badge: "Most Popular",
     highlight: true,
-    color: "text-teal-400",
+    color: "text-[#2563eb]",
     features: [
       "Everything in Starter, plus:",
       "Review management & automated requests",
@@ -188,8 +188,8 @@ function PricingToggle({
       </span>
       <button
         onClick={onToggle}
-        className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 ${
-          annual ? "bg-teal-500" : "bg-slate-700"
+        className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] ${
+          annual ? "bg-[#2563eb]" : "bg-slate-700"
         }`}
         role="switch"
         aria-checked={annual}
@@ -205,7 +205,7 @@ function PricingToggle({
           Annual
         </span>
         {annual && (
-          <span className="text-xs font-bold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-2 py-0.5">
+          <span className="text-xs font-bold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-2 py-0.5">
             Save 15%
           </span>
         )}
@@ -215,7 +215,7 @@ function PricingToggle({
 }
 
 function CellValue({ value }: { value: CellValue }) {
-  if (value === true) return <Check className="h-4 w-4 text-teal-400 mx-auto" />;
+  if (value === true) return <Check className="h-4 w-4 text-[#2563eb] mx-auto" />;
   if (value === false) return <Minus className="h-4 w-4 text-slate-600 mx-auto" />;
   return <span className="text-sm text-slate-300">{value as string}</span>;
 }
@@ -253,20 +253,20 @@ export default function PricingPage() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[#0a0e1a]">
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-teal-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2563eb]/5 rounded-full blur-3xl" />
         </div>
         <div className="container relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
             Transparent pricing. No surprises.
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight">
             Simple, transparent pricing.
             <br />
-            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
               Cancel anytime.
             </span>
           </h1>
@@ -286,13 +286,13 @@ export default function PricingPage() {
                 key={plan.name}
                 className={`rounded-2xl p-8 flex flex-col relative ${
                   plan.highlight
-                    ? "border-2 border-teal-500 bg-teal-500/5"
+                    ? "border-2 border-[#0d9488] bg-[#2563eb]/5"
                     : "border border-slate-800 bg-slate-900/60"
                 }`}
               >
                 {plan.badge && (
                   <div className="absolute -top-3.5 left-0 right-0 flex justify-center">
-                    <span className="text-xs font-bold text-white bg-teal-500 px-4 py-1 rounded-full uppercase tracking-wider">
+                    <span className="text-xs font-bold text-white bg-[#2563eb] px-4 py-1 rounded-full uppercase tracking-wider">
                       {plan.badge}
                     </span>
                   </div>
@@ -307,7 +307,7 @@ export default function PricingPage() {
                     <span className="text-slate-400">/mo</span>
                   </div>
                   {annual && (
-                    <p className="text-xs text-teal-400 mb-2">
+                    <p className="text-xs text-[#2563eb] mb-2">
                       Billed ${(annual ? plan.annualPrice : plan.monthlyPrice) * 10}/yr (2 months free)
                     </p>
                   )}
@@ -317,7 +317,7 @@ export default function PricingPage() {
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feat, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-teal-400" : "text-slate-400"}`} />
+                      <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${plan.highlight ? "text-[#2563eb]" : "text-slate-400"}`} />
                       <span className="text-slate-300 text-sm">{feat}</span>
                     </li>
                   ))}
@@ -327,7 +327,7 @@ export default function PricingPage() {
                   <Button
                     className={`w-full font-bold text-base py-5 ${
                       plan.highlight
-                        ? "bg-teal-500 hover:bg-teal-400 text-white shadow-xl shadow-teal-500/20"
+                        ? "bg-[#2563eb] hover:bg-[#2563eb] text-white shadow-xl shadow-blue-500/20"
                         : "bg-slate-800 hover:bg-slate-700 text-white"
                     }`}
                   >
@@ -341,7 +341,7 @@ export default function PricingPage() {
       </section>
 
       {/* Feature Comparison Table */}
-      <section className="py-20 bg-slate-950/50">
+      <section className="py-20 bg-[#0a0e1a]/50">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -356,7 +356,7 @@ export default function PricingPage() {
                 <tr className="border-b border-slate-800">
                   <th className="py-4 px-4 text-left text-slate-400 text-sm font-medium w-1/2">Feature</th>
                   <th className="py-4 px-4 text-center text-slate-300 text-sm font-semibold">Starter</th>
-                  <th className="py-4 px-4 text-center text-teal-400 text-sm font-semibold">Growth</th>
+                  <th className="py-4 px-4 text-center text-[#2563eb] text-sm font-semibold">Growth</th>
                   <th className="py-4 px-4 text-center text-slate-300 text-sm font-semibold">Domination</th>
                 </tr>
               </thead>
@@ -385,7 +385,7 @@ export default function PricingPage() {
       </section>
 
       {/* Add-ons */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Add-ons</h2>
@@ -395,14 +395,14 @@ export default function PricingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
             {addOns.map((addon) => (
               <div key={addon.name} className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-teal-400/10 flex items-center justify-center flex-shrink-0">
-                  <addon.icon className="h-5 w-5 text-teal-400" />
+                <div className="w-10 h-10 rounded-lg bg-[#2563eb]/10 flex items-center justify-center flex-shrink-0">
+                  <addon.icon className="h-5 w-5 text-[#2563eb]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-white font-semibold text-sm">{addon.name}</h3>
                   </div>
-                  <div className="text-teal-400 text-sm font-bold mb-1">{addon.price}</div>
+                  <div className="text-[#2563eb] text-sm font-bold mb-1">{addon.price}</div>
                   <p className="text-slate-400 text-xs leading-relaxed">{addon.desc}</p>
                 </div>
               </div>
@@ -412,16 +412,16 @@ export default function PricingPage() {
       </section>
 
       {/* Startup Complete */}
-      <section className="py-16 bg-slate-950/60">
+      <section className="py-16 bg-[#0a0e1a]/60">
         <div className="container">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/40 to-slate-900/80 p-10 text-center">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="max-w-4xl mx-auto rounded-2xl border border-[#0d9488]/30 bg-gradient-to-br from-slate-950/40 to-slate-900/80 p-10 text-center">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
               One-Time Investment
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
               Need everything at once?
             </h2>
-            <div className="text-4xl font-black text-teal-400 mb-4">$5K – $15K</div>
+            <div className="text-4xl font-black text-[#2563eb] mb-4">$5K – $15K</div>
             <p className="text-slate-300 mb-8 max-w-xl mx-auto">
               <strong className="text-white">Startup Complete</strong> is a one-time launch package that includes everything you need to go from zero to a fully optimized AI business presence.
             </p>
@@ -437,13 +437,13 @@ export default function PricingPage() {
                 "Structured data & AEO markup",
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-teal-400 flex-shrink-0" />
+                  <Check className="h-4 w-4 text-[#2563eb] flex-shrink-0" />
                   <span className="text-slate-300 text-sm">{item}</span>
                 </div>
               ))}
             </div>
             <Link href="/signup">
-              <Button className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-8">
+              <Button className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-8">
                 Talk to us about Startup Complete
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -453,7 +453,7 @@ export default function PricingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -468,7 +468,7 @@ export default function PricingPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-teal-950/30 to-slate-900">
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-950/30 to-slate-900">
         <div className="container text-center">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5">
             Start with a free demo
@@ -477,7 +477,7 @@ export default function PricingPage() {
             We build your site first. You approve it. Then you pay. Zero risk.
           </p>
           <Link href="/signup">
-            <Button size="lg" className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 shadow-xl shadow-teal-500/25">
+            <Button size="lg" className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 shadow-xl shadow-blue-500/25">
               Get Your Free Demo
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

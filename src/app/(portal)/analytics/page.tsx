@@ -102,7 +102,7 @@ export default async function AnalyticsPage() {
           </div>
 
           {/* Overlay */}
-          <div className="absolute inset-0 bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+          <div className="absolute inset-0 bg-white/70 dark:bg-[#0a0e1a]/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
             <div className="text-center space-y-4 px-6">
               <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
                 <Lock className="w-7 h-7 text-slate-400" />
@@ -119,7 +119,7 @@ export default async function AnalyticsPage() {
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/settings/billing">
-                  <Button className="bg-teal-600 hover:bg-teal-700 text-white w-full sm:w-auto">
+                  <Button className="bg-[#1d4ed8] hover:bg-[#1d4ed8] text-white w-full sm:w-auto">
                     View Upgrade Options
                   </Button>
                 </Link>
@@ -133,7 +133,7 @@ export default async function AnalyticsPage() {
                   "Page performance metrics",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#2563eb] flex-shrink-0" />
                     {f}
                   </li>
                 ))}

@@ -43,7 +43,7 @@ const caseStudies: CaseStudy[] = [
     business: "Metro Cuts",
     industry: "Salons",
     plan: "Growth",
-    planColor: "text-teal-400 bg-teal-400/10 border-teal-400/20",
+    planColor: "text-[#2563eb] bg-[#2563eb]/10 border-[#0d9488]/20",
     stats: {
       traffic: "↑ 280%",
       reviews: "+45/mo",
@@ -52,8 +52,8 @@ const caseStudies: CaseStudy[] = [
     quote: "We started getting DMs from customers who found us on Google. Never happened before.",
     author: "Marcus T., Owner",
     desc: "A Detroit barbershop that was invisible online. After CWS launched their Growth plan, they went from zero organic inquiries to 22+ new leads per month from Google alone.",
-    accentColor: "from-teal-500/20 to-transparent",
-    borderColor: "border-teal-500/30",
+    accentColor: "from-[#0d9488]/20 to-transparent",
+    borderColor: "border-[#0d9488]/30",
   },
   {
     id: "eastside-auto",
@@ -97,8 +97,8 @@ const statBarItems = [
     icon: TrendingUp,
     value: "340%",
     label: "Average traffic increase in 90 days",
-    color: "text-teal-400",
-    bg: "bg-teal-400/10",
+    color: "text-[#2563eb]",
+    bg: "bg-[#2563eb]/10",
   },
   {
     icon: Star,
@@ -127,7 +127,7 @@ const statBarItems = [
 function CaseStatItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center">
-      <div className="text-teal-400 font-bold text-lg">{value}</div>
+      <div className="text-[#2563eb] font-bold text-lg">{value}</div>
       <div className="text-slate-400 text-[10px] mt-0.5">{label}</div>
     </div>
   );
@@ -163,7 +163,7 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
         </div>
 
         {/* Quote */}
-        <div className="border-l-2 border-teal-500/40 pl-4 mb-6 flex-1">
+        <div className="border-l-2 border-[#0d9488]/40 pl-4 mb-6 flex-1">
           <p className="text-slate-300 text-sm leading-relaxed italic">
             &ldquo;{study.quote}&rdquo;
           </p>
@@ -173,7 +173,7 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
         {/* CTA */}
         <Link
           href={`/case-studies/${study.id}`}
-          className="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300 text-sm font-semibold transition-colors group-hover:gap-3"
+          className="inline-flex items-center gap-2 text-[#2563eb] hover:text-slate-300 text-sm font-semibold transition-colors group-hover:gap-3"
         >
           Read Case Study <ArrowRight className="h-4 w-4" />
         </Link>
@@ -190,20 +190,20 @@ export default function CaseStudiesPage() {
     : caseStudies.filter((s) => s.industry === activeFilter);
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[#0a0e1a]">
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-teal-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#2563eb]/5 rounded-full blur-3xl" />
         </div>
         <div className="container relative z-10 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
             <BarChart2 className="h-3 w-3" />
             Real results. Real businesses.
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight">
             Real Detroit businesses.{" "}
-            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
               Real results.
             </span>
           </h1>
@@ -214,7 +214,7 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Stats Bar */}
-      <section className="bg-slate-950/60 border-y border-slate-800/50 py-10">
+      <section className="bg-[#0a0e1a]/60 border-y border-slate-800/50 py-10">
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {statBarItems.map((item) => (
@@ -231,7 +231,7 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Filter Bar */}
-      <section className="py-10 bg-[#0F172A]">
+      <section className="py-10 bg-[#0a0e1a]">
         <div className="container">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {filters.map((filter) => (
@@ -240,7 +240,7 @@ export default function CaseStudiesPage() {
                 onClick={() => setActiveFilter(filter)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                   activeFilter === filter
-                    ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
+                    ? "bg-[#2563eb] text-white shadow-lg shadow-blue-500/20"
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700"
                 }`}
               >
@@ -252,7 +252,7 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Case Study Cards */}
-      <section className="pb-20 bg-[#0F172A]">
+      <section className="pb-20 bg-[#0a0e1a]">
         <div className="container">
           {filtered.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -269,20 +269,20 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Be Our Next Case Study CTA */}
-      <section className="py-20 bg-slate-950/50">
+      <section className="py-20 bg-[#0a0e1a]/50">
         <div className="container">
-          <div className="max-w-3xl mx-auto rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/50 via-slate-900/80 to-slate-900/80 p-12 text-center overflow-hidden relative">
+          <div className="max-w-3xl mx-auto rounded-2xl border border-[#0d9488]/30 bg-gradient-to-br from-slate-950/50 via-slate-900/80 to-slate-900/80 p-12 text-center overflow-hidden relative">
             {/* Background decoration */}
             <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-teal-500/10 rounded-full blur-2xl" />
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#2563eb]/10 rounded-full blur-2xl" />
               <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-2xl" />
             </div>
 
             <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-teal-400/10 flex items-center justify-center mx-auto mb-5">
-                <TrendingUp className="h-7 w-7 text-teal-400" />
+              <div className="w-14 h-14 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center mx-auto mb-5">
+                <TrendingUp className="h-7 w-7 text-[#2563eb]" />
               </div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-5">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-5">
                 <Zap className="h-3 w-3" />
                 Be our next success story
               </div>
@@ -296,7 +296,7 @@ export default function CaseStudiesPage() {
                 <Link href="/signup">
                   <Button
                     size="lg"
-                    className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 shadow-xl shadow-teal-500/25"
+                    className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 shadow-xl shadow-blue-500/25"
                   >
                     Get Your Free Demo
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -319,7 +319,7 @@ export default function CaseStudiesPage() {
       </section>
 
       {/* Stats reassurance */}
-      <section className="py-16 bg-[#0F172A]">
+      <section className="py-16 bg-[#0a0e1a]">
         <div className="container">
           <div className="max-w-2xl mx-auto text-center">
             <p className="text-slate-400 text-sm">

@@ -146,7 +146,7 @@ export function SocialResizer({ imageUrl, imageName, onClose }: SocialResizerPro
                     className={cn(
                       'px-3 py-1.5 rounded-full text-xs font-medium border-2 transition-all',
                       selected.has(p.id)
-                        ? 'border-teal-500 bg-teal-50 text-teal-700'
+                        ? 'border-[#0d9488] bg-blue-50 text-[#0d9488]'
                         : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                     )}
                   >
@@ -161,7 +161,7 @@ export function SocialResizer({ imageUrl, imageName, onClose }: SocialResizerPro
               <Button
                 onClick={generateSizes}
                 disabled={generating || selected.size === 0}
-                className="mt-4 bg-teal-600 hover:bg-teal-700 text-white"
+                className="mt-4 bg-[#1d4ed8] hover:bg-[#1d4ed8] text-white"
               >
                 {generating ? (
                   <>

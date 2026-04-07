@@ -52,8 +52,8 @@ function PinMarker({
           resolved
             ? "bg-slate-500 border-slate-400 text-white opacity-60"
             : active
-            ? "bg-teal-500 border-white text-white scale-110"
-            : "bg-teal-600 border-white text-white"
+            ? "bg-[#2563eb] border-white text-white scale-110"
+            : "bg-[#1d4ed8] border-white text-white"
         }`}
       >
         {number}
@@ -63,8 +63,8 @@ function PinMarker({
             resolved
               ? "border-t-[6px] border-t-slate-500"
               : active
-              ? "border-t-[6px] border-t-teal-500"
-              : "border-t-[6px] border-t-teal-600"
+              ? "border-t-[6px] border-t-[#0d9488]"
+              : "border-t-[6px] border-t-[#0d9488]"
           }`}
         />
       </div>
@@ -100,7 +100,7 @@ function CommentPopover({ x, y, onSubmit, onCancel, submitting }: CommentPopover
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-2 mb-3">
-        <MapPin className="w-4 h-4 text-teal-600 flex-shrink-0" />
+        <MapPin className="w-4 h-4 text-[#2563eb] flex-shrink-0" />
         <p className="text-sm font-semibold text-slate-900 dark:text-white">Add Feedback</p>
       </div>
       <textarea
@@ -109,7 +109,7 @@ function CommentPopover({ x, y, onSubmit, onCancel, submitting }: CommentPopover
         onChange={(e) => setComment(e.target.value)}
         placeholder="What's the issue or suggestion here?"
         rows={3}
-        className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+        className="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] resize-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
         onKeyDown={(e) => {
           if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && comment.trim()) {
             onSubmit(comment.trim());
@@ -127,7 +127,7 @@ function CommentPopover({ x, y, onSubmit, onCancel, submitting }: CommentPopover
         <button
           onClick={() => comment.trim() && onSubmit(comment.trim())}
           disabled={!comment.trim() || submitting}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {submitting ? (
             <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
@@ -230,11 +230,11 @@ export function FeedbackOverlay({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0e1a]">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 h-14 bg-[#0F172A] border-b border-white/10 flex-shrink-0">
+      <div className="flex items-center justify-between px-6 h-14 bg-[#0a0e1a] border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-[#2563eb] animate-pulse" />
           <span className="text-sm font-semibold text-white">Feedback Mode Active</span>
           <span className="hidden sm:inline text-xs text-slate-400">
             · Click anywhere on the page to drop a pin
@@ -269,7 +269,7 @@ export function FeedbackOverlay({
         {/* Loading spinner */}
         {!iframeLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
-            <div className="w-10 h-10 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-[#0d9488] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -290,7 +290,7 @@ export function FeedbackOverlay({
           onClick={handleOverlayClick}
         >
           {/* Feedback mode banner */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-teal-700/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg pointer-events-none backdrop-blur-sm">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#1d4ed8]/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg pointer-events-none backdrop-blur-sm">
             Feedback mode active · Click anywhere to drop a pin
           </div>
 

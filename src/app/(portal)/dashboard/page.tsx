@@ -489,9 +489,9 @@ export default async function DashboardPage() {
             value: String(growthScore.total),
             subtext: growthScore.total >= 71 ? "On track" : growthScore.total >= 41 ? "Room to improve" : "Needs attention",
             icon: Activity,
-            iconBg: "bg-teal-100 dark:bg-teal-900/30",
-            iconColor: "text-teal-600",
-            accent: growthScore.total >= 71 ? "text-teal-600" : growthScore.total >= 41 ? "text-amber-600" : "text-red-600",
+            iconBg: "bg-blue-100 dark:bg-slate-800/30",
+            iconColor: "text-[#2563eb]",
+            accent: growthScore.total >= 71 ? "text-[#2563eb]" : growthScore.total >= 41 ? "text-amber-600" : "text-red-600",
           },
           {
             label: "Changes in Progress",
@@ -525,7 +525,7 @@ export default async function DashboardPage() {
           return (
             <div
               key={card.label}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 p-6"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-200 p-6"
             >
               <div className={`w-10 h-10 rounded-full ${card.iconBg} flex items-center justify-center mb-4`}>
                 <Icon className={`w-5 h-5 ${card.iconColor}`} />

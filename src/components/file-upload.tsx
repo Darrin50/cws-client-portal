@@ -175,7 +175,7 @@ export function FileUpload({
           {selectedFiles.map((file, index) => (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950"
+              className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-[#0a0e1a]"
             >
               <div className="flex items-center gap-2">
                 <svg

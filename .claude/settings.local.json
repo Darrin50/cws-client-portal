@@ -13,7 +13,16 @@
       "Bash(find \"src/app/\\(admin\" -type f)",
       "Bash(find \"src/app/\\(portal\\)\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\))",
       "Bash(find \"src/app/\\(admin\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\))",
-      "Bash(ls \"C:\\\\Users\\\\singe\\\\OneDrive\\\\Desktop\\\\Website-Building\\\\cws-client-portal\\\\.claude\\\\worktrees\\\\agitated-snyder\\\\src\\\\app\\\\\\(admin\")"
+      "Bash(ls \"C:\\\\Users\\\\singe\\\\OneDrive\\\\Desktop\\\\Website-Building\\\\cws-client-portal\\\\.claude\\\\worktrees\\\\agitated-snyder\\\\src\\\\app\\\\\\(admin\")",
+      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
+      "Bash(WORKTREE=\"/c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/nervous-dhawan\")",
+      "Bash(__NEW_LINE_34c6a8ac659fea75__ echo:*)",
+      "Read(//c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/nervous-dhawan/$WORKTREE/**)",
+      "Bash(WORKTREE=\"/c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/nervous-dhawan\" __NEW_LINE_427f528a4f27a03a__ echo \"=== Remaining teal- in each file ===\" grep -rn \"teal-[0-9]\" \"$WORKTREE/src\" --include=\"*.tsx\" --include=\"*.ts\" --include=\"*.css\")",
+      "Bash(__NEW_LINE_4236f5918e123c88__ echo:*)",
+      "Bash(__NEW_LINE_62a99669027fb950__ echo:*)",
+      "Bash(grep -r teal-[0-9] src/ --include=*.tsx --include=*.ts --include=*.css -l)",
+      "Bash(head -20 echo --- grep -r \"#14B8A6\\\\|#14b8a6\" src/ --include=*.tsx --include=*.ts --include=*.css -l)"
     ]
   }
 }

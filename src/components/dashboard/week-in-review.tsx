@@ -30,7 +30,7 @@ export function WeekInReview({ data }: { data: WeekInReviewData }) {
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
       {/* Teal left border */}
       <div className="flex">
-        <div className="w-1 bg-teal-500 flex-shrink-0" />
+        <div className="w-1 bg-[#2563eb] flex-shrink-0" />
         <div className="flex-1 p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">

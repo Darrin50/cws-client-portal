@@ -157,20 +157,20 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[#0a0e1a]">
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-teal-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#2563eb]/5 rounded-full blur-3xl" />
         </div>
         <div className="container relative z-10 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
             <MessageCircle className="h-3 w-3" />
             Straight answers. No sales speak.
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight">
             Every question you have.{" "}
-            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
               Answered.
             </span>
           </h1>
@@ -192,7 +192,7 @@ export default function FAQPage() {
                   onClick={() => handleCategoryChange(cat)}
                   className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
                     activeCategory === cat
-                      ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
+                      ? "bg-[#2563eb] text-white shadow-lg shadow-blue-500/20"
                       : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700"
                   }`}
                 >
@@ -230,7 +230,7 @@ export default function FAQPage() {
       </section>
 
       {/* Quick reference grid */}
-      <section className="py-16 bg-slate-950/50">
+      <section className="py-16 bg-[#0a0e1a]/50">
         <div className="container">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-white mb-2">Quick reference</h2>
@@ -244,7 +244,7 @@ export default function FAQPage() {
               { label: "Annual Discount", value: "15% off", desc: "Pay 10 months, get 2 free" },
             ].map((item) => (
               <div key={item.label} className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 text-center">
-                <div className="text-teal-400 font-black text-2xl mb-1">{item.value}</div>
+                <div className="text-[#2563eb] font-black text-2xl mb-1">{item.value}</div>
                 <div className="text-white font-semibold text-sm mb-1">{item.label}</div>
                 <div className="text-slate-400 text-xs">{item.desc}</div>
               </div>
@@ -254,11 +254,11 @@ export default function FAQPage() {
       </section>
 
       {/* Still have questions CTA */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
-          <div className="max-w-2xl mx-auto rounded-2xl border border-teal-500/30 bg-gradient-to-br from-teal-950/40 to-slate-900/80 p-12 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-teal-400/10 flex items-center justify-center mx-auto mb-5">
-              <MessageCircle className="h-7 w-7 text-teal-400" />
+          <div className="max-w-2xl mx-auto rounded-2xl border border-[#0d9488]/30 bg-gradient-to-br from-slate-950/40 to-slate-900/80 p-12 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center mx-auto mb-5">
+              <MessageCircle className="h-7 w-7 text-[#2563eb]" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
               Still have questions?
@@ -270,7 +270,7 @@ export default function FAQPage() {
               <Link href="/signup">
                 <Button
                   size="lg"
-                  className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 shadow-xl shadow-teal-500/25"
+                  className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-8 shadow-xl shadow-blue-500/25"
                 >
                   Book a Free 15-Min Call
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -294,7 +294,7 @@ export default function FAQPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-16 bg-gradient-to-br from-slate-900 via-teal-950/20 to-slate-900">
+      <section className="py-16 bg-gradient-to-br from-slate-900 via-slate-950/20 to-slate-900">
         <div className="container text-center">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
             Ready to get started?
@@ -303,7 +303,7 @@ export default function FAQPage() {
             We build your site first. You approve it. Then you pay. Zero risk from start to finish.
           </p>
           <Link href="/signup">
-            <Button size="lg" className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 shadow-xl shadow-teal-500/20">
+            <Button size="lg" className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 shadow-xl shadow-blue-500/20">
               Get Your Free Demo
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

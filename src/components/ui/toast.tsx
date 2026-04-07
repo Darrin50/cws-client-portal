@@ -84,7 +84,7 @@ const ToastMessage = React.forwardRef<HTMLDivElement, ToastProps>(
       <div
         ref={ref}
         className={cn(
-          "pointer-events-auto relative flex w-full items-center justify-between rounded-md border border-slate-200 bg-white p-4 pr-6 text-slate-950 shadow-lg dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50",
+          "pointer-events-auto relative flex w-full items-center justify-between rounded-md border border-slate-200 bg-white p-4 pr-6 text-slate-950 shadow-lg dark:border-slate-800 dark:bg-[#0a0e1a] dark:text-slate-50",
           toast.variant === "destructive" &&
             "border-red-500 bg-red-50 dark:bg-red-950",
           className

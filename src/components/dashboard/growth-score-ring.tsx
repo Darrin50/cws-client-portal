@@ -17,7 +17,7 @@ export interface GrowthScoreData {
 function scoreColor(score: number): string {
   if (score <= 40) return '#EF4444';
   if (score <= 70) return '#F59E0B';
-  if (score <= 85) return '#14B8A6';
+  if (score <= 85) return '#0d9488';
   return '#10B981';
 }
 
@@ -29,7 +29,7 @@ function scoreGradientId(score: number): string {
 }
 
 const FACTOR_BARS: Array<{ key: keyof GrowthScoreData; label: string; color: string }> = [
-  { key: 'websiteHealth', label: 'Health', color: 'bg-teal-500' },
+  { key: 'websiteHealth', label: 'Health', color: 'bg-[#2563eb]' },
   { key: 'activityEngagement', label: 'Engagement', color: 'bg-blue-500' },
   { key: 'contentFreshness', label: 'Freshness', color: 'bg-amber-500' },
   { key: 'momentum', label: 'Momentum', color: 'bg-purple-500' },
@@ -63,7 +63,7 @@ export function GrowthScoreRing({ data }: { data: GrowthScoreData }) {
               <stop offset="100%" stopColor="#FCD34D" />
             </linearGradient>
             <linearGradient id="growthGradientTeal" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#14B8A6" />
+              <stop offset="0%" stopColor="#0d9488" />
               <stop offset="100%" stopColor="#2DD4BF" />
             </linearGradient>
             <linearGradient id="growthGradientGreen" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -143,7 +143,7 @@ export function GrowthScoreRing({ data }: { data: GrowthScoreData }) {
         <div className="w-full mt-5 max-w-xs mx-auto">
           <button
             onClick={() => setExpanded((e) => !e)}
-            className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors w-full"
+            className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#2563eb] dark:hover:text-[#2563eb] transition-colors w-full"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             What&apos;s affecting your score?

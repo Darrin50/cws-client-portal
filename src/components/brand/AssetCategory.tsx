@@ -116,7 +116,7 @@ export function AssetCategory({
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-[#1d4ed8] hover:bg-[#1d4ed8] text-white"
           >
             <Upload className="w-3.5 h-3.5 mr-1.5" />
             Upload
@@ -127,7 +127,7 @@ export function AssetCategory({
       <div className="p-6 space-y-5">
         {/* Tip bar */}
         <div className="flex items-start gap-2 bg-slate-50 border border-slate-100 rounded-lg px-4 py-3 text-xs text-slate-500">
-          <span className="text-teal-500 mt-0.5 flex-shrink-0">💡</span>
+          <span className="text-[#2563eb] mt-0.5 flex-shrink-0">💡</span>
           <p>
             {recommendedSize && (
               <span className="font-medium text-slate-600">
@@ -147,14 +147,14 @@ export function AssetCategory({
           className={cn(
             'border-2 border-dashed rounded-xl px-6 py-7 text-center cursor-pointer transition-all duration-150 select-none',
             isDragging
-              ? 'border-teal-400 bg-teal-50 scale-[1.01]'
-              : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50',
+              ? 'border-[#0d9488] bg-blue-50 scale-[1.01]'
+              : 'border-slate-200 hover:border-[#0d9488] hover:bg-slate-50',
             uploading && 'cursor-default'
           )}
         >
           {uploading ? (
-            <div className="flex items-center justify-center gap-2 text-teal-600">
-              <div className="w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+            <div className="flex items-center justify-center gap-2 text-[#2563eb]">
+              <div className="w-4 h-4 border-2 border-[#0d9488] border-t-transparent rounded-full animate-spin" />
               <span className="text-sm font-medium">Uploading…</span>
             </div>
           ) : (
@@ -162,13 +162,13 @@ export function AssetCategory({
               <Upload
                 className={cn(
                   'w-6 h-6 mx-auto mb-2 transition-colors',
-                  isDragging ? 'text-teal-500' : 'text-slate-300'
+                  isDragging ? 'text-[#2563eb]' : 'text-slate-300'
                 )}
               />
               <p
                 className={cn(
                   'text-sm font-medium transition-colors',
-                  isDragging ? 'text-teal-700' : 'text-slate-500'
+                  isDragging ? 'text-[#0d9488]' : 'text-slate-500'
                 )}
               >
                 {isDragging ? 'Drop to upload' : 'Drag & drop files here'}

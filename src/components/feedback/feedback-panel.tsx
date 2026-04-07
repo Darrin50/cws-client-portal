@@ -64,7 +64,7 @@ function PinCard({
         {/* Pin number */}
         <div
           className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white mt-0.5 ${
-            isResolved ? "bg-slate-400" : "bg-teal-600"
+            isResolved ? "bg-slate-400" : "bg-[#1d4ed8]"
           }`}
         >
           {number}
@@ -88,7 +88,7 @@ function PinCard({
             <button
               onClick={onResolve}
               disabled={resolving}
-              className="mt-2 text-[10px] font-medium text-teal-600 dark:text-teal-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 text-[10px] font-medium text-[#2563eb] dark:text-[#2563eb] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resolving ? "Marking…" : "Mark as Resolved"}
             </button>
@@ -147,12 +147,12 @@ export function FeedbackPanel({ pageId, pins, onPinsChange, onOpenOverlay }: Fee
       {/* Header */}
       <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+          <MapPin className="w-4 h-4 text-[#2563eb] dark:text-[#2563eb]" />
           <h2 className="text-base font-semibold text-slate-900 dark:text-white">
             Pinned Feedback
           </h2>
           {activePins.length > 0 && (
-            <span className="text-xs bg-teal-600 text-white px-1.5 py-0.5 rounded-full font-bold">
+            <span className="text-xs bg-[#1d4ed8] text-white px-1.5 py-0.5 rounded-full font-bold">
               {activePins.length}
             </span>
           )}
@@ -213,7 +213,7 @@ export function FeedbackPanel({ pageId, pins, onPinsChange, onOpenOverlay }: Fee
       <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800">
         <button
           onClick={onOpenOverlay}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] transition-colors"
         >
           <MapPin className="w-4 h-4" />
           Give Feedback

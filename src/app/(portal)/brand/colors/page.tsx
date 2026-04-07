@@ -26,8 +26,8 @@ interface EditablePalette {
 
 const DEFAULT_PALETTE: EditablePalette = {
   primary: [
-    { name: "Brand Teal", hex: "#14B8A6" },
-    { name: "Navy", hex: "#0F172A" },
+    { name: "Brand Teal", hex: "#0d9488" },
+    { name: "Navy", hex: "#0a0e1a" },
     { name: "White", hex: "#FFFFFF" },
     { name: "Slate", hex: "#64748B" },
   ],
@@ -38,7 +38,7 @@ const DEFAULT_PALETTE: EditablePalette = {
     { name: "Purple", hex: "#8B5CF6" },
   ],
   typography: {
-    heading: "#0F172A",
+    heading: "#0a0e1a",
     body: "#334155",
     muted: "#64748B",
   },
@@ -209,14 +209,14 @@ function EditModal({
                     value={c.name}
                     onChange={(e) => updatePrimary(i, "name", e.target.value)}
                     placeholder="Color name"
-                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   />
                   <input
                     type="text"
                     value={c.hex}
                     onChange={(e) => updatePrimary(i, "hex", e.target.value)}
                     placeholder="#000000"
-                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   />
                 </div>
               ))}
@@ -240,14 +240,14 @@ function EditModal({
                     value={c.name}
                     onChange={(e) => updateSecondary(i, "name", e.target.value)}
                     placeholder="Color name"
-                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   />
                   <input
                     type="text"
                     value={c.hex}
                     onChange={(e) => updateSecondary(i, "hex", e.target.value)}
                     placeholder="#000000"
-                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   />
                 </div>
               ))}
@@ -278,7 +278,7 @@ function EditModal({
                     value={draft.typography[key]}
                     onChange={(e) => updateTypo(key, e.target.value)}
                     placeholder="#000000"
-                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-28 font-mono border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   />
                 </div>
               ))}

@@ -26,7 +26,7 @@ function ChatMockup() {
   return (
     <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50 bg-slate-800/60">
-        <Bot className="h-4 w-4 text-teal-400" />
+        <Bot className="h-4 w-4 text-[#2563eb]" />
         <span className="text-sm font-semibold text-white">AI Assistant</span>
         <span className="ml-auto text-xs text-green-400 font-medium">● Online</span>
       </div>
@@ -38,11 +38,11 @@ function ChatMockup() {
           </div>
         </div>
         <div className="flex items-start gap-2 justify-end">
-          <div className="bg-teal-500/20 border border-teal-500/30 rounded-xl rounded-tr-none px-4 py-2.5 max-w-[75%]">
-            <p className="text-teal-200 text-sm">Yes! We offer same-day appointments Mon–Sat when you book before noon. Want me to check availability for you?</p>
+          <div className="bg-[#2563eb]/20 border border-[#0d9488]/30 rounded-xl rounded-tr-none px-4 py-2.5 max-w-[75%]">
+            <p className="text-slate-200 text-sm">Yes! We offer same-day appointments Mon–Sat when you book before noon. Want me to check availability for you?</p>
           </div>
-          <div className="w-7 h-7 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
-            <Bot className="h-3.5 w-3.5 text-teal-400" />
+          <div className="w-7 h-7 rounded-full bg-[#2563eb]/20 flex items-center justify-center flex-shrink-0">
+            <Bot className="h-3.5 w-3.5 text-[#2563eb]" />
           </div>
         </div>
         <div className="flex items-start gap-2">
@@ -52,11 +52,11 @@ function ChatMockup() {
           </div>
         </div>
         <div className="flex items-start gap-2 justify-end">
-          <div className="bg-teal-500/20 border border-teal-500/30 rounded-xl rounded-tr-none px-4 py-2.5 max-w-[75%]">
-            <p className="text-teal-200 text-sm">I have 2pm and 4pm open today. Which works better? I can collect your name and number to confirm it right now.</p>
+          <div className="bg-[#2563eb]/20 border border-[#0d9488]/30 rounded-xl rounded-tr-none px-4 py-2.5 max-w-[75%]">
+            <p className="text-slate-200 text-sm">I have 2pm and 4pm open today. Which works better? I can collect your name and number to confirm it right now.</p>
           </div>
-          <div className="w-7 h-7 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
-            <Bot className="h-3.5 w-3.5 text-teal-400" />
+          <div className="w-7 h-7 rounded-full bg-[#2563eb]/20 flex items-center justify-center flex-shrink-0">
+            <Bot className="h-3.5 w-3.5 text-[#2563eb]" />
           </div>
         </div>
       </div>
@@ -76,7 +76,7 @@ function RankingMockup() {
   return (
     <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50 bg-slate-800/60">
-        <Search className="h-4 w-4 text-teal-400" />
+        <Search className="h-4 w-4 text-[#2563eb]" />
         <span className="text-sm font-semibold text-white">Keyword Rankings</span>
         <span className="ml-auto text-xs text-slate-400">This month</span>
       </div>
@@ -86,7 +86,7 @@ function RankingMockup() {
             <div key={kw.kw} className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                 kw.rank === 1 ? "bg-amber-400/20 text-amber-400" :
-                kw.rank <= 3 ? "bg-teal-400/20 text-teal-400" :
+                kw.rank <= 3 ? "bg-[#2563eb]/20 text-[#2563eb]" :
                 "bg-slate-700 text-slate-300"
               }`}>
                 #{kw.rank}
@@ -101,7 +101,7 @@ function RankingMockup() {
         <div className="mt-5 pt-4 border-t border-slate-800">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-400">AI Search (AEO)</span>
-            <span className="text-xs font-bold text-teal-400">✓ Indexed by ChatGPT</span>
+            <span className="text-xs font-bold text-[#2563eb]">✓ Indexed by ChatGPT</span>
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@ function ReportMockup() {
   return (
     <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50 bg-slate-800/60">
-        <BarChart2 className="h-4 w-4 text-teal-400" />
+        <BarChart2 className="h-4 w-4 text-[#2563eb]" />
         <span className="text-sm font-semibold text-white">April Report</span>
         <span className="ml-auto text-xs text-slate-400">caliberwebstudio.com</span>
       </div>
@@ -127,7 +127,7 @@ function ReportMockup() {
             { label: "Avg. Rank", value: "#2.4", delta: "↑ 1.8" },
           ].map((s) => (
             <div key={s.label} className="bg-slate-800/60 rounded-xl p-3">
-              <div className="text-teal-400 text-lg font-bold">{s.value}</div>
+              <div className="text-[#2563eb] text-lg font-bold">{s.value}</div>
               <div className="text-slate-400 text-[10px]">{s.label}</div>
               <div className="text-green-400 text-[10px] font-semibold mt-1">{s.delta}</div>
             </div>
@@ -149,7 +149,7 @@ function GBPMockup() {
   return (
     <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50 bg-slate-800/60">
-        <MapPin className="h-4 w-4 text-teal-400" />
+        <MapPin className="h-4 w-4 text-[#2563eb]" />
         <span className="text-sm font-semibold text-white">Google Business Profile</span>
         <span className="ml-auto text-xs text-green-400">● Optimized</span>
       </div>
@@ -173,7 +173,7 @@ function GBPMockup() {
               { label: "Calls", value: "89" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-teal-400 font-bold text-base">{s.value}</div>
+                <div className="text-[#2563eb] font-bold text-base">{s.value}</div>
                 <div className="text-slate-500 text-[10px]">{s.label}</div>
               </div>
             ))}
@@ -187,7 +187,7 @@ function GBPMockup() {
             { task: "Reviews responded to", done: true },
           ].map((item) => (
             <div key={item.task} className="flex items-center gap-2">
-              <Check className="h-3.5 w-3.5 text-teal-400 flex-shrink-0" />
+              <Check className="h-3.5 w-3.5 text-[#2563eb] flex-shrink-0" />
               <span className="text-slate-300 text-xs">{item.task}</span>
             </div>
           ))}
@@ -223,7 +223,7 @@ function ReviewMockup() {
           <div>
             <div className="text-3xl font-black text-white">98%</div>
             <div className="text-slate-400 text-[10px] mt-1">Response Rate</div>
-            <div className="text-teal-400 text-[10px] font-semibold">AI-drafted</div>
+            <div className="text-[#2563eb] text-[10px] font-semibold">AI-drafted</div>
           </div>
         </div>
         <div className="bg-slate-800/60 rounded-xl p-4">
@@ -242,7 +242,7 @@ function SocialMockup() {
   return (
     <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-700/50 bg-slate-800/60">
-        <Share2 className="h-4 w-4 text-teal-400" />
+        <Share2 className="h-4 w-4 text-[#2563eb]" />
         <span className="text-sm font-semibold text-white">Social Content Calendar</span>
         <span className="ml-auto text-xs text-slate-400">April</span>
       </div>
@@ -262,7 +262,7 @@ function SocialMockup() {
             </div>
             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
               post.status === "Posted" ? "bg-green-400/10 text-green-400" :
-              post.status === "Scheduled" ? "bg-teal-400/10 text-teal-400" :
+              post.status === "Scheduled" ? "bg-[#2563eb]/10 text-[#2563eb]" :
               "bg-slate-700 text-slate-400"
             }`}>
               {post.status}
@@ -346,20 +346,20 @@ function FeatureSection({
 
 export default function FeaturesPage() {
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+    <div className="min-h-screen bg-[#0a0e1a]">
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-teal-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-[#2563eb]/5 rounded-full blur-3xl" />
         </div>
         <div className="container relative z-10 text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-teal-400 bg-teal-400/10 border border-teal-400/20 rounded-full px-3 py-1 mb-6">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb] bg-[#2563eb]/10 border border-[#0d9488]/20 rounded-full px-3 py-1 mb-6">
             <Zap className="h-3 w-3" />
             AI-powered · Built for small business
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 leading-tight">
             Everything your business needs{" "}
-            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0d9488] to-cyan-400 bg-clip-text text-transparent">
               to win online
             </span>
           </h1>
@@ -375,8 +375,8 @@ export default function FeaturesPage() {
       {/* Feature 1 — AI Chatbot */}
       <FeatureSection
         icon={Bot}
-        iconColor="text-teal-400"
-        iconBg="bg-teal-400/10"
+        iconColor="text-[#2563eb]"
+        iconBg="bg-[#2563eb]/10"
         title="AI Chatbot That Never Sleeps"
         description="Your website visitor has a question at 11pm. Your AI chatbot answers it — accurately, in your brand voice, and captures their contact info. No more missed leads while you sleep."
         benefits={[
@@ -490,7 +490,7 @@ export default function FeaturesPage() {
       />
 
       {/* Client Portal */}
-      <section className="py-20 bg-slate-950/60">
+      <section className="py-20 bg-[#0a0e1a]/60">
         <div className="container">
           <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-900 to-slate-800/60 p-10 lg:p-14">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
@@ -531,7 +531,7 @@ export default function FeaturesPage() {
                     </Button>
                   </Link>
                   <Link href="/signup">
-                    <Button className="bg-teal-500 hover:bg-teal-400 text-white font-semibold">
+                    <Button className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-semibold">
                       Get Your Free Demo
                     </Button>
                   </Link>
@@ -550,7 +550,7 @@ export default function FeaturesPage() {
                     {[
                       { label: "Site Health", value: "94/100", color: "text-green-400" },
                       { label: "Open Requests", value: "1", color: "text-amber-400" },
-                      { label: "New Messages", value: "3", color: "text-teal-400" },
+                      { label: "New Messages", value: "3", color: "text-[#2563eb]" },
                       { label: "Last Report", value: "Apr 1", color: "text-slate-300" },
                     ].map((s) => (
                       <div key={s.label} className="bg-slate-800/60 rounded-xl p-3">
@@ -564,11 +564,11 @@ export default function FeaturesPage() {
                     <div className="flex gap-3 justify-center">
                       {/* Desktop mini */}
                       <div className="w-20 h-12 rounded border border-slate-600 bg-slate-700/60 flex items-center justify-center">
-                        <div className="w-16 h-8 bg-teal-500/20 rounded-sm" />
+                        <div className="w-16 h-8 bg-[#2563eb]/20 rounded-sm" />
                       </div>
                       {/* Mobile mini */}
                       <div className="w-7 h-12 rounded border border-slate-600 bg-slate-700/60 flex items-center justify-center">
-                        <div className="w-4 h-8 bg-teal-500/20 rounded-sm" />
+                        <div className="w-4 h-8 bg-[#2563eb]/20 rounded-sm" />
                       </div>
                     </div>
                   </div>
@@ -580,7 +580,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* AI Phone Receptionist */}
-      <section className="py-20 bg-[#0F172A]">
+      <section className="py-20 bg-[#0a0e1a]">
         <div className="container">
           <div className="max-w-4xl mx-auto rounded-2xl border border-purple-500/30 bg-purple-500/5 p-10 text-center">
             <div className="w-14 h-14 rounded-2xl bg-purple-400/10 flex items-center justify-center mx-auto mb-5">
@@ -618,7 +618,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-teal-950/30 to-slate-900">
+      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-950/30 to-slate-900">
         <div className="container text-center">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5">
             Ready to see it all working together?
@@ -627,7 +627,7 @@ export default function FeaturesPage() {
             Get your free demo — we&apos;ll show you exactly what your business would look like with all of these tools live and running.
           </p>
           <Link href="/signup">
-            <Button size="lg" className="bg-teal-500 hover:bg-teal-400 text-white font-bold px-10 shadow-xl shadow-teal-500/25">
+            <Button size="lg" className="bg-[#2563eb] hover:bg-[#2563eb] text-white font-bold px-10 shadow-xl shadow-blue-500/25">
               Get Your Free Demo
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

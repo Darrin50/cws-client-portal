@@ -87,7 +87,7 @@ function LogoSlot({
             <a
               href={asset.fileUrl}
               download={asset.fileName ?? slot.name}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 h-9 px-3 w-full"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-[#0a0e1a] dark:hover:bg-slate-800 dark:hover:text-slate-50 h-9 px-3 w-full"
             >
               <Download className="w-4 h-4 mr-2" />
               Download

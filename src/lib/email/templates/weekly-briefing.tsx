@@ -21,7 +21,7 @@ export function WeeklyBriefingEmail({ orgName, data }: WeeklyBriefingEmailProps)
       </div>
 
       {/* Divider */}
-      <div style={{ height: '3px', background: 'linear-gradient(90deg, #14B8A6, #10B981)', borderRadius: '2px', marginBottom: '28px' }} />
+      <div style={{ height: '3px', background: 'linear-gradient(90deg, #0d9488, #10B981)', borderRadius: '2px', marginBottom: '28px' }} />
 
       {/* Stats grid */}
       <table
@@ -87,7 +87,7 @@ export function WeeklyBriefingEmail({ orgName, data }: WeeklyBriefingEmailProps)
           style={{
             display: 'inline-block',
             padding: '12px 28px',
-            backgroundColor: '#14B8A6',
+            backgroundColor: '#0d9488',
             color: '#ffffff',
             fontWeight: 700,
             fontSize: '14px',

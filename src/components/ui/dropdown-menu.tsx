@@ -103,7 +103,7 @@ const DropdownContent = React.forwardRef<HTMLDivElement, DropdownContentProps>(
       <div
         ref={dropdownRef}
         className={cn(
-          "absolute top-full left-0 mt-2 z-50 min-w-[200px] rounded-md border border-slate-200 bg-white shadow-md dark:border-slate-800 dark:bg-slate-950",
+          "absolute top-full left-0 mt-2 z-50 min-w-[200px] rounded-md border border-slate-200 bg-white shadow-md dark:border-slate-800 dark:bg-[#0a0e1a]",
           className
         )}
         {...props}

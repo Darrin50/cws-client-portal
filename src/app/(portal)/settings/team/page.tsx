@@ -165,7 +165,7 @@ export default function TeamPage() {
             onChange={(e) =>
               setInviteRole(e.target.value as "owner" | "member")
             }
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 text-slate-900 dark:text-white focus:border-[#0d9488] focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
           >
             <option value="member">Member</option>
             <option value="owner">Owner (Admin)</option>
@@ -173,7 +173,7 @@ export default function TeamPage() {
           <Button
             type="submit"
             disabled={!inviteEmail.trim() || isInviting}
-            className="bg-teal-600 hover:bg-teal-700 text-white whitespace-nowrap"
+            className="bg-[#1d4ed8] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
           >
             {isInviting ? "Sending..." : "Send Invite"}
           </Button>
@@ -236,7 +236,7 @@ export default function TeamPage() {
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Avatar placeholder */}
-                    <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-slate-800/40 flex items-center justify-center flex-shrink-0">
                       {member.avatarUrl ? (
                         <Image
                           src={member.avatarUrl}
@@ -247,7 +247,7 @@ export default function TeamPage() {
                           unoptimized
                         />
                       ) : (
-                        <UserCircle2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <UserCircle2 className="w-5 h-5 text-[#2563eb] dark:text-[#2563eb]" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -261,7 +261,7 @@ export default function TeamPage() {
                         <span
                           className={`text-xs rounded px-2 py-0.5 border font-medium ${
                             member.role === "owner"
-                              ? "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-700"
+                              ? "bg-blue-100 dark:bg-slate-800/30 text-[#0d9488] dark:text-slate-300 border-[#0d9488] dark:border-[#0d9488]"
                               : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700"
                           }`}
                         >
@@ -277,7 +277,7 @@ export default function TeamPage() {
                     onClick={() => handleRemoveMember(member)}
                     disabled={removingId === member.userId}
                     aria-label={`Remove ${memberDisplayName(member)} from organization`}
-                    className="ml-4 text-slate-400 hover:text-red-400 disabled:opacity-40 transition-colors flex-shrink-0 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    className="ml-4 text-slate-400 hover:text-red-400 disabled:opacity-40 transition-colors flex-shrink-0 focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
                     <Trash2 className="w-5 h-5" aria-hidden="true" />
                   </button>

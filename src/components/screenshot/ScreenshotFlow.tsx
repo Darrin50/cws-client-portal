@@ -65,8 +65,8 @@ function StepName({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
-              <Camera className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-slate-800/30 flex items-center justify-center">
+              <Camera className="w-4 h-4 text-[#2563eb] dark:text-[#2563eb]" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -95,7 +95,7 @@ function StepName({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Homepage hero — needs bigger font"
-              className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+              className="w-full px-3 py-2.5 text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
             />
             <p className="text-xs text-slate-400 mt-1.5">
               Give it a name that describes what you want to discuss.
@@ -113,7 +113,7 @@ function StepName({
             <button
               type="submit"
               disabled={!name.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next: Select Area
               <ChevronRight className="w-4 h-4" />
@@ -274,7 +274,7 @@ function StepSelect({
 
       {/* Instructions bar */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 bg-slate-900/90 backdrop-blur-sm text-white text-sm px-5 py-2.5 rounded-full shadow-xl border border-white/10">
-        <Camera className="w-4 h-4 text-teal-400 flex-shrink-0" />
+        <Camera className="w-4 h-4 text-[#2563eb] flex-shrink-0" />
         <span>Drag to select the area you want to capture</span>
       </div>
 
@@ -298,7 +298,7 @@ function StepSelect({
             style={{ background: "rgba(255,255,255,0.04)" }}
           />
           {/* Teal border */}
-          <div className="absolute inset-0 border-2 border-teal-400 rounded-sm" />
+          <div className="absolute inset-0 border-2 border-[#0d9488] rounded-sm" />
           {/* Corner dots */}
           {[
             "top-0 left-0",
@@ -308,7 +308,7 @@ function StepSelect({
           ].map((pos) => (
             <div
               key={pos}
-              className={`absolute ${pos} w-2.5 h-2.5 bg-teal-400 rounded-full -translate-x-1/2 -translate-y-1/2`}
+              className={`absolute ${pos} w-2.5 h-2.5 bg-[#2563eb] rounded-full -translate-x-1/2 -translate-y-1/2`}
               style={{
                 transform:
                   pos === "top-0 left-0"
@@ -323,7 +323,7 @@ function StepSelect({
           ))}
 
           {/* Dimensions label */}
-          <div className="absolute -top-7 left-0 bg-teal-600 text-white text-xs px-2 py-0.5 rounded font-mono whitespace-nowrap">
+          <div className="absolute -top-7 left-0 bg-[#1d4ed8] text-white text-xs px-2 py-0.5 rounded font-mono whitespace-nowrap">
             {Math.round(drag.w)} × {Math.round(drag.h)}
           </div>
 
@@ -334,7 +334,7 @@ function StepSelect({
             className="absolute bottom-0 right-0 w-4 h-4 translate-x-1/2 translate-y-1/2"
             style={{ cursor: "nwse-resize" }}
           >
-            <div className="w-full h-full bg-teal-400 rounded-sm" />
+            <div className="w-full h-full bg-[#2563eb] rounded-sm" />
           </div>
         </div>
       )}
@@ -357,7 +357,7 @@ function StepSelect({
             }
           }}
           disabled={!hasValidBox}
-          className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg"
+          className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-[#1d4ed8] rounded-lg hover:bg-[#1d4ed8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-lg"
         >
           <Camera className="w-4 h-4" />
           Capture
@@ -372,7 +372,7 @@ function StepCapturing() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4 bg-white dark:bg-slate-900 rounded-2xl px-10 py-8 shadow-2xl border border-slate-200 dark:border-slate-700">
-        <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#2563eb] animate-spin" />
         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           Capturing screenshot…
         </p>
