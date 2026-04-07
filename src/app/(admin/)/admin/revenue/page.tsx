@@ -1,338 +1,371 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-  AreaChart,
-  Area,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  DollarSign,
+  AlertTriangle,
+  ExternalLink,
+} from 'lucide-react';
+import {
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
   PieChart,
   Pie,
   Cell,
   Legend,
-} from "recharts";
+} from 'recharts';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Mock data (realistic 12-month trend) ---
+const mrrTrend = [
+  { month: 'May', mrr: 2_850 },
+  { month: 'Jun', mrr: 3_100 },
+  { month: 'Jul', mrr: 3_280 },
+  { month: 'Aug', mrr: 3_150 },
+  { month: 'Sep', mrr: 3_500 },
+  { month: 'Oct', mrr: 3_820 },
+  { month: 'Nov', mrr: 3_940 },
+  { month: 'Dec', mrr: 4_200 },
+  { month: 'Jan', mrr: 4_050 },
+  { month: 'Feb', mrr: 4_390 },
+  { month: 'Mar', mrr: 4_610 },
+  { month: 'Apr', mrr: 4_850 },
+];
 
-interface PlanData {
-  count: number;
-  revenue: number;
-}
+const netMrrMovement = [
+  { month: 'Jan', new: 400, upgrades: 0, downgrades: -150, churn: -200 },
+  { month: 'Feb', new: 600, upgrades: 200, downgrades: -100, churn: -150 },
+  { month: 'Mar', new: 500, upgrades: 100, downgrades: -200, churn: -190 },
+  { month: 'Apr', new: 700, upgrades: 150, downgrades: -50, churn: -110 },
+];
 
-interface RevenueData {
-  mrr: number;
-  mrrByPlan: Record<string, PlanData>;
-  monthlyTrend: { month: string; revenue: number }[];
-  activeSubscribers: number;
-  churnRate: number;
-  avgRevenuePerUser: number;
-  recentTransactions: {
-    id: string;
-    customerName: string;
-    amount: number;
-    date: string;
-    status: string;
-    description: string;
-  }[];
-}
+const planDistribution = [
+  { name: 'Starter', value: 33, count: 8, revenue: 1_592, color: '#3b82f6' },
+  { name: 'Professional', value: 50, count: 12, revenue: 2_000, color: '#8b5cf6' },
+  { name: 'Enterprise', value: 17, count: 4, revenue: 1_258, color: '#10b981' },
+];
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+const atRiskClients = [
+  {
+    id: 'org_4',
+    name: 'Design Studio',
+    plan: 'Professional',
+    healthScore: 38,
+    reason: 'Low health score — no activity in 5 days',
+    mrr: 167,
+  },
+  {
+    id: 'org_2',
+    name: 'Tech Startup Inc',
+    plan: 'Starter',
+    healthScore: 51,
+    reason: 'Inquired about downgrade via support',
+    mrr: 199,
+  },
+  {
+    id: 'org_5',
+    name: 'Enterprise Solutions',
+    plan: 'Enterprise',
+    healthScore: 44,
+    reason: 'Payment failed — retrying in 3 days',
+    mrr: 315,
+  },
+];
 
-const PLAN_COLORS: Record<string, string> = {
-  starter: "#3b82f6",
-  growth: "#8b5cf6",
-  domination: "#f59e0b",
-};
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-slate-700 rounded ${className ?? ""}`} />;
-}
-
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
-
-function KpiCard({
-  label,
-  value,
-  sub,
-  accent,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  accent?: string;
-}) {
-  return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
-      <p className="text-sm text-slate-400 font-medium mb-1">{label}</p>
-      <p className={`text-3xl font-bold ${accent ?? "text-white"}`}>{value}</p>
-      {sub && <p className="text-xs text-slate-500 mt-1">{sub}</p>}
-    </div>
-  );
-}
-
-// ─── Revenue Page ─────────────────────────────────────────────────────────────
+const overviewCards = [
+  {
+    label: 'Monthly Recurring Revenue',
+    value: '$4,850',
+    change: 12,
+    icon: DollarSign,
+    color: 'text-green-400',
+    bg: 'bg-green-400/10',
+  },
+  {
+    label: 'Total Clients',
+    value: '24',
+    change: 4.3,
+    icon: Users,
+    color: 'text-blue-400',
+    bg: 'bg-blue-400/10',
+  },
+  {
+    label: 'Monthly Churn Rate',
+    value: '2.5%',
+    change: -0.4,
+    icon: TrendingDown,
+    color: 'text-red-400',
+    bg: 'bg-red-400/10',
+    lowerIsBetter: true,
+  },
+  {
+    label: 'Avg Client Lifetime',
+    value: '14.2 mo',
+    change: 2.1,
+    icon: TrendingUp,
+    color: 'text-purple-400',
+    bg: 'bg-purple-400/10',
+  },
+];
 
 export default function RevenuePage() {
-  const [data, setData] = useState<RevenueData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    fetch("/api/admin/revenue")
-      .then((r) => {
-        if (!r.ok) throw new Error("Failed to load revenue data");
-        return r.json();
-      })
-      .then((json) => setData(json.data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="p-8 space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
-        </div>
-        <Skeleton className="h-64" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton key="a" className="h-64" />
-          <Skeleton key="b" className="h-64" />
-        </div>
-        <Skeleton className="h-64" />
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="p-8">
-        <h1 className="text-3xl font-bold text-white mb-4">Revenue Dashboard</h1>
-        <div className="bg-red-900/20 border border-red-800 rounded-xl p-6 text-red-400">
-          {error || "Failed to load revenue data"}
-        </div>
-      </div>
-    );
-  }
-
-  const pieData = Object.entries(data.mrrByPlan)
-    .filter(([, d]) => d.count > 0)
-    .map(([plan, d]) => ({
-      name: plan.charAt(0).toUpperCase() + plan.slice(1),
-      value: d.count,
-      revenue: d.revenue,
-    }));
-
-  const totalSubs = Object.values(data.mrrByPlan).reduce((s, d) => s + d.count, 0);
-
   return (
     <div className="p-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Revenue Dashboard</h1>
-        <p className="text-slate-400 mt-1 text-sm">
-          Live data from Stripe · refreshes every 5 minutes
-        </p>
-      </div>
+      <h1 className="text-3xl font-bold text-white">Revenue Dashboard</h1>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          label="Total MRR"
-          value={`$${data.mrr.toLocaleString()}`}
-          accent="text-green-400"
-        />
-        <KpiCard
-          label="Active Subscribers"
-          value={String(data.activeSubscribers)}
-          sub="active subscriptions"
-        />
-        <KpiCard
-          label="Churn Rate"
-          value={`${data.churnRate}%`}
-          sub="this month"
-          accent={data.churnRate > 5 ? "text-red-400" : "text-yellow-400"}
-        />
-        <KpiCard
-          label="Avg Revenue / User"
-          value={`$${data.avgRevenuePerUser.toLocaleString()}`}
-          sub="per month"
-          accent="text-teal-400"
-        />
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {overviewCards.map((card) => {
+          const Icon = card.icon;
+          const isPositive = card.lowerIsBetter
+            ? card.change < 0
+            : card.change > 0;
+          return (
+            <Card key={card.label} className="bg-slate-800 border-slate-700 p-6">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-slate-400 font-medium leading-tight">
+                  {card.label}
+                </p>
+                <div className={`p-2 rounded-lg ${card.bg}`}>
+                  <Icon className={`w-4 h-4 ${card.color}`} />
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">{card.value}</p>
+              <div className="flex items-center gap-1">
+                {isPositive ? (
+                  <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                ) : (
+                  <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+                )}
+                <span
+                  className={`text-xs font-medium ${
+                    isPositive ? 'text-green-400' : 'text-red-400'
+                  }`}
+                >
+                  {card.change > 0 ? '+' : ''}
+                  {card.change}%
+                </span>
+                <span className="text-xs text-slate-500">vs last month</span>
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
       {/* MRR Trend */}
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-5">MRR Trend — Last 12 Months</h2>
-        <ResponsiveContainer width="100%" height={240}>
-          <AreaChart data={data.monthlyTrend} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="mrrGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+      <Card className="bg-slate-800 border-slate-700 p-6">
+        <h2 className="text-lg font-semibold text-white mb-6">
+          MRR Trend — Last 12 Months
+        </h2>
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={mrrTrend}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="month" tick={{ fill: "#94a3b8", fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis
-              tick={{ fill: "#94a3b8", fontSize: 11 }}
-              axisLine={false}
+            <XAxis
+              dataKey="month"
+              tick={{ fill: '#94a3b8', fontSize: 12 }}
               tickLine={false}
-              tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+            />
+            <YAxis
+              tick={{ fill: '#94a3b8', fontSize: 12 }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `$${(v / 1000).toFixed(1)}k`}
+              width={52}
             />
             <Tooltip
-              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
-              labelStyle={{ color: "#e2e8f0" }}
-              formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]}
+              contentStyle={{
+                backgroundColor: '#1e293b',
+                border: '1px solid #334155',
+                borderRadius: 8,
+                color: '#f1f5f9',
+              }}
+              formatter={(v: number) => [`$${v.toLocaleString()}`, 'MRR']}
             />
-            <Area
+            <Line
               type="monotone"
-              dataKey="revenue"
-              stroke="#14b8a6"
-              strokeWidth={2}
-              fill="url(#mrrGradient)"
+              dataKey="mrr"
+              stroke="#10b981"
+              strokeWidth={2.5}
+              dot={{ fill: '#10b981', r: 4 }}
+              activeDot={{ r: 6 }}
             />
-          </AreaChart>
+          </LineChart>
         </ResponsiveContainer>
-      </div>
+      </Card>
 
-      {/* Plan Breakdown + Pie */}
+      {/* Two-column: Net MRR Movement + Plan Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-5">MRR by Plan</h2>
-          <div className="space-y-4">
-            {Object.entries(data.mrrByPlan).map(([plan, d]) => {
-              const pct = data.mrr > 0 ? Math.round((d.revenue / data.mrr) * 100) : 0;
-              return (
-                <div key={plan}>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: PLAN_COLORS[plan] ?? "#64748b" }}
-                      />
-                      <span className="text-sm font-medium text-slate-300 capitalize">{plan}</span>
-                      <span className="text-xs text-slate-500">{d.count} subs</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-bold text-white">${d.revenue.toLocaleString()}</span>
-                      <span className="text-xs text-slate-500 ml-1.5">{pct}%</span>
-                    </div>
-                  </div>
-                  <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{ width: `${pct}%`, backgroundColor: PLAN_COLORS[plan] ?? "#64748b" }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            {Object.keys(data.mrrByPlan).length === 0 && (
-              <p className="text-slate-500 text-sm">No active subscriptions</p>
-            )}
-          </div>
-        </div>
+        {/* Net MRR Movement Bar Chart */}
+        <Card className="bg-slate-800 border-slate-700 p-6">
+          <h2 className="text-lg font-semibold text-white mb-6">
+            Net MRR Movement
+          </h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={netMrrMovement} barGap={2}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+              <XAxis
+                dataKey="month"
+                tick={{ fill: '#94a3b8', fontSize: 12 }}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: '#94a3b8', fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `$${v}`}
+                width={48}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1e293b',
+                  border: '1px solid #334155',
+                  borderRadius: 8,
+                  color: '#f1f5f9',
+                }}
+                formatter={(v: number) => [`$${v}`, '']}
+              />
+              <Bar dataKey="new" name="New" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="upgrades" name="Upgrades" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="downgrades" name="Downgrades" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="churn" name="Churn" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              <Legend
+                wrapperStyle={{ color: '#94a3b8', fontSize: 12, paddingTop: 12 }}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
 
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-5">Plan Distribution</h2>
-          {pieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
+        {/* Plan Distribution Donut */}
+        <Card className="bg-slate-800 border-slate-700 p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">
+            Plan Distribution
+          </h2>
+          <div className="flex items-center gap-6">
+            <ResponsiveContainer width={160} height={160}>
               <PieChart>
                 <Pie
-                  data={pieData}
+                  data={planDistribution}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
+                  innerRadius={45}
+                  outerRadius={72}
                   paddingAngle={3}
                   dataKey="value"
                 >
-                  {pieData.map((entry) => (
-                    <Cell
-                      key={entry.name}
-                      fill={PLAN_COLORS[entry.name.toLowerCase()] ?? "#64748b"}
-                    />
+                  {planDistribution.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 }}
-                  formatter={(v: number, _name: string, props: { payload?: { revenue?: number } }) => [
-                    `${v} subs · $${props.payload?.revenue?.toLocaleString() ?? 0}/mo`,
-                  ]}
-                />
-                <Legend
-                  formatter={(value) => <span style={{ color: "#94a3b8", fontSize: 12 }}>{value}</span>}
+                  contentStyle={{
+                    backgroundColor: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: 8,
+                    color: '#f1f5f9',
+                  }}
+                  formatter={(v) => [`${v}%`, '']}
                 />
               </PieChart>
             </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
-              No active subscriptions
+            <div className="flex-1 space-y-3">
+              {planDistribution.map((plan) => (
+                <div key={plan.name}>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: plan.color }}
+                      />
+                      <span className="text-sm text-slate-300">{plan.name}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-white">
+                      {plan.value}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 pl-4.5">
+                    {plan.count} clients &middot; ${plan.revenue.toLocaleString()}/mo
+                  </p>
+                </div>
+              ))}
             </div>
-          )}
-          {totalSubs > 0 && (
-            <p className="text-center text-xs text-slate-500 mt-2">{totalSubs} total active subscribers</p>
-          )}
-        </div>
+          </div>
+        </Card>
       </div>
 
-      {/* Recent Transactions */}
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-white mb-5">Recent Transactions</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-700">
-                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Customer</th>
-                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Description</th>
-                <th className="text-right text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Amount</th>
-                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3 pr-4">Date</th>
-                <th className="text-left text-xs font-medium text-slate-400 uppercase pb-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50">
-              {data.recentTransactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-slate-700/30 transition-colors">
-                  <td className="py-3 pr-4 font-medium text-slate-200">{tx.customerName}</td>
-                  <td className="py-3 pr-4 text-slate-400 max-w-xs truncate">{tx.description || "—"}</td>
-                  <td className="py-3 pr-4 text-right font-mono text-slate-200">
-                    ${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </td>
-                  <td className="py-3 pr-4 text-slate-400">
-                    {new Date(tx.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-                  </td>
-                  <td className="py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        tx.status === "paid"
-                          ? "bg-green-900/30 text-green-400"
-                          : tx.status === "open"
-                          ? "bg-amber-900/30 text-amber-400"
-                          : "bg-red-900/30 text-red-400"
-                      }`}
-                    >
-                      {tx.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {data.recentTransactions.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-500">
-                    No transactions found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* At-Risk Clients */}
+      <Card className="bg-slate-800 border-slate-700 overflow-hidden">
+        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-yellow-400" />
+            <h2 className="text-lg font-semibold text-white">
+              At-Risk Clients
+            </h2>
+            <Badge className="bg-yellow-600/80 text-yellow-100">
+              {atRiskClients.length}
+            </Badge>
+          </div>
+          <p className="text-xs text-slate-500">Health score &lt; 60</p>
         </div>
-      </div>
+        <div className="divide-y divide-slate-700">
+          {atRiskClients.map((client) => (
+            <div
+              key={client.id}
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-5 gap-4 hover:bg-slate-700/20 transition-colors"
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ${
+                    client.healthScore < 45
+                      ? 'bg-red-600'
+                      : 'bg-yellow-600'
+                  }`}
+                >
+                  {client.healthScore}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-semibold text-white">{client.name}</p>
+                    <Badge className="bg-slate-700 text-slate-300 font-normal text-xs">
+                      {client.plan}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-slate-400">{client.reason}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    ${client.mrr}/mo
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-600 text-slate-300 hover:text-white h-8"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                  View
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 h-8"
+                >
+                  Reach Out
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
