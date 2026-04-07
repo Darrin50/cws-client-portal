@@ -1,7 +1,7 @@
 "use server";
 
 import { uploadAssetSchema } from "@/lib/validators";
-import { createBrandAsset, deleteBrandAsset } from "@/lib/data/brand-assets";
+import { createBrandAsset, deleteBrandAsset, getBrandAssets } from "@/lib/data/brand-assets";
 import { uploadFile, deleteFile } from "@/lib/upload";
 import { createAuditLog } from "@/lib/data/audit";
 import { requireOrgAccess } from "@/lib/auth";
@@ -65,7 +65,7 @@ export async function uploadBrandAsset(
       resourceId: asset.id,
       changes: {
         name: asset.name,
-        type: asset.type,
+        type: asset.assetType,
       },
       ipAddress,
       userAgent,
@@ -89,19 +89,16 @@ export async function removeBrandAsset(
     const { userId } = await requireOrgAccess(organizationId);
 
     // Get asset to retrieve URL for deletion
-    const asset = await db
-      .select()
-      .from(brandAssets)
-      .where(eq(brandAssets.id, assetId))
-      .limit(1);
+    const assets = await getBrandAssets(organizationId);
+    const asset = assets.find((a) => a.id === assetId);
 
-    if (!asset?.[0]) {
+    if (!asset) {
       return { error: "Asset not found" };
     }
 
     // Delete from blob storage if URL exists
-    if (asset[0].url) {
-      await deleteFile(asset[0].url);
+    if (asset.fileUrl) {
+      await deleteFile(asset.fileUrl);
     }
 
     // Delete record
@@ -115,7 +112,7 @@ export async function removeBrandAsset(
       resourceType: "brand_asset",
       resourceId: assetId,
       changes: {
-        name: asset[0].name,
+        name: asset.name,
       },
       ipAddress,
       userAgent,

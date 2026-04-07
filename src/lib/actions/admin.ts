@@ -156,11 +156,11 @@ export async function sendBroadcast(
 
     // Send email to all matching recipients
     // This would be batched in production
-    await sendEmail({
-      to: "broadcast@example.com",
+    await sendEmail(
+      "broadcast@example.com",
       subject,
-      react: null, // Email template would go here
-    });
+      null // Email template would go here
+    );
 
     // Log audit event
     await createAuditLog({

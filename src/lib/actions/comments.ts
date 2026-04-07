@@ -1,8 +1,10 @@
 "use server";
 
 import { createCommentSchema, updateCommentStatusSchema } from "@/lib/validators";
-import { createComment, updateCommentStatus, getPage } from "@/lib/data";
-import { createNotification, sendEmail } from "@/lib/email";
+import { createComment, updateCommentStatus } from "@/lib/data/comments";
+import { getPage } from "@/lib/data/pages";
+import { createNotification } from "@/lib/data/notifications";
+import { sendEmail } from "@/lib/email";
 import { createAuditLog } from "@/lib/data/audit";
 import { requireOrgAccess, requireAuth } from "@/lib/auth";
 
@@ -31,7 +33,6 @@ export async function submitRequest(
       pageId: validated.pageId,
       authorId: userId,
       content: validated.content,
-      type: "request",
       priority: validated.priority,
       x: validated.x,
       y: validated.y,
@@ -47,18 +48,18 @@ export async function submitRequest(
       userId: validated.organizationId, // This would need to be changed to actual team member IDs
       type: "request",
       title: "New request submitted",
-      description: `${validated.priority || "medium"} priority request on ${page.title}`,
+      description: `${validated.priority || "medium"} priority request on ${page.name}`,
       relatedId: comment.id,
       link: `/portal/pages/${page.id}#comment-${comment.id}`,
       priority: (validated.priority as any) || "medium",
     });
 
     // Send email notification
-    await sendEmail({
-      to: "team@example.com", // Should be dynamic based on org settings
-      subject: `New ${validated.priority || "medium"} priority request on ${page.title}`,
-      react: null, // Email template would go here
-    });
+    await sendEmail(
+      "team@example.com", // Should be dynamic based on org settings
+      `New ${validated.priority || "medium"} priority request on ${page.name}`,
+      null // Email template would go here
+    );
 
     // Log audit event
     await createAuditLog({
@@ -93,7 +94,7 @@ export async function updateRequestStatus(
     const updated = await updateCommentStatus(
       validated.commentId,
       validated.status,
-      validated.status === "resolved" ? userId : undefined,
+      validated.status === "completed" ? userId : undefined,
       validated.resolutionNote
     );
 

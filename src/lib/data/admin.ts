@@ -1,21 +1,21 @@
 import { db } from "@/db";
-import { organizations, organizationMembers, comments, reports } from "@/db/schema";
+import { organizationsTable, organizationMembersTable, commentsTable, reportsTable } from "@/db/schema";
 import { count, desc, sql } from "drizzle-orm";
 
 export async function getRevenueMetrics() {
   const result = await db
     .select({
-      plan: organizations.plan,
+      plan: organizationsTable.planTier,
       count: count(),
       totalMonthly: sql`count(*) * CASE
-        WHEN ${organizations.plan} = 'starter' THEN 99
-        WHEN ${organizations.plan} = 'growth' THEN 299
-        WHEN ${organizations.plan} = 'enterprise' THEN 999
+        WHEN ${organizationsTable.planTier} = 'starter' THEN 99
+        WHEN ${organizationsTable.planTier} = 'growth' THEN 299
+        WHEN ${organizationsTable.planTier} = 'domination' THEN 999
         ELSE 0
       END`,
     })
-    .from(organizations)
-    .groupBy(organizations.plan);
+    .from(organizationsTable)
+    .groupBy(organizationsTable.planTier);
 
   return result;
 }
@@ -26,20 +26,20 @@ export async function getClientList(
 ) {
   const result = await db
     .select({
-      id: organizations.id,
-      name: organizations.name,
-      plan: organizations.plan,
-      website: organizations.website,
-      createdAt: organizations.createdAt,
-      memberCount: count(organizationMembers.id),
+      id: organizationsTable.id,
+      name: organizationsTable.name,
+      plan: organizationsTable.planTier,
+      website: organizationsTable.websiteUrl,
+      createdAt: organizationsTable.createdAt,
+      memberCount: count(organizationMembersTable.id),
     })
-    .from(organizations)
+    .from(organizationsTable)
     .leftJoin(
-      organizationMembers,
-      sql`${organizations.id} = ${organizationMembers.organizationId}`
+      organizationMembersTable,
+      sql`${organizationsTable.id} = ${organizationMembersTable.organizationId}`
     )
-    .groupBy(organizations.id)
-    .orderBy(desc(organizations.createdAt))
+    .groupBy(organizationsTable.id)
+    .orderBy(desc(organizationsTable.createdAt))
     .limit(limit)
     .offset(offset);
 
@@ -49,20 +49,20 @@ export async function getClientList(
 export async function getDashboardStats() {
   const totalOrgs = await db
     .select({ count: count() })
-    .from(organizations);
+    .from(organizationsTable);
 
   const totalMembers = await db
     .select({ count: count() })
-    .from(organizationMembers);
+    .from(organizationMembersTable);
 
   const openRequests = await db
     .select({ count: count() })
-    .from(comments)
-    .where(sql`${comments.status} = 'open'`);
+    .from(commentsTable)
+    .where(sql`${commentsTable.status} = 'open'`);
 
   const reportsGenerated = await db
     .select({ count: count() })
-    .from(reports);
+    .from(reportsTable);
 
   return {
     totalOrganizations: totalOrgs?.[0]?.count || 0,

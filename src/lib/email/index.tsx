@@ -1,7 +1,12 @@
 import { Resend } from "resend";
 import { ReactNode } from "react";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time failures when RESEND_API_KEY is not set
+let _resend: Resend | undefined;
+const getResend = () => {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+};
 
 export async function sendEmail(
   to: string,
@@ -9,7 +14,7 @@ export async function sendEmail(
   react: ReactNode
 ) {
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: process.env.EMAIL_FROM || "noreply@cwsportal.com",
       to,
       subject,

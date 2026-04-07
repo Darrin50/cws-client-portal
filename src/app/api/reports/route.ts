@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     if (dbUser.role !== 'admin') return forbiddenResponse();
 
     const body = await request.json();
-    const validation = validateRequest<z.infer<typeof CreateReportSchema>>(CreateReportSchema, body);
+    const validation = validateRequest(CreateReportSchema, body);
     if (!validation.success) {
       return errorResponse(validation.error ?? 'Validation failed', 400);
     }

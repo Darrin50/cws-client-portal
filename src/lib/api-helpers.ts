@@ -12,18 +12,18 @@ export interface ApiResponse<T = any> {
 /**
  * Helper to validate request body against Zod schema
  */
-export function validateRequest<T>(
-  schema: z.ZodSchema,
+export function validateRequest<S extends z.ZodSchema>(
+  schema: S,
   data: unknown
-): { success: boolean; data?: T; error?: string } {
+): { success: boolean; data?: z.infer<S>; error?: string } {
   try {
     const validated = schema.parse(data);
-    return { success: true, data: validated as T };
+    return { success: true, data: validated as z.infer<S> };
   } catch (err) {
     if (err instanceof z.ZodError) {
       return {
         success: false,
-        error: `Validation error: ${err.errors[0].message}`,
+        error: `Validation error: ${err.errors[0]?.message ?? 'Invalid input'}`,
       };
     }
     return { success: false, error: 'Validation failed' };

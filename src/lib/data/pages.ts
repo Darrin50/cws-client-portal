@@ -1,13 +1,13 @@
 import { db } from "@/db";
-import { pages, comments } from "@/db/schema";
+import { pagesTable, commentsTable } from "@/db/schema";
 import { eq, and, count } from "drizzle-orm";
 
 export async function getPages(orgId: string) {
   const result = await db
     .select()
-    .from(pages)
-    .where(eq(pages.organizationId, orgId))
-    .orderBy(pages.createdAt);
+    .from(pagesTable)
+    .where(eq(pagesTable.organizationId, orgId))
+    .orderBy(pagesTable.createdAt);
 
   return result;
 }
@@ -15,8 +15,8 @@ export async function getPages(orgId: string) {
 export async function getPage(id: string) {
   const result = await db
     .select()
-    .from(pages)
-    .where(eq(pages.id, id))
+    .from(pagesTable)
+    .where(eq(pagesTable.id, id))
     .limit(1);
 
   return result?.[0] || null;
@@ -31,11 +31,14 @@ export async function createPage(data: {
   screenshot?: string;
 }) {
   const result = await db
-    .insert(pages)
+    .insert(pagesTable)
     .values({
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      organizationId: data.organizationId,
+      name: data.title,
+      urlPath: data.slug,
+      fullUrl: data.url,
+      screenshotUrl: data.screenshot,
+      metaDescription: data.description,
     })
     .returning();
 
@@ -54,23 +57,28 @@ export async function updatePage(
   }
 ) {
   const result = await db
-    .update(pages)
+    .update(pagesTable)
     .set({
-      ...data,
+      name: data.title,
+      urlPath: data.slug,
+      fullUrl: data.url,
+      metaDescription: data.description,
+      screenshotUrl: data.screenshot,
+      screenshotTakenAt: data.lastAnalyzedAt,
       updatedAt: new Date(),
     })
-    .where(eq(pages.id, id))
+    .where(eq(pagesTable.id, id))
     .returning();
 
   return result?.[0] || null;
 }
 
 export async function deletePage(id: string) {
-  // Delete associated comments first
-  await db.delete(comments).where(eq(comments.pageId, id));
+  // Delete associated commentsTable first
+  await db.delete(commentsTable).where(eq(commentsTable.pageId, id));
 
   // Delete the page
-  const result = await db.delete(pages).where(eq(pages.id, id)).returning();
+  const result = await db.delete(pagesTable).where(eq(pagesTable.id, id)).returning();
 
   return result?.[0] || null;
 }
@@ -85,16 +93,16 @@ export async function getPagesWithCommentCounts(orgId: string) {
           total: count(),
           open: count(),
         })
-        .from(comments)
-        .where(eq(comments.pageId, page.id));
+        .from(commentsTable)
+        .where(eq(commentsTable.pageId, page.id));
 
       const openCounts = await db
         .select({ count: count() })
-        .from(comments)
+        .from(commentsTable)
         .where(
           and(
-            eq(comments.pageId, page.id),
-            eq(comments.status, "open")
+            eq(commentsTable.pageId, page.id),
+            eq(commentsTable.status, "new")
           )
         );
 

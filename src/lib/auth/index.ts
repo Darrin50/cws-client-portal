@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { organizations, organizationMembers } from "@/db/schema";
+import { organizationsTable, organizationMembersTable } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export class AuthError extends Error {
@@ -46,11 +46,11 @@ export async function requireOrgAccess(orgId: string) {
 
   const member = await db
     .select()
-    .from(organizationMembers)
+    .from(organizationMembersTable)
     .where(
       and(
-        eq(organizationMembers.organizationId, orgId),
-        eq(organizationMembers.userId, userId)
+        eq(organizationMembersTable.organizationId, orgId),
+        eq(organizationMembersTable.userId, userId)
       )
     )
     .limit(1);
@@ -59,17 +59,17 @@ export async function requireOrgAccess(orgId: string) {
     throw new AuthError("Forbidden: No access to this organization", 403);
   }
 
-  return { userId, role: member[0].role };
+  return { userId, role: member[0]!.role };
 }
 
 export async function getUserOrganization(userId: string) {
   const members = await db
     .select({
-      orgId: organizationMembers.organizationId,
-      role: organizationMembers.role,
+      orgId: organizationMembersTable.organizationId,
+      role: organizationMembersTable.role,
     })
-    .from(organizationMembers)
-    .where(eq(organizationMembers.userId, userId))
+    .from(organizationMembersTable)
+    .where(eq(organizationMembersTable.userId, userId))
     .limit(1);
 
   if (!members || members.length === 0) {
@@ -78,8 +78,8 @@ export async function getUserOrganization(userId: string) {
 
   const org = await db
     .select()
-    .from(organizations)
-    .where(eq(organizations.id, members[0].orgId))
+    .from(organizationsTable)
+    .where(eq(organizationsTable.id, members[0]!.orgId))
     .limit(1);
 
   return org?.[0] || null;

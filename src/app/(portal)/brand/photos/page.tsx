@@ -39,11 +39,13 @@ function PhotoCard({
         )}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
           {photo.fileUrl && (
-            <Button size="sm" variant="outline" asChild>
-              <a href={photo.fileUrl} download={photo.fileName ?? photo.name}>
-                <Download className="w-4 h-4" />
-              </a>
-            </Button>
+            <a
+              href={photo.fileUrl}
+              download={photo.fileName ?? photo.name}
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 h-9 px-3"
+            >
+              <Download className="w-4 h-4" />
+            </a>
           )}
           <Button size="sm" variant="outline" className="text-red-400" onClick={() => onDelete(photo.id)}>
             <Trash2 className="w-4 h-4" />

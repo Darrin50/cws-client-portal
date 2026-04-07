@@ -1,42 +1,47 @@
 import { db } from "@/db";
-import { brandAssets, assetVersions } from "@/db/schema";
+import { brandAssetsTable, brandAssetVersionsTable } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function getBrandAssets(orgId: string, type?: string) {
-  let query = db.select().from(brandAssets).where(eq(brandAssets.organizationId, orgId));
+export async function getBrandAssets(orgId: string, assetType?: string) {
+  const conditions = [eq(brandAssetsTable.organizationId, orgId)];
 
-  if (type) {
-    query = query.where(eq(brandAssets.type, type));
+  if (assetType) {
+    conditions.push(eq(brandAssetsTable.assetType, assetType as any));
   }
 
-  return query;
+  const result = await db
+    .select()
+    .from(brandAssetsTable)
+    .where(and(...conditions));
+
+  return result;
 }
 
 export async function createBrandAsset(data: {
   organizationId: string;
-  type: "logo" | "color" | "font" | "image" | "icon" | "other";
+  type: string;
   name: string;
   url?: string;
   description?: string;
   metadata?: Record<string, any>;
 }) {
   const result = await db
-    .insert(brandAssets)
+    .insert(brandAssetsTable)
     .values({
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      organizationId: data.organizationId,
+      assetType: data.type as any,
+      name: data.name,
+      fileUrl: data.url,
+      metadata: data.metadata || null,
     })
     .returning();
 
   // Create initial version
   if (result?.[0]) {
-    await db.insert(assetVersions).values({
-      assetId: result[0].id,
+    await db.insert(brandAssetVersionsTable).values({
+      brandAssetId: result[0].id,
       version: 1,
-      url: data.url || "",
-      metadata: data.metadata || {},
-      createdAt: new Date(),
+      fileUrl: data.url,
     });
   }
 
@@ -45,12 +50,12 @@ export async function createBrandAsset(data: {
 
 export async function deleteBrandAsset(id: string) {
   // Delete versions first
-  await db.delete(assetVersions).where(eq(assetVersions.assetId, id));
+  await db.delete(brandAssetVersionsTable).where(eq(brandAssetVersionsTable.brandAssetId, id));
 
   // Delete asset
   const result = await db
-    .delete(brandAssets)
-    .where(eq(brandAssets.id, id))
+    .delete(brandAssetsTable)
+    .where(eq(brandAssetsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -63,10 +68,11 @@ export async function createAssetVersion(data: {
   metadata?: Record<string, any>;
 }) {
   const result = await db
-    .insert(assetVersions)
+    .insert(brandAssetVersionsTable)
     .values({
-      ...data,
-      createdAt: new Date(),
+      brandAssetId: data.assetId,
+      version: data.version,
+      fileUrl: data.url,
     })
     .returning();
 

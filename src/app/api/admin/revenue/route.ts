@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       subsPage = await stripe.subscriptions.list({
         status: 'active',
         limit: 100,
-        starting_after: subsPage.data[subsPage.data.length - 1].id,
+        starting_after: subsPage.data[subsPage.data.length - 1]!.id,
         expand: ['data.customer'],
       });
       allSubs.push(...subsPage.data);
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
         status: 'paid',
         created: { gte: twelveMonthsAgo },
         limit: 100,
-        starting_after: invoicePage.data[invoicePage.data.length - 1].id,
+        starting_after: invoicePage.data[invoicePage.data.length - 1]!.id,
       });
       invoicePages.push(...invoicePage.data);
     }

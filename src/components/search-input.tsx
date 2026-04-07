@@ -14,8 +14,8 @@ export function SearchInput({
   value: externalValue,
   ...props
 }: SearchInputProps) {
-  const [value, setValue] = useState(externalValue as string || "")
-  const debounceRef = React.useRef<NodeJS.Timeout>()
+  const [value, setValue] = useState<string>(externalValue as string ?? "")
+  const debounceRef = React.useRef<NodeJS.Timeout | undefined>(undefined)
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const validation = validateRequest<z.infer<typeof CreateMessageSchema>>(CreateMessageSchema, body);
+    const validation = validateRequest(CreateMessageSchema, body);
 
     if (!validation.success || !validation.data) {
       return errorResponse(validation.error || 'Validation failed', 400);

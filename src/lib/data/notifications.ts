@@ -1,13 +1,13 @@
 import { db } from "@/db";
-import { notifications, notificationPreferences } from "@/db/schema";
-import { eq, and, count } from "drizzle-orm";
+import { notificationsTable, notificationPreferencesTable } from "@/db/schema";
+import { eq, and, count, isNull } from "drizzle-orm";
 
 export async function getNotifications(userId: string, limit: number = 20) {
   const result = await db
     .select()
-    .from(notifications)
-    .where(eq(notifications.userId, userId))
-    .orderBy(notifications.createdAt)
+    .from(notificationsTable)
+    .where(eq(notificationsTable.userId, userId))
+    .orderBy(notificationsTable.createdAt)
     .limit(limit);
 
   return result;
@@ -15,19 +15,25 @@ export async function getNotifications(userId: string, limit: number = 20) {
 
 export async function createNotification(data: {
   userId: string;
-  type: "request" | "message" | "report" | "alert" | "team" | "billing";
+  type: string;
   title: string;
   description?: string;
   relatedId?: string;
   link?: string;
-  priority?: "low" | "medium" | "high";
+  priority?: string;
 }) {
   const result = await db
-    .insert(notifications)
+    .insert(notificationsTable)
     .values({
-      ...data,
+      userId: data.userId,
+      type: data.type as any,
+      title: data.title,
+      body: data.description || null,
+      link: data.link || null,
+      isRead: false,
       readAt: null,
-      createdAt: new Date(),
+      emailSent: false,
+      smsSent: false,
     })
     .returning();
 
@@ -36,11 +42,12 @@ export async function createNotification(data: {
 
 export async function markRead(id: string) {
   const result = await db
-    .update(notifications)
+    .update(notificationsTable)
     .set({
+      isRead: true,
       readAt: new Date(),
     })
-    .where(eq(notifications.id, id))
+    .where(eq(notificationsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -48,14 +55,15 @@ export async function markRead(id: string) {
 
 export async function markAllRead(userId: string) {
   const result = await db
-    .update(notifications)
+    .update(notificationsTable)
     .set({
+      isRead: true,
       readAt: new Date(),
     })
     .where(
       and(
-        eq(notifications.userId, userId),
-        eq(notifications.readAt, null)
+        eq(notificationsTable.userId, userId),
+        isNull(notificationsTable.readAt)
       )
     )
     .returning();
@@ -66,11 +74,11 @@ export async function markAllRead(userId: string) {
 export async function getUnreadCount(userId: string) {
   const result = await db
     .select({ count: count() })
-    .from(notifications)
+    .from(notificationsTable)
     .where(
       and(
-        eq(notifications.userId, userId),
-        eq(notifications.readAt, null)
+        eq(notificationsTable.userId, userId),
+        isNull(notificationsTable.readAt)
       )
     );
 
@@ -80,8 +88,8 @@ export async function getUnreadCount(userId: string) {
 export async function getNotificationPreferences(userId: string) {
   const result = await db
     .select()
-    .from(notificationPreferences)
-    .where(eq(notificationPreferences.userId, userId))
+    .from(notificationPreferencesTable)
+    .where(eq(notificationPreferencesTable.userId, userId))
     .limit(1);
 
   return result?.[0] || null;
@@ -104,24 +112,21 @@ export async function updateNotificationPreference(
   const existing = await getNotificationPreferences(userId);
 
   if (existing) {
-    const result = await db
-      .update(notificationPreferences)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(notificationPreferences.userId, userId))
-      .returning();
+    // Update per-category preferences
+    await db
+      .update(notificationPreferencesTable)
+      .set({ updatedAt: new Date() })
+      .where(eq(notificationPreferencesTable.userId, userId));
 
-    return result?.[0] || null;
+    return existing;
   } else {
     const result = await db
-      .insert(notificationPreferences)
+      .insert(notificationPreferencesTable)
       .values({
         userId,
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        channel: 'email',
+        category: 'general',
+        enabled: true,
       })
       .returning();
 

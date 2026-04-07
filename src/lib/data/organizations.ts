@@ -1,17 +1,17 @@
 import { db } from "@/db";
 import {
-  organizations,
-  organizationMembers,
-  pages,
-  comments,
+  organizationsTable,
+  organizationMembersTable,
+  pagesTable,
+  commentsTable,
 } from "@/db/schema";
 import { eq, and, count } from "drizzle-orm";
 
 export async function getOrganization(id: string) {
   const result = await db
     .select()
-    .from(organizations)
-    .where(eq(organizations.id, id))
+    .from(organizationsTable)
+    .where(eq(organizationsTable.id, id))
     .limit(1);
 
   return result?.[0] || null;
@@ -20,8 +20,8 @@ export async function getOrganization(id: string) {
 export async function getOrganizationBySlug(slug: string) {
   const result = await db
     .select()
-    .from(organizations)
-    .where(eq(organizations.slug, slug))
+    .from(organizationsTable)
+    .where(eq(organizationsTable.slug, slug))
     .limit(1);
 
   return result?.[0] || null;
@@ -41,12 +41,13 @@ export async function updateOrganization(
   }
 ) {
   const result = await db
-    .update(organizations)
+    .update(organizationsTable)
     .set({
-      ...data,
+      name: data.name,
+      websiteUrl: data.website,
       updatedAt: new Date(),
     })
-    .where(eq(organizations.id, id))
+    .where(eq(organizationsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -55,14 +56,14 @@ export async function updateOrganization(
 export async function getOrganizationMembers(orgId: string) {
   const members = await db
     .select()
-    .from(organizationMembers)
-    .where(eq(organizationMembers.organizationId, orgId));
+    .from(organizationMembersTable)
+    .where(eq(organizationMembersTable.organizationId, orgId));
 
   return members;
 }
 
 export async function getAllOrganizations() {
-  const result = await db.select().from(organizations);
+  const result = await db.select().from(organizationsTable);
   return result;
 }
 
@@ -76,31 +77,30 @@ export async function getOrganizationStats(orgId: string) {
   // Count pages
   const pageCount = await db
     .select({ count: count() })
-    .from(pages)
-    .where(eq(pages.organizationId, orgId));
+    .from(pagesTable)
+    .where(eq(pagesTable.organizationId, orgId));
 
   // Count open requests
   const requestCount = await db
     .select({ count: count() })
-    .from(comments)
+    .from(commentsTable)
     .where(
       and(
-        eq(comments.organizationId, orgId),
-        eq(comments.status, "open"),
-        eq(comments.type, "request")
+        eq(commentsTable.organizationId, orgId),
+        eq(commentsTable.status, "new")
       )
     );
 
   // Count team members
   const memberCount = await db
     .select({ count: count() })
-    .from(organizationMembers)
-    .where(eq(organizationMembers.organizationId, orgId));
+    .from(organizationMembersTable)
+    .where(eq(organizationMembersTable.organizationId, orgId));
 
   return {
     id: org.id,
     name: org.name,
-    plan: org.plan,
+    plan: org.planTier,
     createdAt: org.createdAt,
     pages: pageCount?.[0]?.count || 0,
     openRequests: requestCount?.[0]?.count || 0,

@@ -1,23 +1,24 @@
 import { db } from "@/db";
-import { socialPosts } from "@/db/schema";
+import { socialPostsTable } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export async function getSocialPosts(
   orgId: string,
-  status?: "draft" | "scheduled" | "published" | "rejected"
+  status?: "draft" | "pending_approval" | "approved" | "published" | "rejected"
 ) {
-  let query = db
-    .select()
-    .from(socialPosts)
-    .where(eq(socialPosts.organizationId, orgId));
+  const conditions: ReturnType<typeof eq>[] = [eq(socialPostsTable.organizationId, orgId)];
 
   if (status) {
-    query = query.where(eq(socialPosts.status, status));
+    conditions.push(eq(socialPostsTable.status, status));
   }
 
-  query = query.orderBy(desc(socialPosts.createdAt));
+  const result = await db
+    .select()
+    .from(socialPostsTable)
+    .where(and(...conditions))
+    .orderBy(desc(socialPostsTable.createdAt));
 
-  return query;
+  return result;
 }
 
 export async function createSocialPost(data: {
@@ -27,14 +28,17 @@ export async function createSocialPost(data: {
   scheduledFor?: Date;
   imageUrl?: string;
   caption?: string;
+  createdById: string;
 }) {
   const result = await db
-    .insert(socialPosts)
+    .insert(socialPostsTable)
     .values({
-      ...data,
+      organizationId: data.organizationId,
+      content: data.content,
+      platforms: data.platforms,
+      scheduledAt: data.scheduledFor || null,
       status: "draft",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdById: data.createdById,
     })
     .returning();
 
@@ -52,12 +56,14 @@ export async function updateSocialPost(
   }
 ) {
   const result = await db
-    .update(socialPosts)
+    .update(socialPostsTable)
     .set({
-      ...data,
+      content: data.content,
+      platforms: data.platforms as any,
+      scheduledAt: data.scheduledFor,
       updatedAt: new Date(),
     })
-    .where(eq(socialPosts.id, id))
+    .where(eq(socialPostsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -65,14 +71,13 @@ export async function updateSocialPost(
 
 export async function approveSocialPost(id: string, approvedById: string) {
   const result = await db
-    .update(socialPosts)
+    .update(socialPostsTable)
     .set({
-      status: "scheduled",
+      status: "approved",
       approvedById,
-      approvedAt: new Date(),
       updatedAt: new Date(),
     })
-    .where(eq(socialPosts.id, id))
+    .where(eq(socialPostsTable.id, id))
     .returning();
 
   return result?.[0] || null;
@@ -84,15 +89,13 @@ export async function rejectSocialPost(
   reason?: string
 ) {
   const result = await db
-    .update(socialPosts)
+    .update(socialPostsTable)
     .set({
       status: "rejected",
-      rejectedById,
-      rejectionReason: reason,
-      rejectedAt: new Date(),
+      rejectionNote: reason || null,
       updatedAt: new Date(),
     })
-    .where(eq(socialPosts.id, id))
+    .where(eq(socialPostsTable.id, id))
     .returning();
 
   return result?.[0] || null;

@@ -60,7 +60,7 @@ export async function captureScreenshotAndUpload(
     const buffer = await captureScreenshot(url, options);
     const { uploadFile } = await import("./upload");
 
-    const file = new File([buffer], "screenshot.png", {
+    const file = new File([buffer as unknown as BlobPart], "screenshot.png", {
       type: "image/png",
     });
 

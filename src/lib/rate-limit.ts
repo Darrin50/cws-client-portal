@@ -28,6 +28,6 @@ export function rateLimit(ip: string): { success: boolean; remaining: number } {
 
 export function getIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  if (forwarded) return (forwarded.split(",")[0] ?? forwarded).trim();
   return request.headers.get("x-real-ip") ?? "unknown";
 }
