@@ -88,15 +88,21 @@ export function ClientLayout({
         )}
       >
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10 flex-shrink-0">
-          <Image
-            src="/logo.png"
-            alt="Caliber Web Studio"
-            width={140}
-            height={40}
-            className="object-contain"
-            priority
-          />
+        <div className="px-5 py-4 border-b border-white/10 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="CWS"
+              width={32}
+              height={32}
+              className="object-contain flex-shrink-0"
+              priority
+            />
+            <div className="min-w-0">
+              <p className="text-white font-semibold text-sm leading-tight truncate">Caliber Web Studio</p>
+              <p className="text-slate-500 text-[10px] leading-tight">Client Portal</p>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
