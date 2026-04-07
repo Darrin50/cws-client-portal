@@ -1,182 +1,231 @@
 "use client";
 
-import { Send, Paperclip } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send, Paperclip, Wifi, WifiOff } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useOrganization, useUser } from "@clerk/nextjs";
+import { usePusher, type PusherMessage } from "@/lib/hooks/use-pusher";
 
-const mockMessages = [
-  {
-    id: "1",
-    sender: "Sarah Chen",
-    role: "Project Manager",
-    initials: "SC",
-    timestamp: "10:30 AM",
-    content:
-      "Hey! I've reviewed the latest homepage designs. Looking great so far — the hero section has a really strong visual hierarchy.",
-    isClient: false,
-  },
-  {
-    id: "2",
-    sender: "You",
-    role: "Client",
-    initials: "DM",
-    timestamp: "10:45 AM",
-    content:
-      "Thanks Sarah! Can we adjust the hero section? I'd like the headline text to be a bit more prominent.",
-    isClient: true,
-  },
-  {
-    id: "3",
-    sender: "Sarah Chen",
-    role: "Project Manager",
-    initials: "SC",
-    timestamp: "11:00 AM",
-    content:
-      "Absolutely! I'll make those adjustments and have new mockups for you by tomorrow morning.",
-    isClient: false,
-  },
-  {
-    id: "4",
-    sender: "Mike Johnson",
-    role: "Designer",
-    initials: "MJ",
-    timestamp: "2:15 PM",
-    content:
-      "Quick update: I've started on the color palette refinements. More options coming soon!",
-    isClient: false,
-  },
-  {
-    id: "5",
-    sender: "You",
-    role: "Client",
-    initials: "DM",
-    timestamp: "3:20 PM",
-    content:
-      "Perfect! I'm excited to see the color options. Looking forward to the updated mockups.",
-    isClient: true,
-  },
-];
+interface Message {
+  id: string;
+  sender: string;
+  role: string;
+  avatar: string;
+  timestamp: string;
+  content: string;
+  isClient: boolean;
+}
 
-const senderColors: Record<string, string> = {
-  SC: "bg-violet-500",
-  MJ: "bg-teal-500",
-  DM: "bg-blue-600",
-};
-
-function MessageBubble({ message }: { message: (typeof mockMessages)[0] }) {
-  const bgColor = senderColors[message.initials] ?? "bg-slate-500";
-
+function MessageBubble({ message }: { message: Message }) {
   return (
-    <div
-      className={`flex gap-3 ${message.isClient ? "flex-row-reverse" : ""}`}
-    >
-      <div
-        className={`w-8 h-8 rounded-full ${bgColor} flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 self-end mb-5`}
-      >
-        {message.initials}
-      </div>
-      <div
-        className={`flex flex-col max-w-[70%] ${message.isClient ? "items-end" : "items-start"}`}
-      >
-        <div className="flex items-center gap-2 mb-1">
-          <p
-            className={`text-xs font-semibold text-slate-700 ${message.isClient ? "order-last" : ""}`}
-          >
-            {message.sender}
-          </p>
-          <span className="text-[10px] text-slate-400">{message.role}</span>
+    <div className={`flex gap-3 ${message.isClient ? "flex-row-reverse" : ""}`}>
+      <img
+        src={message.avatar}
+        alt={message.sender}
+        className="w-8 h-8 rounded-full flex-shrink-0"
+      />
+      <div className={`flex flex-col ${message.isClient ? "items-end" : ""}`}>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-white">{message.sender}</p>
+          <span className="text-xs text-slate-500">{message.role}</span>
         </div>
         <div
-          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+          className={`mt-1 rounded-lg px-4 py-2 max-w-xs ${
             message.isClient
-              ? "bg-blue-600 text-white rounded-br-sm"
-              : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm shadow-sm"
+              ? "bg-blue-600 text-white"
+              : "bg-slate-700 text-slate-100"
           }`}
         >
-          {message.content}
+          <p className="text-sm">{message.content}</p>
         </div>
-        <span className="text-[10px] text-slate-400 mt-1.5">
-          {message.timestamp}
-        </span>
+        <span className="text-xs text-slate-500 mt-1">{message.timestamp}</span>
       </div>
     </div>
   );
 }
 
+function pusherMessageToMessage(pm: PusherMessage): Message {
+  return {
+    id: pm.id,
+    sender: pm.senderName,
+    role: pm.senderRole,
+    avatar: "/api/placeholder/32/32",
+    timestamp: new Date(pm.createdAt).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+    content: pm.content,
+    isClient: pm.isClient,
+  };
+}
+
 export default function MessagesPage() {
-  const [messages, setMessages] = useState(mockMessages);
+  const { organization } = useOrganization();
+  const { user } = useUser();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const handleNewMessage = useCallback((pm: PusherMessage) => {
+    // Avoid duplicates (our own sent message is already added optimistically)
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === pm.id)) return prev;
+      return [...prev, pusherMessageToMessage(pm)];
+    });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }, []);
+
+  const { connected } = usePusher({
+    orgId: organization?.id,
+    onNewMessage: handleNewMessage,
+  });
+
+  // Load messages on mount
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (!organization?.id) return;
+
+    async function loadMessages() {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/messages?org_id=${organization!.id}&limit=50`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data?.messages)) {
+          setMessages(data.data.messages);
+        }
+      } catch (err) {
+        console.error("Failed to load messages:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadMessages();
+  }, [organization?.id]);
+
+  // Scroll to bottom when messages load
+  useEffect(() => {
+    if (!isLoading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [isLoading]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || isSubmitting) return;
+    if (!newMessage.trim() || !organization?.id || !user) return;
 
     setIsSubmitting(true);
-    try {
-      const message = {
-        id: String(messages.length + 1),
-        sender: "You",
-        role: "Client",
-        initials: "DM",
-        timestamp: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-        }),
-        content: newMessage.trim(),
-        isClient: true,
-      };
+    const content = newMessage.trim();
+    setNewMessage("");
 
-      setMessages((prev) => [...prev, message]);
-      setNewMessage("");
+    // Optimistic UI update
+    const tempId = `temp_${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: tempId,
+      sender: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "You",
+      role: "Client",
+      avatar: user.imageUrl || "/api/placeholder/32/32",
+      timestamp: new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+      content,
+      isClient: true,
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orgId: organization.id, content }),
+      });
+
+      if (!res.ok) {
+        // Roll back optimistic update on failure
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setNewMessage(content);
+        console.error("Failed to send message");
+      } else {
+        const data = await res.json();
+        // Replace temp message with real one from server
+        if (data.success && data.data?.id) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === tempId ? { ...m, id: data.data.id } : m
+            )
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setNewMessage(content);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-112px)] -m-6 md:-m-8">
+    <div className="h-[calc(100vh-200px)] flex flex-col gap-8">
       {/* Header */}
-      <div className="px-6 py-5 bg-white border-b border-slate-200 flex-shrink-0">
-        <h1 className="text-2xl font-bold text-slate-900 scroll-m-0 border-0 pb-0 tracking-normal">
-          Messages with CWS Team
-        </h1>
-        <p className="text-sm text-slate-500 mt-0.5">
-          Chat directly with your project team
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Messages</h1>
+          <p className="text-slate-400 mt-2">
+            Communicate with your CWS project team
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-400">
+          {connected ? (
+            <>
+              <Wifi className="w-4 h-4 text-green-400" />
+              <span className="text-green-400">Live</span>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-4 h-4 text-slate-500" />
+              <span>Offline</span>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Message Thread */}
-      <div className="flex-1 overflow-y-auto bg-[#FAFAF9] px-6 py-6 space-y-5">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="text-4xl mb-4">👋</div>
-            <p className="text-slate-600 font-medium text-lg">
-              No messages yet. Say hi to your CWS team!
-            </p>
-            <p className="text-sm text-slate-400 mt-1">
-              Type a message below to get started.
-            </p>
-          </div>
-        ) : (
-          messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+      {/* Chat Container */}
+      <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+        {/* Messages */}
+        <Card className="flex-1 overflow-y-auto p-6 space-y-6">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-slate-400 text-sm">Loading messages...</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-slate-400 text-sm">
+                No messages yet. Start the conversation!
+              </p>
+            </div>
+          ) : (
+            messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </Card>
 
-      {/* Input Bar */}
-      <div className="bg-white border-t border-slate-200 px-6 py-4 flex-shrink-0">
-        <div className="flex items-end gap-3">
-          <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 mb-0.5">
-            <Paperclip className="w-5 h-5" />
-          </button>
-          <div className="flex-1">
-            <textarea
+        {/* Message Input */}
+        <Card className="p-4">
+          <div className="space-y-3">
+            <Textarea
+              placeholder="Type a message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => {
@@ -185,25 +234,27 @@ export default function MessagesPage() {
                   (e.ctrlKey || e.metaKey) &&
                   !isSubmitting
                 ) {
-                  e.preventDefault();
                   handleSendMessage();
                 }
               }}
-              placeholder="Type a message to your team..."
-              rows={1}
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-32 leading-relaxed"
-              style={{ minHeight: "42px" }}
+              className="resize-none min-h-20 max-h-32"
             />
+
+            <div className="flex items-center justify-between">
+              <button className="text-slate-400 hover:text-slate-200 transition-colors">
+                <Paperclip className="w-5 h-5" />
+              </button>
+
+              <Button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() || isSubmitting}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                {isSubmitting ? "Sending..." : "Send"}
+              </Button>
+            </div>
           </div>
-          <button
-            onClick={handleSendMessage}
-            disabled={!newMessage.trim() || isSubmitting}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Send className="w-4 h-4" />
-            Send
-          </button>
-        </div>
+        </Card>
       </div>
     </div>
   );
