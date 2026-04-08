@@ -2,7 +2,7 @@ import { pgTable, pgEnum, uuid, varchar, integer, real, timestamp, index, foreig
 import { relations } from 'drizzle-orm';
 import { organizationsTable } from './organizations';
 
-export const metricTypeEnum = pgEnum('metric_type', [
+export const benchmarkMetricTypeEnum = pgEnum('metric_type', [
   'growth_score',
   'traffic_growth_rate',
   'lead_conversion_rate',
@@ -14,7 +14,7 @@ export const benchmarkSnapshotsTable = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     orgId: uuid('org_id').notNull(),
     planType: varchar('plan_type', { length: 50 }).notNull(),
-    metricType: metricTypeEnum('metric_type').notNull(),
+    metricType: benchmarkMetricTypeEnum('metric_type').notNull(),
     value: real('value').notNull(),
     percentile: integer('percentile').notNull(), // 0-100
     snapshotDate: varchar('snapshot_date', { length: 10 }).notNull(), // YYYY-MM-DD
