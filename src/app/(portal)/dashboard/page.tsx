@@ -35,6 +35,7 @@ import { GrowthScoreRing, type GrowthScoreData } from "@/components/dashboard/gr
 import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-this-week";
 import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
 import { CalendlyDialog } from "@/components/calendly-dialog";
+import { ActivityFeedWithReactions, type ActivityItem } from "@/components/dashboard/activity-feed-with-reactions";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,8 @@ function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 21) return "Good evening";
+  return "Good night";
 }
 
 function dotColor(action: string): string {
@@ -172,6 +174,19 @@ export default async function DashboardPage() {
   const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
 
   let org: typeof organizationsTable.$inferSelect | null = null;
+  let userFirstName: string | null = null;
+  let dbUserId: string | null = null;
+
+  // Always fetch user record so we have the first name for the greeting
+  if (clerkUserId) {
+    const userRows = await db
+      .select({ id: usersTable.id, firstName: usersTable.firstName })
+      .from(usersTable)
+      .where(eq(usersTable.clerkUserId, clerkUserId))
+      .limit(1);
+    dbUserId = userRows[0]?.id ?? null;
+    userFirstName = userRows[0]?.firstName ?? null;
+  }
 
   if (clerkOrgId) {
     const rows = await db
@@ -182,29 +197,20 @@ export default async function DashboardPage() {
     org = rows[0] ?? null;
   }
 
-  if (!org && clerkUserId) {
-    const userRows = await db
-      .select({ id: usersTable.id })
-      .from(usersTable)
-      .where(eq(usersTable.clerkUserId, clerkUserId))
+  if (!org && dbUserId) {
+    const memberRows = await db
+      .select({ organizationId: organizationMembersTable.organizationId })
+      .from(organizationMembersTable)
+      .where(eq(organizationMembersTable.userId, dbUserId))
       .limit(1);
-    const dbUserId = userRows[0]?.id ?? null;
 
-    if (dbUserId) {
-      const memberRows = await db
-        .select({ organizationId: organizationMembersTable.organizationId })
-        .from(organizationMembersTable)
-        .where(eq(organizationMembersTable.userId, dbUserId))
+    if (memberRows[0]) {
+      const orgRows = await db
+        .select()
+        .from(organizationsTable)
+        .where(eq(organizationsTable.id, memberRows[0].organizationId))
         .limit(1);
-
-      if (memberRows[0]) {
-        const orgRows = await db
-          .select()
-          .from(organizationsTable)
-          .where(eq(organizationsTable.id, memberRows[0].organizationId))
-          .limit(1);
-        org = orgRows[0] ?? null;
-      }
+      org = orgRows[0] ?? null;
     }
   }
 
@@ -437,6 +443,13 @@ export default async function DashboardPage() {
     },
   ];
 
+  const activityItems: ActivityItem[] = recentActivity.map((item) => ({
+    id: item.id,
+    title: item.title,
+    timeAgo: timeAgo(item.createdAt),
+    dotColor: dotColor(item.title),
+  }));
+
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -459,14 +472,20 @@ export default async function DashboardPage() {
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
-          {getGreeting()}
+          {getGreeting()}{userFirstName ? `, ${userFirstName}` : ""}
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {summaryText} &middot; {today}
         </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-          Updated just now
-        </p>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="relative flex h-2 w-2 flex-shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+          </span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            Your website is live and being monitored
+          </span>
+        </div>
       </div>
 
       {/* Urgent Alert Banner */}
@@ -660,23 +679,7 @@ export default async function DashboardPage() {
         <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 scroll-m-0 border-0 pb-0 tracking-normal">
           Recent Activity
         </h2>
-        <div className="space-y-0.5">
-          {recentActivity.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400 py-4 text-center">No recent activity yet</p>
-          ) : (
-            recentActivity.map((item, idx) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 px-3 py-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors animate-in fade-in slide-in-from-bottom-1 duration-300"
-                style={{ animationDelay: `${idx * 75}ms`, animationFillMode: "both" }}
-              >
-                <div className={`w-2 h-2 rounded-full ${dotColor(item.title)} flex-shrink-0`} />
-                <p className="text-sm text-slate-700 dark:text-slate-300 flex-1 capitalize">{item.title}</p>
-                <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">{timeAgo(item.createdAt)}</span>
-              </div>
-            ))
-          )}
-        </div>
+        <ActivityFeedWithReactions items={activityItems} />
       </div>
 
       {/* Row 6: Billing Summary */}
