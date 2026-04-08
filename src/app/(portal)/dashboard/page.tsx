@@ -464,6 +464,9 @@ export default async function DashboardPage() {
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
           {summaryText} &middot; {today}
         </p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+          Updated just now
+        </p>
       </div>
 
       {/* Urgent Alert Banner */}

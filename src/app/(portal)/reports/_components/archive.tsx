@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   CalendarDays,
@@ -9,6 +9,17 @@ import {
   FileText,
   AlertCircle,
 } from "lucide-react";
+
+function relativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -147,21 +158,33 @@ export function ReportsArchive() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [, forceUpdate] = useState(0);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/reports");
+      if (!res.ok) throw new Error("Failed to load reports");
+      const json = await res.json();
+      setReports(json.data ?? []);
+      setLastUpdated(new Date());
+    } catch {
+      setError("Failed to load reports. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/reports");
-        if (!res.ok) throw new Error("Failed to load reports");
-        const json = await res.json();
-        setReports(json.data ?? []);
-      } catch {
-        setError("Failed to load reports. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
     load();
+  }, [load]);
+
+  // Tick relative timestamp every 30s
+  useEffect(() => {
+    const id = setInterval(() => forceUpdate((n) => n + 1), 30_000);
+    return () => clearInterval(id);
   }, []);
 
   if (loading) {
@@ -179,6 +202,12 @@ export function ReportsArchive() {
       <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
         <AlertCircle className="w-10 h-10 text-red-400" />
         <p className="text-sm text-slate-500 dark:text-slate-400">{error}</p>
+        <button
+          onClick={load}
+          className="px-4 py-2 rounded-lg bg-[#1d4ed8] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -202,11 +231,18 @@ export function ReportsArchive() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-        <FileText className="w-4 h-4" />
-        <span>
-          {reports.length} report{reports.length !== 1 ? "s" : ""} available
-        </span>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <FileText className="w-4 h-4" />
+          <span>
+            {reports.length} report{reports.length !== 1 ? "s" : ""} available
+          </span>
+        </div>
+        {lastUpdated && (
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Updated {relativeTime(lastUpdated)}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {reports.map((report) => (
