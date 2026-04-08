@@ -115,3 +115,15 @@
     scrollbar-gutter: stable;
   }
 }
+
+/* Voice briefing player — waveform equalizer animation */
+@keyframes voice-wave-bar {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}

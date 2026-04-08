@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { MorningBriefData } from "@/db/schema/morning-briefs";
+import { VoiceBriefingPlayer } from "@/components/dashboard/voice-briefing-player";
 
 interface MorningBriefProps {
   data: MorningBriefData;
@@ -232,6 +233,11 @@ export function MorningBrief({ data, aiSummary, orgName }: MorningBriefProps) {
             See full analytics
             <ChevronRight className="w-3.5 h-3.5" />
           </Link>
+        </div>
+
+        {/* Voice briefing player */}
+        <div className="pl-0 sm:pl-12 mt-1">
+          <VoiceBriefingPlayer data={data} />
         </div>
       </div>
     </div>
