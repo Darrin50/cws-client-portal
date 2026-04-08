@@ -24,3 +24,5 @@ export * from './strategy-briefs';
 export * from './growth-predictions';
 export * from './timeline-events';
 export * from './smart-recommendations';
+export * from './benchmark-snapshots';
+export * from './client-wins';
