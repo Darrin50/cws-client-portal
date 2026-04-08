@@ -8,23 +8,11 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/api/stripe/webhook',
   '/api/auth/webhook',
-  '/',
-  '/features',
-  '/pricing',
-  '/about',
-  '/case-studies',
-  '/faq',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Public routes: pass through (but redirect authed users from root)
+  // Public routes: pass through
   if (isPublicRoute(req)) {
-    if (req.nextUrl.pathname === '/') {
-      const { userId } = await auth();
-      if (userId) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-      }
-    }
     return;
   }
 
