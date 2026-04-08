@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { Save, Send, CheckCircle2, Loader2, DollarSign } from 'lucide-react';
 
 interface OrgData {
   id: string;
@@ -59,8 +59,17 @@ const tabs = [
   { id: 'messages', label: 'Messages' },
   { id: 'reports', label: 'Reports' },
   { id: 'billing', label: 'Billing' },
+  { id: 'revenue', label: 'Revenue Settings' },
   { id: 'settings', label: 'Settings' },
 ];
+
+interface RevenueSettings {
+  averageDealValue: number;
+  closeRate: number;
+  leadToCallRate: number;
+  revenueGoal: number | null;
+  currency: string;
+}
 
 export default function ClientDetailPage() {
   const params = useParams<{ 'orgId/': string }>();
@@ -83,6 +92,18 @@ export default function ClientDetailPage() {
   // Send Briefing state
   const [briefingSending, setBriefingSending] = useState(false);
   const [briefingResult, setBriefingResult] = useState<{ sentTo?: string; error?: string } | null>(null);
+
+  // Revenue settings state
+  const [revenueSettings, setRevenueSettings] = useState<RevenueSettings>({
+    averageDealValue: 5000,
+    closeRate: 0.25,
+    leadToCallRate: 0.4,
+    revenueGoal: null,
+    currency: 'USD',
+  });
+  const [revenueSaving, setRevenueSaving] = useState(false);
+  const [revenueSaved, setRevenueSaved] = useState(false);
+  const [revenueError, setRevenueError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!orgId) return;
@@ -121,8 +142,39 @@ export default function ClientDetailPage() {
         const d = await msgsRes.json() as { data?: { messages: Message[] } };
         setMessages(d.data?.messages ?? []);
       }
+
+      // Load revenue settings
+      const revRes = await fetch(`/api/admin/revenue-settings/${encodeURIComponent(orgId)}`);
+      if (revRes.ok) {
+        const d = await revRes.json() as { data?: { settings: RevenueSettings } };
+        if (d.data?.settings) setRevenueSettings(d.data.settings);
+      }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function saveRevenueSettings() {
+    setRevenueSaving(true);
+    setRevenueSaved(false);
+    setRevenueError(null);
+    try {
+      const res = await fetch(`/api/admin/revenue-settings/${encodeURIComponent(orgId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(revenueSettings),
+      });
+      if (res.ok) {
+        setRevenueSaved(true);
+        setTimeout(() => setRevenueSaved(false), 3000);
+      } else {
+        const d = await res.json() as { error?: string };
+        setRevenueError(d.error ?? 'Failed to save');
+      }
+    } catch {
+      setRevenueError('Network error');
+    } finally {
+      setRevenueSaving(false);
     }
   }
 
@@ -554,6 +606,130 @@ export default function ClientDetailPage() {
             )}
           </div>
         </Card>
+      )}
+
+      {activeTab === 'revenue' && (
+        <div className="max-w-xl space-y-6">
+          <Card className="bg-slate-800 border-slate-700 p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <DollarSign className="w-5 h-5 text-emerald-400" />
+              <h2 className="text-xl font-bold text-white">Revenue Attribution Settings</h2>
+            </div>
+            <p className="text-slate-400 text-sm mb-6">
+              Configure the numbers that power the Revenue Impact dashboard for {org.name}.
+              These settings feed the funnel calculator.
+            </p>
+
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Average Deal Value ($)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={revenueSettings.averageDealValue}
+                  onChange={(e) => setRevenueSettings(s => ({ ...s, averageDealValue: parseFloat(e.target.value) || 0 }))}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+                <p className="text-slate-500 text-xs mt-1">Typical value of a closed deal for this client</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Close Rate (%) — leads that become deals
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={Math.round(revenueSettings.closeRate * 100)}
+                  onChange={(e) => setRevenueSettings(s => ({ ...s, closeRate: (parseFloat(e.target.value) || 0) / 100 }))}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+                <p className="text-slate-500 text-xs mt-1">Industry average is 20–30%. Ask the client if unsure.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Lead-to-Call Rate (%) — leads that become calls
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={Math.round(revenueSettings.leadToCallRate * 100)}
+                  onChange={(e) => setRevenueSettings(s => ({ ...s, leadToCallRate: (parseFloat(e.target.value) || 0) / 100 }))}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+                <p className="text-slate-500 text-xs mt-1">Used to estimate calls if GBP call data is unavailable.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  Quarterly Revenue Goal ($) <span className="text-slate-500 font-normal">(optional)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={revenueSettings.revenueGoal ?? ''}
+                  placeholder="e.g. 50000"
+                  onChange={(e) => setRevenueSettings(s => ({ ...s, revenueGoal: e.target.value ? parseFloat(e.target.value) : null }))}
+                  className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+                <p className="text-slate-500 text-xs mt-1">Shows a progress bar on the client&apos;s Revenue Impact dashboard.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Currency</label>
+                <select
+                  value={revenueSettings.currency}
+                  onChange={(e) => setRevenueSettings(s => ({ ...s, currency: e.target.value }))}
+                  className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="CAD">CAD — Canadian Dollar</option>
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="AUD">AUD — Australian Dollar</option>
+                </select>
+              </div>
+
+              {revenueError && (
+                <p className="text-red-400 text-sm">{revenueError}</p>
+              )}
+
+              <button
+                onClick={() => void saveRevenueSettings()}
+                disabled={revenueSaving}
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+              >
+                {revenueSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : revenueSaved ? (
+                  <CheckCircle2 className="w-4 h-4" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {revenueSaved ? 'Saved!' : 'Save Revenue Settings'}
+              </button>
+            </div>
+          </Card>
+
+          <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-4">
+            <p className="text-slate-400 text-xs leading-relaxed">
+              <strong className="text-slate-300">How it works:</strong> The Revenue Impact dashboard
+              multiplies each month&apos;s lead count by your close rate to estimate deals, then multiplies
+              deals by the average deal value to estimate revenue. Visitor data comes from GA4 analytics,
+              lead data from the leads table, and call data from Google Business Profile (or is estimated
+              using the lead-to-call rate if GBP data isn&apos;t connected).
+            </p>
+          </div>
+        </div>
       )}
 
       {activeTab === 'settings' && (

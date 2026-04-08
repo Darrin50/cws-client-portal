@@ -22,7 +22,9 @@
       "Bash(__NEW_LINE_4236f5918e123c88__ echo:*)",
       "Bash(__NEW_LINE_62a99669027fb950__ echo:*)",
       "Bash(grep -r teal-[0-9] src/ --include=*.tsx --include=*.ts --include=*.css -l)",
-      "Bash(head -20 echo --- grep -r \"#14B8A6\\\\|#14b8a6\" src/ --include=*.tsx --include=*.ts --include=*.css -l)"
+      "Bash(head -20 echo --- grep -r \"#14B8A6\\\\|#14b8a6\" src/ --include=*.tsx --include=*.ts --include=*.css -l)",
+      "Bash(xargs grep:*)",
+      "Bash(find \"/c/Users/singe/OneDrive/Desktop/Website-Building/cws-client-portal/.claude/worktrees/infallible-easley/src/db/schema\" -type f -name \"*.ts\" -exec basename {} \\\\;)"
     ]
   }
 }
