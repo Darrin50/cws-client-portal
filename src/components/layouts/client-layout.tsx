@@ -48,6 +48,7 @@ import {
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
 import { useWhiteLabel } from "@/lib/hooks/use-white-label"
+import { useClerk } from "@clerk/nextjs"
 
 // ── Nav tree definition ───────────────────────────────────────────────────────
 
@@ -375,6 +376,7 @@ export function ClientLayout({
   userName = "Darrin Mitchell",
 }: ClientLayoutProps) {
   const pathname = usePathname()
+  const { signOut } = useClerk()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profilePic, setProfilePic] = useState<string | null>(null)
   const [avatarHovered, setAvatarHovered] = useState(false)
@@ -550,6 +552,7 @@ export function ClientLayout({
             </div>
             <button
               aria-label="Sign out"
+              onClick={() => signOut({ redirectUrl: "/login" })}
               className="p-1 text-slate-500 hover:text-slate-300 transition-colors rounded hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none flex-shrink-0"
             >
               <LogOut className="w-3.5 h-3.5" />
