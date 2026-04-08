@@ -17,3 +17,4 @@ export * from './page-feedback';
 export * from './competitors';
 export * from './scheduled-posts';
 export * from './site-audits';
+export * from './strategy-briefs';
