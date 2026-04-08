@@ -45,6 +45,7 @@ import {
   MapPin,
   UserCheck,
   DollarSign,
+  Star,
   type LucideIcon,
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
@@ -126,8 +127,20 @@ const NAV_TREE: NavEntry[] = [
     href: "/milestones",
     icon: Trophy,
   },
+  {
+    label: "Wins Wall",
+    href: "/wins",
+    icon: Star,
+  },
   // ── Intelligence ──────────────────────────────────────────────────────────
   { type: "section", label: "Intelligence" },
+  {
+    label: "Community Hub",
+    href: "/community",
+    icon: Users,
+    locked: true,
+    lockedTooltip: "Upgrade to Domination to unlock Community Benchmarks",
+  },
   {
     label: "Competitor Pulse",
     href: "/competitors",
