@@ -26,3 +26,5 @@ export * from './timeline-events';
 export * from './smart-recommendations';
 export * from './benchmark-snapshots';
 export * from './client-wins';
+export * from './referrals';
+export * from './case-studies';
