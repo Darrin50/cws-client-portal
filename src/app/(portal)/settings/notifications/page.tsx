@@ -2,23 +2,20 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, MessageSquare, Bell, CheckCircle, Info } from "lucide-react";
+import {
+  getNotificationPreferences,
+  updateNotificationPreferences,
+} from "@/app/actions/settings";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/lib/data/notifications";
 
 type Channel = "email" | "sms" | "inApp";
-type Category = "Request Updates" | "Messages" | "Reports" | "Social" | "Billing";
+type Category = keyof typeof DEFAULT_NOTIFICATION_PREFERENCES;
 
 interface Preferences {
   [category: string]: Record<Channel, boolean>;
 }
-
-const defaultPreferences: Preferences = {
-  "Request Updates": { email: true, sms: false, inApp: true },
-  Messages: { email: true, sms: true, inApp: true },
-  Reports: { email: true, sms: false, inApp: false },
-  Social: { email: false, sms: false, inApp: true },
-  Billing: { email: true, sms: false, inApp: true },
-};
 
 const categoryDescriptions: Record<string, string> = {
   "Request Updates": "When a page request status changes or has a new comment",
@@ -77,13 +74,26 @@ function ToggleSwitch({
   );
 }
 
-type ToastState = "idle" | "saving" | "saved" | "error";
+type ToastState = "idle" | "loading" | "saving" | "saved" | "error";
 
 export default function NotificationsPage() {
   const [preferences, setPreferences] = useState<Preferences>(
-    JSON.parse(JSON.stringify(defaultPreferences))
+    structuredClone(DEFAULT_NOTIFICATION_PREFERENCES) as Preferences
   );
-  const [toast, setToast] = useState<ToastState>("idle");
+  const [toast, setToast] = useState<ToastState>("loading");
+
+  // Load persisted preferences on mount
+  useEffect(() => {
+    getNotificationPreferences()
+      .then((prefs) => {
+        setPreferences(prefs as Preferences);
+        setToast("idle");
+      })
+      .catch(() => {
+        // Fall back to defaults — non-fatal
+        setToast("idle");
+      });
+  }, []);
 
   const handleToggle = (category: string, channel: Channel, value: boolean) => {
     setPreferences((prev) => ({
@@ -95,8 +105,7 @@ export default function NotificationsPage() {
   const handleSave = async () => {
     setToast("saving");
     try {
-      // TODO: Call server action saveNotificationPreferences(preferences)
-      await new Promise((r) => setTimeout(r, 700));
+      await updateNotificationPreferences(preferences);
       setToast("saved");
       setTimeout(() => setToast("idle"), 3500);
     } catch {
@@ -168,9 +177,11 @@ export default function NotificationsPage() {
       <div className="flex items-center gap-4">
         <Button
           onClick={handleSave}
-          disabled={toast === "saving" || toast === "saved"}
+          disabled={toast === "loading" || toast === "saving" || toast === "saved"}
         >
-          {toast === "saving"
+          {toast === "loading"
+            ? "Loading..."
+            : toast === "saving"
             ? "Saving..."
             : toast === "saved"
             ? "Saved"

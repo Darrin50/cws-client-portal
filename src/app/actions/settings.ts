@@ -1,6 +1,11 @@
 "use server";
 
-// TODO: Replace with real database operations and authentication
+import { requireAuth } from "@/lib/auth";
+import {
+  getNotificationPreferences as fetchPreferences,
+  saveNotificationPreferences,
+  type NotificationPreferencesMap,
+} from "@/lib/data/notifications";
 
 export async function updateBusinessInfo(
   businessInfo: {
@@ -41,17 +46,9 @@ export async function updateNotificationPreferences(
   preferences: Record<string, Record<string, boolean>>
 ) {
   try {
-    // TODO: Implement real update logic
-    // 1. Validate user authentication
-    // 2. Update preferences in database
-    // 3. Return success response
-
-    console.log("Notification preferences updated:", preferences);
-
-    return {
-      success: true,
-      message: "Notification preferences updated successfully",
-    };
+    const clerkUserId = await requireAuth();
+    await saveNotificationPreferences(clerkUserId, preferences);
+    return { success: true, message: "Notification preferences updated successfully" };
   } catch (error) {
     console.error("Error updating notification preferences:", error);
     throw new Error("Failed to update notification preferences");
@@ -150,13 +147,10 @@ export async function getTeamMembers() {
   }
 }
 
-export async function getNotificationPreferences() {
+export async function getNotificationPreferences(): Promise<NotificationPreferencesMap> {
   try {
-    // TODO: Implement real fetch logic
-    // 1. Fetch user's notification preferences
-    // 2. Return with defaults if not set
-
-    return {};
+    const clerkUserId = await requireAuth();
+    return await fetchPreferences(clerkUserId);
   } catch (error) {
     console.error("Error fetching notification preferences:", error);
     throw new Error("Failed to fetch notification preferences");

@@ -23,6 +23,8 @@
     "@tanstack/react-table": "^8.20.5",
     "@types/canvas-confetti": "^1.9.0",
     "@uploadthing/react": "^7.3.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
     "@vercel/blob": "^0.23.4",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.0",

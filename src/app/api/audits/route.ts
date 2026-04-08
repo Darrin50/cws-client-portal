@@ -117,7 +117,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const { success } = rateLimit(getIp(request));
+  const { success } = await rateLimit(getIp(request));
   if (!success) return errorResponse('Too many requests', 429);
 
   const { userId } = await auth();

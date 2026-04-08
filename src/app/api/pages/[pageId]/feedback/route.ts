@@ -87,7 +87,7 @@ export async function POST(
   { params }: { params: Promise<{ pageId: string }> },
 ) {
   try {
-    const { success } = rateLimit(getIp(request));
+    const { success } = await rateLimit(getIp(request));
     if (!success) return errorResponse('Too many requests', 429);
 
     const { pageId } = await params;
