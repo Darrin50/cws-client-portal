@@ -20,3 +20,5 @@ export * from './site-audits';
 export * from './morning-briefs';
 export * from './growth-streaks';
 export * from './revenue';
+export * from './timeline-events';
+export * from './smart-recommendations';

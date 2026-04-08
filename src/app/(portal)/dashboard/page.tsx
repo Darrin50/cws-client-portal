@@ -43,6 +43,7 @@ import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-th
 import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
 import { MorningBrief } from "@/components/dashboard/morning-brief";
 import { GrowthStreak, type GrowthStreakData } from "@/components/dashboard/growth-streak";
+import { SmartRecommendations } from "@/components/dashboard/smart-recommendations";
 import { CalendlyDialog } from "@/components/calendly-dialog";
 import { ActivityFeedWithReactions, type ActivityItem } from "@/components/dashboard/activity-feed-with-reactions";
 
@@ -696,6 +697,9 @@ export default async function DashboardPage() {
 
       {/* Growth Streak */}
       <GrowthStreak data={streakData} />
+
+      {/* Smart Recommendations — growth/domination only (card self-gates) */}
+      <SmartRecommendations />
 
       {/* Row 2: Growth Score + Request Priority */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

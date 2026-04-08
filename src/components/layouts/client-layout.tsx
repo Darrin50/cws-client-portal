@@ -45,6 +45,8 @@ import {
   MapPin,
   UserCheck,
   DollarSign,
+  Sparkles,
+  Clock,
   type LucideIcon,
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
@@ -151,6 +153,7 @@ const NAV_TREE: NavEntry[] = [
       { label: "Google Business", href: "/analytics/gbp", icon: MapPin },
       { label: "Lead Tracking", href: "/analytics/leads", icon: UserCheck },
       { label: "Revenue Impact", href: "/analytics/revenue", icon: DollarSign },
+      { label: "Growth Timeline", href: "/analytics/timeline", icon: Clock },
     ],
   },
   {
