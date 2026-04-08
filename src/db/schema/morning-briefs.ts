@@ -45,4 +45,7 @@ export interface MorningBriefData {
   openRequests: number;
   recommendedAction: string;
   milestoneHit: string | null;
+  /** Voice-optimized spoken script. Generated server-side and cached in briefData JSONB.
+   *  If absent, the client falls back to buildVoiceScript() in @/lib/voice-script. */
+  voiceScript?: string | null;
 }

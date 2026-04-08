@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { buildVoiceScript } from '@/lib/voice-script';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -53,12 +54,16 @@ export async function POST(request: NextRequest) {
 
         // Build brief
         const brief = await buildBriefData(org.id, org.name);
-        const aiSummary = await generateAiSummary(brief);
+        const [aiSummary, voiceScript] = await Promise.all([
+          generateAiSummary(brief),
+          generateVoiceScript(brief),
+        ]);
+        const briefWithVoice: MorningBriefData = { ...brief, voiceScript };
 
         // Store in DB
         await db
           .insert(morningBriefsTable)
-          .values({ organizationId: org.id, date: today, briefData: brief, aiSummary })
+          .values({ organizationId: org.id, date: today, briefData: briefWithVoice, aiSummary })
           .onConflictDoNothing();
 
         generated++;
@@ -186,6 +191,40 @@ async function buildBriefData(orgId: string, orgName: string): Promise<MorningBr
     recommendedAction,
     milestoneHit,
   };
+}
+
+async function generateVoiceScript(data: MorningBriefData): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (apiKey) {
+    try {
+      const client = new Anthropic({ apiKey });
+      const prompt = `You are writing a 60-second spoken voice briefing for a small business owner. Write naturally for text-to-speech — use complete sentences, avoid abbreviations, spell out numbers, and keep a warm, conversational tone. No bullet points, no formatting, no markdown.
+
+Business data:
+- New leads overnight: ${data.newLeadsOvernight}
+- New messages from team: ${data.newMessagesOvernight}
+- Growth score: ${data.growthScore}/100${data.growthScoreDelta !== null ? ` (${data.growthScoreDelta > 0 ? '+' : ''}${data.growthScoreDelta} vs yesterday)` : ''}
+- Website health: ${data.healthScore}/100
+- Open requests: ${data.openRequests}
+${data.competitorAlert ? `- Competitor activity detected` : ''}
+${data.milestoneHit ? `- Milestone hit: ${data.milestoneHit}` : ''}
+- Recommended action: ${data.recommendedAction}
+
+Start with a morning greeting. Cover the key metrics naturally. End with the recommended action and a brief motivating close. Target 120-140 words total. Do not use em-dashes, hashtags, brackets, or any special characters that would sound odd when spoken aloud.`;
+
+      const message = await client.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const text = message.content[0];
+      if (text.type === 'text') return text.text.trim();
+    } catch {
+      // fall through to deterministic builder
+    }
+  }
+  return buildVoiceScript(data);
 }
 
 async function generateAiSummary(data: MorningBriefData): Promise<string | null> {
