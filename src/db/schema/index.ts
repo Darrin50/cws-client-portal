@@ -21,3 +21,4 @@ export * from './morning-briefs';
 export * from './growth-streaks';
 export * from './revenue';
 export * from './strategy-briefs';
+export * from './growth-predictions';
