@@ -25,7 +25,7 @@ const PLATFORM_GUIDELINES: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
-  const { success } = rateLimit(getIp(request));
+  const { success } = await rateLimit(getIp(request));
   if (!success) return errorResponse('Too many requests', 429);
 
   if (!process.env.ANTHROPIC_API_KEY) {
