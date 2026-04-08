@@ -22,3 +22,5 @@ export * from './growth-streaks';
 export * from './revenue';
 export * from './strategy-briefs';
 export * from './growth-predictions';
+export * from './timeline-events';
+export * from './smart-recommendations';
