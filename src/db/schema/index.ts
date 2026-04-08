@@ -19,3 +19,4 @@ export * from './scheduled-posts';
 export * from './site-audits';
 export * from './morning-briefs';
 export * from './growth-streaks';
+export * from './revenue';
