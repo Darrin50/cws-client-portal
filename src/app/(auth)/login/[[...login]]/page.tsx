@@ -13,6 +13,7 @@ export default function LoginPage() {
             height={48}
             className="object-contain"
             priority
+            unoptimized
           />
         </div>
         <h1 className="text-3xl font-bold text-white">Welcome back</h1>
@@ -22,6 +23,8 @@ export default function LoginPage() {
       </div>
 
       <SignIn
+        afterSignInUrl="/dashboard"
+        fallbackRedirectUrl="/dashboard"
         appearance={{
           elements: {
             rootBox: "w-full",
@@ -40,6 +43,8 @@ export default function LoginPage() {
               "bg-blue-600 hover:bg-blue-700 text-white font-semibold",
             otpCodeFieldInput:
               "bg-slate-700 border border-slate-600 text-white focus:border-blue-500",
+            badge: "!hidden",
+            footer: "!hidden",
           },
         }}
       />

@@ -74,7 +74,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/onboarding"
+      afterSelectOrganizationUrl="/dashboard"
+      afterCreateOrganizationUrl="/dashboard"
+    >
       <html
         lang="en"
         suppressHydrationWarning

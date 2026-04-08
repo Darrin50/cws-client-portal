@@ -60,12 +60,22 @@ export default async function AnalyticsPage() {
   const { userId: clerkUserId, orgId: clerkOrgId } = await auth();
 
   let planTier: string = "starter";
+  let isAdmin = false;
+
   if (clerkUserId) {
+    // Check if user is an admin — admins bypass the plan gate
+    const userRows = await db
+      .select({ role: usersTable.role })
+      .from(usersTable)
+      .where(eq(usersTable.clerkUserId, clerkUserId))
+      .limit(1);
+    isAdmin = userRows[0]?.role === "admin";
+
     const org = await resolveOrg(clerkUserId, clerkOrgId ?? null);
     planTier = org?.planTier ?? "starter";
   }
 
-  const hasAccess = planTier === "growth" || planTier === "domination";
+  const hasAccess = isAdmin || planTier === "growth" || planTier === "domination";
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

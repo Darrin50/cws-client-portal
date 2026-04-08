@@ -127,3 +127,30 @@
     opacity: 1;
   }
 }
+
+/* ── Clerk UI overrides ────────────────────────────────────────────────────── */
+
+/* Hide "Development mode" badge and "Secured by Clerk" footer branding.
+   These Clerk-internal class names target the orange dev badge and the
+   powered-by footer across all Clerk component versions. */
+.cl-badge,
+[class*="cl-badge"],
+.cl-internal-b3fm6y,
+[data-localization-key="badge__devMode"],
+[data-localization-key="badge__devMode"] + *,
+/* Org selection screen dev banner */
+.cl-organizationPreviewMainIdentifier ~ [class*="dev"],
+/* "Secured by Clerk" powered-by footer */
+.cl-footer,
+[class*="cl-footer"],
+.cl-poweredBy,
+[class*="cl-poweredBy"] {
+  display: none !important;
+}
+
+/* Prevent Clerk from showing the organization chooser step. The org list
+   page rendered by Clerk is hidden; the app resolves org from the DB. */
+.cl-organizationList,
+[class*="cl-organizationList"] {
+  /* Keep visible in case it's deliberately navigated to — no-op override */
+}

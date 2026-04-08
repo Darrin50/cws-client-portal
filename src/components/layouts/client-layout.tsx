@@ -492,14 +492,23 @@ export function ClientLayout({
                 height={28}
                 className="object-contain flex-shrink-0"
                 priority
+                unoptimized
               />
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-white font-semibold text-sm leading-tight truncate">
                 {companyName}
               </p>
               <p className="text-slate-500 text-[10px] leading-tight">Client Portal</p>
             </div>
+            {/* Close button — mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close navigation menu"
+              className="md:hidden p-1 rounded text-slate-500 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
