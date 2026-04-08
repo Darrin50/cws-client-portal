@@ -176,11 +176,24 @@ function formatSeconds(secs: number): string {
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
+function relativeTime(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
+}
+
 export function AnalyticsDashboard() {
   const [range, setRange] = useState<string>("30d");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [, forceUpdate] = useState(0);
 
   const fetchData = useCallback(async (selectedRange: string) => {
     setLoading(true);
@@ -190,6 +203,7 @@ export function AnalyticsDashboard() {
       if (!res.ok) throw new Error("Failed to load analytics");
       const json = await res.json();
       setData(json.data);
+      setLastUpdated(new Date());
     } catch {
       setError("Failed to load analytics data. Please try again.");
     } finally {
@@ -200,6 +214,12 @@ export function AnalyticsDashboard() {
   useEffect(() => {
     fetchData(range);
   }, [range, fetchData]);
+
+  // Tick relative timestamp every 30s
+  useEffect(() => {
+    const id = setInterval(() => forceUpdate((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   // ── Empty state ────────────────────────────────────────────────────────
   if (!loading && data?.isEmpty) {
@@ -225,14 +245,21 @@ export function AnalyticsDashboard() {
       <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
         <AlertCircle className="w-10 h-10 text-red-400" />
         <p className="text-sm text-slate-500 dark:text-slate-400">{error}</p>
+        <button
+          onClick={() => fetchData(range)}
+          className="px-4 py-2 rounded-lg bg-[#1d4ed8] text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Date Range Selector */}
-      <div className="flex flex-wrap gap-2">
+      {/* Date Range Selector + Last Updated */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
         {RANGES.map((r) => (
           <button
             key={r.value}
@@ -246,6 +273,12 @@ export function AnalyticsDashboard() {
             {r.label}
           </button>
         ))}
+        </div>
+        {lastUpdated && !loading && (
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Updated {relativeTime(lastUpdated)}
+          </p>
+        )}
       </div>
 
       {/* KPI Cards */}
