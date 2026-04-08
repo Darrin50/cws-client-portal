@@ -17,6 +17,7 @@ import {
   Legend,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import {
   TrendingUp,
   TrendingDown,
@@ -29,6 +30,7 @@ import {
   Navigation,
   MousePointer,
   AlertCircle,
+  Settings,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -213,8 +215,15 @@ export function AnalyticsDashboard() {
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
           Analytics are being set up for your account. Check back in 24–48
-          hours.
+          hours, or confirm your tracking details in Settings.
         </p>
+        <Link
+          href="/settings/business"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-sm font-medium transition-colors"
+        >
+          <Settings className="w-4 h-4" />
+          Go to Settings
+        </Link>
       </div>
     );
   }
