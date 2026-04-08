@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from "next/link";
-import { CreditCard, Users, Bell, Building2, Paintbrush, ArrowRight } from "lucide-react";
+import { CreditCard, Users, Bell, Building2, Paintbrush, ArrowRight, HelpCircle } from "lucide-react";
+import { RetakeTourButton } from "@/components/portal-tour/retake-tour-button";
 
 export const metadata: Metadata = {
   title: 'Settings | CWS Portal',
@@ -95,6 +96,20 @@ export default function SettingsPage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Help & Onboarding */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+            <HelpCircle className="w-4 h-4 text-indigo-500" />
+          </div>
+          <div>
+            <p className="font-semibold text-slate-900 text-sm">Help & Onboarding</p>
+            <p className="text-xs text-slate-500 mt-0.5">Re-run the portal tour to revisit key features</p>
+          </div>
+        </div>
+        <RetakeTourButton />
       </div>
 
       {/* Account Info Card */}

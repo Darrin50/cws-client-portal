@@ -49,6 +49,7 @@ import {
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
 import { useWhiteLabel } from "@/lib/hooks/use-white-label"
 import { useClerk } from "@clerk/nextjs"
+import { PortalTour } from "@/components/portal-tour/portal-tour"
 
 // ── Nav tree definition ───────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ interface NavItem {
   children?: NavChild[]
   locked?: boolean
   lockedTooltip?: string
+  tourId?: string
 }
 
 interface NavSection {
@@ -79,6 +81,7 @@ const NAV_TREE: NavEntry[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: Home,
+    tourId: "tour-dashboard",
     children: [
       { label: "Activity Feed", href: "/dashboard/activity", icon: Activity },
     ],
@@ -112,6 +115,7 @@ const NAV_TREE: NavEntry[] = [
     label: "Messages",
     href: "/messages",
     icon: MessageSquare,
+    tourId: "tour-messages",
     children: [
       { label: "FAQ", href: "/messages/faq", icon: HelpCircle },
     ],
@@ -138,6 +142,7 @@ const NAV_TREE: NavEntry[] = [
     href: "/analytics",
     icon: BarChart2,
     locked: true,
+    tourId: "tour-analytics",
     lockedTooltip: "Upgrade your plan to unlock Analytics",
     children: [
       { label: "Traffic Overview", href: "/analytics/traffic", icon: TrendingUp },
@@ -151,6 +156,7 @@ const NAV_TREE: NavEntry[] = [
     href: "/reports",
     icon: FileBarChart,
     locked: true,
+    tourId: "tour-reports",
     lockedTooltip: "Upgrade your plan to unlock Reports",
     children: [
       { label: "Latest Report", href: "/reports/latest", icon: FileText },
@@ -172,6 +178,7 @@ const NAV_TREE: NavEntry[] = [
     label: "Settings",
     href: "/settings",
     icon: Settings,
+    tourId: "tour-settings",
     children: [
       { label: "Billing & Plan", href: "/settings/billing", icon: CreditCard },
       { label: "Business Info", href: "/settings/business", icon: Building2 },
@@ -225,7 +232,7 @@ function NavRow({ item, pathname, expanded, onToggleExpand, onNavigate }: NavRow
   if (item.locked) {
     const hasLockedChildren = (item.children?.length ?? 0) > 0
     return (
-      <div>
+      <div data-tour={item.tourId}>
         <div
           title={item.lockedTooltip}
           className="flex items-center justify-between px-2 py-2 rounded-md text-sm text-slate-600 cursor-not-allowed select-none"
@@ -279,7 +286,7 @@ function NavRow({ item, pathname, expanded, onToggleExpand, onNavigate }: NavRow
   }
 
   return (
-    <div>
+    <div data-tour={item.tourId}>
       {/* Parent row */}
       <div
         className={cn(
@@ -624,6 +631,9 @@ export function ClientLayout({
 
         {/* Milestone celebration checker */}
         <MilestoneChecker userName={userName} />
+
+        {/* First-time portal tour */}
+        <PortalTour />
       </div>
 
       {/* Mobile Overlay */}
