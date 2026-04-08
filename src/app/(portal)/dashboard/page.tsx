@@ -16,7 +16,12 @@ import {
   organizationMembersTable,
   pagesTable,
   brandAssetsTable,
+  leadsTable,
+  competitorsTable,
+  competitorSnapshotsTable,
+  morningBriefsTable,
 } from "@/db/schema";
+import type { MorningBriefData } from "@/db/schema/morning-briefs";
 import { eq, and, inArray, count, desc, sql, gte } from "drizzle-orm";
 import {
   Activity,
@@ -34,6 +39,7 @@ import {
 import { GrowthScoreRing, type GrowthScoreData } from "@/components/dashboard/growth-score-ring";
 import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-this-week";
 import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
+import { MorningBrief } from "@/components/dashboard/morning-brief";
 import { CalendlyDialog } from "@/components/calendly-dialog";
 import { ActivityFeedWithReactions, type ActivityItem } from "@/components/dashboard/activity-feed-with-reactions";
 
@@ -236,11 +242,17 @@ export default async function DashboardPage() {
   let pagesUpdatedThisWeek = 0;
   // Top page name for Focus fallback
   let topPageName: string | null = null;
+  // Morning brief
+  let morningBriefData: MorningBriefData | null = null;
+  let morningBriefAiSummary: string | null = null;
 
   if (org) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const { start: weekStart } = currentWeekBounds();
+
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const todayDate = new Date().toISOString().slice(0, 10);
 
     const [
       requestCounts,
@@ -254,6 +266,10 @@ export default async function DashboardPage() {
       completedWeekRows,
       pagesWeekRows,
       topPageRows,
+      todaysBriefRows,
+      newLeads24hRows,
+      newMsgs24hRows,
+      latestCompetitorRows,
     ] = await Promise.all([
       db
         .select({ priority: commentsTable.priority, count: count() })
@@ -331,6 +347,30 @@ export default async function DashboardPage() {
         .where(and(eq(pagesTable.organizationId, org.id), eq(pagesTable.isActive, true)))
         .orderBy(pagesTable.sortOrder)
         .limit(1),
+      // Today's pre-generated morning brief
+      db
+        .select()
+        .from(morningBriefsTable)
+        .where(and(eq(morningBriefsTable.organizationId, org.id), eq(morningBriefsTable.date, todayDate)))
+        .limit(1),
+      // New leads in last 24h
+      db
+        .select({ count: count() })
+        .from(leadsTable)
+        .where(and(eq(leadsTable.organizationId, org.id), gte(leadsTable.createdAt, oneDayAgo))),
+      // New messages in last 24h
+      db
+        .select({ count: count() })
+        .from(messagesTable)
+        .where(and(eq(messagesTable.organizationId, org.id), gte(messagesTable.createdAt, oneDayAgo))),
+      // Latest competitor snapshot (last 7 days)
+      db
+        .select({ report: competitorSnapshotsTable.report, name: competitorsTable.name })
+        .from(competitorSnapshotsTable)
+        .innerJoin(competitorsTable, eq(competitorSnapshotsTable.competitorId, competitorsTable.id))
+        .where(and(eq(competitorsTable.organizationId, org.id), gte(competitorSnapshotsTable.scannedAt, sevenDaysAgo)))
+        .orderBy(desc(competitorSnapshotsTable.scannedAt))
+        .limit(1),
     ]);
 
     for (const row of requestCounts) {
@@ -360,6 +400,35 @@ export default async function DashboardPage() {
     requestsDoneThisWeek = completedWeekRows[0]?.count ?? 0;
     pagesUpdatedThisWeek = pagesWeekRows[0]?.count ?? 0;
     topPageName = topPageRows[0]?.name ?? null;
+
+    // Morning brief — use pre-generated if available, otherwise build inline
+    if (todaysBriefRows[0]) {
+      morningBriefData = todaysBriefRows[0].briefData as MorningBriefData;
+      morningBriefAiSummary = todaysBriefRows[0].aiSummary;
+    } else {
+      // Build on the fly (AI summary skipped here to keep SSR fast; cron handles it)
+      const newLeads24h = newLeads24hRows[0]?.count ?? 0;
+      const newMsgs24h = newMsgs24hRows[0]?.count ?? 0;
+      let competitorAlert: string | null = null;
+      if (latestCompetitorRows[0]?.report) {
+        const raw = latestCompetitorRows[0].report.slice(0, 180).replace(/\n/g, " ").trim();
+        competitorAlert = `${latestCompetitorRows[0].name}: ${raw}${raw.length >= 180 ? "…" : ""}`;
+      }
+      // We'll fill growthScore after it's computed — use a placeholder here
+      morningBriefData = {
+        orgName: org.name,
+        newLeadsOvernight: newLeads24h,
+        newMessagesOvernight: newMsgs24h,
+        growthScore: 0, // updated below after growthScore computation
+        growthScoreDelta: null,
+        healthScore,
+        competitorAlert,
+        unreadMessages: unreadMessages,
+        openRequests: openHighCount + openMediumCount + openLowCount,
+        recommendedAction: "",
+        milestoneHit: null,
+      } satisfies MorningBriefData;
+    }
   }
 
   // ── derived values ──────────────────────────────────────────────────
@@ -380,6 +449,24 @@ export default async function DashboardPage() {
     daysSinceLastPageUpdate,
     recentAssetsCount,
   });
+
+  // Patch morning brief with computed growth score & recommended action
+  if (morningBriefData && morningBriefData.growthScore === 0) {
+    const openCount = morningBriefData.openRequests;
+    const newLeads = morningBriefData.newLeadsOvernight;
+    const newMsgs = morningBriefData.newMessagesOvernight;
+    let recommendedAction: string;
+    if (openCount > 0) {
+      recommendedAction = `Review and respond to ${openCount} open request${openCount > 1 ? "s" : ""} to keep your project moving.`;
+    } else if (newLeads > 0) {
+      recommendedAction = `${newLeads} new lead${newLeads > 1 ? "s" : ""} came in — follow up within 24 hours for the best conversion rate.`;
+    } else if (newMsgs > 0) {
+      recommendedAction = `Reply to your ${newMsgs} new team message${newMsgs > 1 ? "s" : ""} to stay in sync.`;
+    } else {
+      recommendedAction = "Send a quick message to your CWS team to share a goal or ask a question — staying connected keeps momentum.";
+    }
+    morningBriefData = { ...morningBriefData, growthScore: growthScore.total, recommendedAction };
+  }
 
   const weeklyFocusRaw = org?.weeklyFocus as
     | { title: string; description: string; status: WeeklyFocus['status'] }
@@ -469,6 +556,15 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Morning Brief */}
+      {morningBriefData && (
+        <MorningBrief
+          data={morningBriefData}
+          aiSummary={morningBriefAiSummary}
+          orgName={morningBriefData.orgName}
+        />
+      )}
+
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 scroll-m-0 border-0 pb-0 tracking-normal">
