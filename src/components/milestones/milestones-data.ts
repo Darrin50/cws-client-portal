@@ -7,7 +7,12 @@ export type MilestoneKey =
   | 'first_inquiry'
   | '10_requests_done'
   | '90_day_partner'
-  | 'score_75';
+  | 'score_75'
+  | 'streak_4'
+  | 'streak_8'
+  | 'streak_12'
+  | 'streak_26'
+  | 'streak_52';
 
 export interface MilestoneConfig {
   key: MilestoneKey;
@@ -89,6 +94,41 @@ export const MILESTONE_CONFIGS: Record<MilestoneKey, MilestoneConfig> = {
     hint: 'Reach a Growth Score of 75 or higher',
     progressable: true,
   },
+  streak_4: {
+    key: 'streak_4',
+    name: '4-Week Growth Streak',
+    emoji: '🔥',
+    message: "4 weeks of growth in a row, [name]! You're building real momentum.",
+    hint: 'Grow your business score for 4 consecutive weeks',
+  },
+  streak_8: {
+    key: 'streak_8',
+    name: '8-Week Growth Streak',
+    emoji: '🔥',
+    message: "8 straight weeks of growth. You're proving consistency wins.",
+    hint: 'Grow your business score for 8 consecutive weeks',
+  },
+  streak_12: {
+    key: 'streak_12',
+    name: '12-Week Growth Streak',
+    emoji: '🏆',
+    message: "3 months of unbroken growth, [name]. That's not luck — that's a system.",
+    hint: 'Grow your business score for 12 consecutive weeks',
+  },
+  streak_26: {
+    key: 'streak_26',
+    name: '6-Month Growth Streak',
+    emoji: '🚀',
+    message: "6 months of consecutive growth. You're in rare company.",
+    hint: 'Grow your business score for 26 consecutive weeks',
+  },
+  streak_52: {
+    key: 'streak_52',
+    name: 'Full-Year Growth Streak',
+    emoji: '👑',
+    message: "A full year of growth. [name], you are the top streaker. Legendary.",
+    hint: 'Grow your business score for 52 consecutive weeks',
+  },
 };
 
 export const MILESTONE_ORDER: MilestoneKey[] = [
@@ -101,4 +141,18 @@ export const MILESTONE_ORDER: MilestoneKey[] = [
   '10_requests_done',
   '90_day_partner',
   'score_75',
+  'streak_4',
+  'streak_8',
+  'streak_12',
+  'streak_26',
+  'streak_52',
+];
+
+/** Streak week counts that unlock milestone badges */
+export const STREAK_MILESTONES: Array<{ weeks: number; key: MilestoneKey }> = [
+  { weeks: 4, key: 'streak_4' },
+  { weeks: 8, key: 'streak_8' },
+  { weeks: 12, key: 'streak_12' },
+  { weeks: 26, key: 'streak_26' },
+  { weeks: 52, key: 'streak_52' },
 ];

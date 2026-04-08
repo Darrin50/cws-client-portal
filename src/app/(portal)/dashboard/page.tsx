@@ -20,6 +20,8 @@ import {
   competitorsTable,
   competitorSnapshotsTable,
   morningBriefsTable,
+  growthStreaksTable,
+  growthStreakWeeksTable,
 } from "@/db/schema";
 import type { MorningBriefData } from "@/db/schema/morning-briefs";
 import { eq, and, inArray, count, desc, sql, gte } from "drizzle-orm";
@@ -40,6 +42,7 @@ import { GrowthScoreRing, type GrowthScoreData } from "@/components/dashboard/gr
 import { FocusThisWeek, type WeeklyFocus } from "@/components/dashboard/focus-this-week";
 import { WeekInReview, type WeekInReviewData } from "@/components/dashboard/week-in-review";
 import { MorningBrief } from "@/components/dashboard/morning-brief";
+import { GrowthStreak, type GrowthStreakData } from "@/components/dashboard/growth-streak";
 import { CalendlyDialog } from "@/components/calendly-dialog";
 import { ActivityFeedWithReactions, type ActivityItem } from "@/components/dashboard/activity-feed-with-reactions";
 
@@ -245,6 +248,9 @@ export default async function DashboardPage() {
   // Morning brief
   let morningBriefData: MorningBriefData | null = null;
   let morningBriefAiSummary: string | null = null;
+  // Growth streak
+  let streakRecord: typeof growthStreaksTable.$inferSelect | null = null;
+  let streakWeeks: typeof growthStreakWeeksTable.$inferSelect[] = [];
 
   if (org) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -270,6 +276,8 @@ export default async function DashboardPage() {
       newLeads24hRows,
       newMsgs24hRows,
       latestCompetitorRows,
+      streakRows,
+      streakWeekRows,
     ] = await Promise.all([
       db
         .select({ priority: commentsTable.priority, count: count() })
@@ -371,6 +379,19 @@ export default async function DashboardPage() {
         .where(and(eq(competitorsTable.organizationId, org.id), gte(competitorSnapshotsTable.scannedAt, sevenDaysAgo)))
         .orderBy(desc(competitorSnapshotsTable.scannedAt))
         .limit(1),
+      // Growth streak record
+      db
+        .select()
+        .from(growthStreaksTable)
+        .where(eq(growthStreaksTable.orgId, org.id))
+        .limit(1),
+      // Last 12 weeks of streak data (newest first)
+      db
+        .select()
+        .from(growthStreakWeeksTable)
+        .where(eq(growthStreakWeeksTable.orgId, org.id))
+        .orderBy(desc(growthStreakWeeksTable.weekStart))
+        .limit(12),
     ]);
 
     for (const row of requestCounts) {
@@ -429,6 +450,9 @@ export default async function DashboardPage() {
         milestoneHit: null,
       } satisfies MorningBriefData;
     }
+
+    streakRecord = streakRows[0] ?? null;
+    streakWeeks = streakWeekRows;
   }
 
   // ── derived values ──────────────────────────────────────────────────
@@ -467,6 +491,19 @@ export default async function DashboardPage() {
     }
     morningBriefData = { ...morningBriefData, growthScore: growthScore.total, recommendedAction };
   }
+
+  const streakData: GrowthStreakData = {
+    currentStreak: streakRecord?.currentStreak ?? 0,
+    longestStreak: streakRecord?.longestStreak ?? 0,
+    streakFreezeAvailable: streakRecord?.streakFreezeAvailable ?? true,
+    weeks: streakWeeks.map((w) => ({
+      weekStart: w.weekStart,
+      growthScore: w.growthScore,
+      previousScore: w.previousScore ?? null,
+      improved: w.improved,
+      freezeUsed: w.freezeUsed,
+    })),
+  };
 
   const weeklyFocusRaw = org?.weeklyFocus as
     | { title: string; description: string; status: WeeklyFocus['status'] }
@@ -656,6 +693,9 @@ export default async function DashboardPage() {
           );
         })}
       </div>
+
+      {/* Growth Streak */}
+      <GrowthStreak data={streakData} />
 
       {/* Row 2: Growth Score + Request Priority */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
