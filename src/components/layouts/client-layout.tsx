@@ -52,7 +52,7 @@ import {
 } from "lucide-react"
 import { MilestoneChecker } from "@/components/milestones/milestone-checker"
 import { useWhiteLabel } from "@/lib/hooks/use-white-label"
-import { useClerk } from "@clerk/nextjs"
+import { useClerk, useUser } from "@clerk/nextjs"
 import { PortalTour } from "@/components/portal-tour/portal-tour"
 
 // ── Nav tree definition ───────────────────────────────────────────────────────
@@ -396,18 +396,25 @@ interface ClientLayoutProps {
 export function ClientLayout({
   children,
   unreadNotifications = 0,
-  userInitials = "DM",
-  userEmail = "darrin@business.com",
-  userName = "Darrin Mitchell",
 }: ClientLayoutProps) {
   const pathname = usePathname()
   const { signOut } = useClerk()
+  const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profilePic, setProfilePic] = useState<string | null>(null)
   const [avatarHovered, setAvatarHovered] = useState(false)
+  const [bellOpen, setBellOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme, setTheme } = useTheme()
   const { config: wl } = useWhiteLabel()
+
+  // Derive real user info from Clerk
+  const clerkFirstName = user?.firstName ?? ""
+  const clerkLastName = user?.lastName ?? ""
+  const clerkEmail = user?.primaryEmailAddress?.emailAddress ?? ""
+  const userName = [clerkFirstName, clerkLastName].filter(Boolean).join(" ") || clerkEmail.split("@")[0] || "Portal User"
+  const userEmail = clerkEmail
+  const userInitials = (clerkFirstName?.[0] ?? "") + (clerkLastName?.[0] ?? clerkFirstName?.[1] ?? "") || clerkEmail?.[0]?.toUpperCase() || "U"
 
   // Apply CSS custom property for primary color when white-label is enabled
   useEffect(() => {
@@ -631,15 +638,47 @@ export function ClientLayout({
                 )}
               </button>
 
-              <button
-                aria-label="View notifications"
-                className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none"
-              >
-                <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                {unreadNotifications > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+              <div className="relative">
+                <button
+                  aria-label="View notifications"
+                  aria-expanded={bellOpen}
+                  onClick={() => setBellOpen((v) => !v)}
+                  className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:outline-none"
+                >
+                  <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </button>
+
+                {bellOpen && (
+                  <>
+                    {/* Backdrop to close */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setBellOpen(false)}
+                    />
+                    {/* Dropdown */}
+                    <div className="absolute right-0 top-full mt-2 w-72 z-50 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+                      <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</span>
+                        {unreadNotifications > 0 && (
+                          <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded-full font-medium">
+                            {unreadNotifications} new
+                          </span>
+                        )}
+                      </div>
+                      <div className="px-4 py-8 text-center">
+                        <Bell className="w-8 h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">You&apos;re all caught up!</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                          New activity will appear here.
+                        </p>
+                      </div>
+                    </div>
+                  </>
                 )}
-              </button>
+              </div>
 
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-[#2563eb] transition-all text-white text-xs font-bold flex-shrink-0"
