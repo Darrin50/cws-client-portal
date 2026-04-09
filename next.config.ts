@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
     { source: '/sign-in/:path*', destination: '/login/:path*', permanent: false },
     { source: '/sign-up', destination: '/signup', permanent: false },
     { source: '/sign-up/:path*', destination: '/signup/:path*', permanent: false },
+    { source: '/competitor-pulse', destination: '/competitors', permanent: true },
+    { source: '/competitor-pulse/:path*', destination: '/competitors/:path*', permanent: true },
   ],
   headers: async () => [
     {
