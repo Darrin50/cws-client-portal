@@ -45,7 +45,7 @@ export function FocusThisWeek({ focus, topPageName }: FocusThisWeekProps) {
               is your most important page — ask your team about optimizing it.
             </>
           ) : (
-            'Ask your team what&apos;s next.'
+            "Ask your team what's next."
           )}
         </p>
       </div>
