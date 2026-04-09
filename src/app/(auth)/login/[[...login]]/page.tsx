@@ -1,20 +1,16 @@
 import { SignIn } from "@clerk/nextjs";
-import Image from "next/image";
 
 export default function LoginPage() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-3">
         <div className="flex justify-center mb-4">
-          <Image
-            src="/logo.png"
-            alt="Caliber Web Studio"
-            width={160}
-            height={48}
-            className="object-contain"
-            priority
-            unoptimized
-          />
+          <div className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-sm tracking-tight">CWS</span>
+            </div>
+            <span className="text-white font-bold text-xl">Caliber Web Studio</span>
+          </div>
         </div>
         <h1 className="text-3xl font-bold text-white">Welcome back</h1>
         <p className="text-slate-400">

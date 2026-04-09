@@ -136,6 +136,8 @@
 .cl-badge,
 [class*="cl-badge"],
 .cl-internal-b3fm6y,
+[data-clerk-internal],
+div[class*="cl-internal"],
 [data-localization-key="badge__devMode"],
 [data-localization-key="badge__devMode"] + *,
 /* Org selection screen dev banner */
