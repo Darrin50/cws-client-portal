@@ -834,7 +834,7 @@ export default async function DashboardPage() {
                 Your Plan: {planLabel} &mdash; ${planPrice}/month
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                {org?.isActive ? "Subscription active" : "Subscription inactive — please update billing"}
+                {org?.isActive ? "Subscription active" : "Visit Settings → Billing to confirm your plan"}
               </p>
             </div>
           </div>

@@ -21,7 +21,7 @@ export function CalendlyDialog({
   variant = "default",
   size = "default",
   className = "",
-  label = "📅 Book Office Hours",
+  label = "Book Office Hours",
 }: CalendlyDialogProps) {
   const [open, setOpen] = useState(false);
 

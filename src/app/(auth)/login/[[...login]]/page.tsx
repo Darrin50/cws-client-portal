@@ -19,8 +19,7 @@ export default function LoginPage() {
       </div>
 
       <SignIn
-        afterSignInUrl="/dashboard"
-        fallbackRedirectUrl="/dashboard"
+        signInFallbackRedirectUrl="/dashboard"
         appearance={{
           elements: {
             rootBox: "w-full",

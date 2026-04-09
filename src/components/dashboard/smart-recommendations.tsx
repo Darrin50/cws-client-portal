@@ -180,8 +180,9 @@ export function SmartRecommendations() {
       setLoading(true);
       setError(null);
       const res = await fetch('/api/portal/recommendations');
-      if (res.status === 403) { setLoading(false); return; }
-      if (!res.ok) throw new Error('Failed to load recommendations');
+      // Silently hide the component for plan gates (403), missing org (404),
+      // or any other non-2xx — don't show an error banner for these cases.
+      if (!res.ok) { setLoading(false); return; }
       const json = await res.json();
       setRecs(json.data?.recommendations ?? []);
     } catch (e) {
