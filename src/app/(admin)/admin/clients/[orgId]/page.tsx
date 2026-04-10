@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, Send, CheckCircle2, Loader2, DollarSign, Pin, PinOff, Pencil, Trash2, Plus } from 'lucide-react';
+import { Save, Send, CheckCircle2, Loader2, DollarSign, Pin, PinOff, Pencil, Trash2, Plus, Play, AlertCircle } from 'lucide-react';
 
 interface OrgData {
   id: string;
@@ -61,8 +61,98 @@ const tabs = [
   { id: 'billing', label: 'Billing' },
   { id: 'revenue', label: 'Revenue Settings' },
   { id: 'notes', label: 'Internal Notes' },
+  { id: 'actions', label: 'Manual Actions' },
   { id: 'settings', label: 'Settings' },
 ];
+
+interface TriggerButton {
+  action: string;
+  label: string;
+  description: string;
+}
+
+const TRIGGER_BUTTONS: TriggerButton[] = [
+  { action: 'site-audit', label: 'Run website audit', description: 'Crawl site and run AI audit (slow)' },
+  { action: 'strategy-brief', label: 'Regenerate strategy brief', description: 'AI monthly strategy brief' },
+  { action: 'competitor-scan', label: 'Force competitor pulse refresh', description: 'Scrape & re-analyze all competitors' },
+  { action: 'case-study', label: 'Regenerate case study', description: 'AI-generated draft case study' },
+  { action: 'gbp-refresh', label: 'Refresh GBP data', description: 'Pull latest Google Business Profile data' },
+  { action: 'seo-report', label: 'Refresh SEO report', description: 'Recalculate health + SEO scores' },
+  { action: 'aeo-citations', label: 'Refresh AEO citations', description: 'Re-scan answer engine citations' },
+  { action: 'review-summary', label: 'Refresh review summary', description: 'Summarize latest reviews' },
+  { action: 'revenue-sync', label: 'Run revenue attribution sync', description: 'Sync revenue attribution data' },
+];
+
+interface TriggerState {
+  loading: boolean;
+  lastResult: 'success' | 'error' | null;
+  lastMessage: string | null;
+  lastRunAt: string | null;
+}
+
+function useTriggers(orgId: string) {
+  const [states, setStates] = useState<Record<string, TriggerState>>(() =>
+    Object.fromEntries(
+      TRIGGER_BUTTONS.map((b) => [b.action, { loading: false, lastResult: null, lastMessage: null, lastRunAt: null }])
+    )
+  );
+
+  const loadHistory = useCallback(async () => {
+    await Promise.all(
+      TRIGGER_BUTTONS.map(async (b) => {
+        try {
+          const res = await fetch(`/api/admin/trigger/${b.action}?orgId=${encodeURIComponent(orgId)}`);
+          if (res.ok) {
+            const d = await res.json() as { data?: { lastRun?: string } };
+            const lastRun = d.data?.lastRun ?? null;
+            if (lastRun) {
+              setStates((prev) => ({
+                ...prev,
+                [b.action]: { ...prev[b.action], lastRunAt: lastRun },
+              }));
+            }
+          }
+        } catch { /* ignore */ }
+      })
+    );
+  }, [orgId]);
+
+  useEffect(() => {
+    if (orgId) void loadHistory();
+  }, [orgId, loadHistory]);
+
+  async function runTrigger(action: string) {
+    setStates((prev) => ({ ...prev, [action]: { ...prev[action], loading: true, lastResult: null, lastMessage: null } }));
+    try {
+      const res = await fetch(`/api/admin/trigger/${action}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId }),
+      });
+      const d = await res.json() as { data?: { result?: { status?: string; message?: string; ok?: boolean } }; error?: string };
+      if (res.ok) {
+        const result = d.data?.result;
+        const msg = (result as { message?: string } | undefined)?.message ?? 'Completed successfully';
+        setStates((prev) => ({
+          ...prev,
+          [action]: { loading: false, lastResult: 'success', lastMessage: msg, lastRunAt: new Date().toISOString() },
+        }));
+      } else {
+        setStates((prev) => ({
+          ...prev,
+          [action]: { loading: false, lastResult: 'error', lastMessage: d.error ?? 'Failed', lastRunAt: prev[action].lastRunAt },
+        }));
+      }
+    } catch {
+      setStates((prev) => ({
+        ...prev,
+        [action]: { loading: false, lastResult: 'error', lastMessage: 'Network error', lastRunAt: prev[action].lastRunAt },
+      }));
+    }
+  }
+
+  return { states, runTrigger };
+}
 
 interface RevenueSettings {
   averageDealValue: number;
@@ -127,6 +217,8 @@ export default function ClientDetailPage() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editNoteBody, setEditNoteBody] = useState('');
   const [noteSaving, setNoteSaving] = useState(false);
+
+  const { states: triggerStates, runTrigger } = useTriggers(orgId);
 
   useEffect(() => {
     if (!orgId) return;
@@ -877,7 +969,6 @@ export default function ClientDetailPage() {
                       key={note.id}
                       className={`p-4 rounded-lg border ${note.pinned ? 'border-amber-600/40 bg-amber-900/10' : 'border-slate-700 bg-slate-700/50'}`}
                     >
-                      {/* Note header */}
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
@@ -899,10 +990,7 @@ export default function ClientDetailPage() {
                             {note.pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
                           </button>
                           <button
-                            onClick={() => {
-                              setEditingNoteId(note.id);
-                              setEditNoteBody(note.body);
-                            }}
+                            onClick={() => { setEditingNoteId(note.id); setEditNoteBody(note.body); }}
                             className="p-1.5 text-slate-400 hover:text-blue-400 transition-colors rounded"
                             title="Edit"
                           >
@@ -917,8 +1005,6 @@ export default function ClientDetailPage() {
                           </button>
                         </div>
                       </div>
-
-                      {/* Note body */}
                       {isEditing ? (
                         <div className="space-y-2">
                           <textarea
@@ -953,6 +1039,65 @@ export default function ClientDetailPage() {
                 })}
               </div>
             )}
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'actions' && (
+        <div className="space-y-4">
+          <Card className="bg-slate-800 border-slate-700 p-6">
+            <h2 className="text-xl font-bold text-white mb-1">Manual Actions</h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Force-run any automation for this client. These run instantly and write to the audit log.
+              Stop impersonating before triggering actions.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {TRIGGER_BUTTONS.map((btn) => {
+                const state = triggerStates[btn.action];
+                return (
+                  <div
+                    key={btn.action}
+                    className="flex flex-col gap-2 p-4 bg-slate-700 rounded-lg border border-slate-600"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-semibold">{btn.label}</p>
+                        <p className="text-slate-400 text-xs mt-0.5">{btn.description}</p>
+                      </div>
+                      <button
+                        onClick={() => void runTrigger(btn.action)}
+                        disabled={state.loading}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-blue-700 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex-shrink-0"
+                      >
+                        {state.loading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Play className="w-3.5 h-3.5" />
+                        )}
+                        {state.loading ? 'Running…' : 'Run'}
+                      </button>
+                    </div>
+                    {state.lastResult === 'success' && (
+                      <div className="flex items-center gap-1.5 text-xs text-green-400">
+                        <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{state.lastMessage}</span>
+                      </div>
+                    )}
+                    {state.lastResult === 'error' && (
+                      <div className="flex items-center gap-1.5 text-xs text-red-400">
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{state.lastMessage}</span>
+                      </div>
+                    )}
+                    {state.lastRunAt && (
+                      <p className="text-[10px] text-slate-500">
+                        Last run: {new Date(state.lastRunAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </Card>
         </div>
       )}

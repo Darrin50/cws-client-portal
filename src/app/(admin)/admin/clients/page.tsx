@@ -2,9 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Loader2, Eye } from 'lucide-react';
 
 // TODO: Replace with real data from database
 const mockClients = [
@@ -73,26 +75,25 @@ const healthScoreColor = (score: number) => {
 };
 
 export default function ClientsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [planFilter, setPlanFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
+  const [viewingAs, setViewingAs] = useState<string | null>(null);
 
   const filteredClients = useMemo(() => {
     let result = mockClients;
 
-    // Filter by search term
     if (searchTerm) {
       result = result.filter((client) =>
         client.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by plan
     if (planFilter !== 'all') {
       result = result.filter((client) => client.plan === planFilter);
     }
 
-    // Sort
     if (sortBy === 'name') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === 'mrr') {
@@ -103,6 +104,25 @@ export default function ClientsPage() {
 
     return result;
   }, [searchTerm, planFilter, sortBy]);
+
+  async function handleViewAs(orgId: string) {
+    setViewingAs(orgId);
+    try {
+      const res = await fetch(`/api/admin/impersonate/${encodeURIComponent(orgId)}`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        router.push('/dashboard');
+      } else {
+        const d = await res.json() as { error?: string };
+        alert(d.error ?? 'Failed to start impersonation');
+        setViewingAs(null);
+      }
+    } catch {
+      alert('Network error starting impersonation');
+      setViewingAs(null);
+    }
+  }
 
   return (
     <div className="p-8">
@@ -183,13 +203,16 @@ export default function ClientsPage() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
                   Status
                 </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-300">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredClients.map((client) => (
                 <tr
                   key={client.id}
-                  className="border-b border-slate-700 hover:bg-slate-700/50 cursor-pointer transition-colors"
+                  className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors"
                 >
                   <td className="px-6 py-4">
                     <Link
@@ -228,6 +251,21 @@ export default function ClientsPage() {
                     >
                       {client.status}
                     </Badge>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => void handleViewAs(client.id)}
+                      disabled={viewingAs !== null}
+                      title="View portal as this client (read-only)"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                    >
+                      {viewingAs === client.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Eye className="w-3 h-3" />
+                      )}
+                      View as
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -30,3 +30,4 @@ export * from './referrals';
 export * from './case-studies';
 export * from './cron-runs';
 export * from './client-notes';
+export * from './admin-audit-log';

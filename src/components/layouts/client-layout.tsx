@@ -392,11 +392,13 @@ interface ClientLayoutProps {
   userInitials?: string
   userEmail?: string
   userName?: string
+  topBanner?: React.ReactNode
 }
 
 export function ClientLayout({
   children,
   unreadNotifications = 0,
+  topBanner,
 }: ClientLayoutProps) {
   const pathname = usePathname()
   const { signOut } = useClerk()
@@ -607,6 +609,8 @@ export function ClientLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Impersonation Banner */}
+        {topBanner}
         {/* Top Header */}
         <header className="bg-[var(--header-bg)] border-b border-[var(--border-color)] flex-shrink-0">
           <div className="flex items-center h-14 px-6 gap-4">

@@ -18,7 +18,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://cwsportal.com';
 
-async function generateBriefForOrg(
+export async function generateBriefForOrg(
   org: {
     id: string;
     name: string;
@@ -150,8 +150,14 @@ export async function POST(request: NextRequest) {
   const monthStr = monthDate.toISOString().split('T')[0];
   const monthLabel = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-  // Only run on 1st of month (Vercel cron handles this, but double-check)
-  if (now.getDate() > 3) {
+  let specificOrgId: string | undefined;
+  try {
+    const body = await request.json() as { orgId?: string };
+    specificOrgId = body.orgId;
+  } catch { /* no body — run for all eligible orgs */ }
+
+  // Only enforce month-start guard for scheduled runs (not manual triggers)
+  if (!specificOrgId && now.getDate() > 3) {
     return jsonResponse({ skipped: true, reason: 'Not start of month' });
   }
 
@@ -169,9 +175,9 @@ export async function POST(request: NextRequest) {
     .from(organizationsTable)
     .where(eq(organizationsTable.isActive, true));
 
-  const eligibleOrgs = orgs.filter(
-    (o) => o.planTier === 'growth' || o.planTier === 'domination'
-  );
+  const eligibleOrgs = specificOrgId
+    ? orgs.filter((o) => o.id === specificOrgId)
+    : orgs.filter((o) => o.planTier === 'growth' || o.planTier === 'domination');
 
   const results: Array<{ orgId: string; orgName: string; status: string }> = [];
 
