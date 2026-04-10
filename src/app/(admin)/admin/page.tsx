@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { db } from '@/db';
 import { organizationsTable, commentsTable, auditLogTable, usersTable } from '@/db/schema';
@@ -26,10 +26,11 @@ function timeAgo(date: Date): string {
 }
 
 export default async function AdminDashboard() {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect('/login');
 
-  const role = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+  const user = await currentUser();
+  const role = (user?.publicMetadata as { role?: string } | undefined)?.role;
   if (role !== 'admin') redirect('/dashboard');
 
   // Total active clients
