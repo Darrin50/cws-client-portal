@@ -16,6 +16,21 @@ const PLAN_PRICES: Record<string, number> = {
   domination: 697,
 };
 
+function getGreeting(firstName: string): string {
+  const hour = new Date().getHours();
+  const salutation =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  return `${salutation}, ${firstName}`;
+}
+
+function formatDate(): string {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 function timeAgo(date: Date): string {
   const diffMs = Date.now() - date.getTime();
   const mins = Math.floor(diffMs / 60_000);
@@ -71,9 +86,16 @@ export default async function AdminDashboard() {
     .orderBy(desc(auditLogTable.createdAt))
     .limit(10);
 
+  const greeting = getGreeting(user?.firstName ?? "there");
+
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-white mb-8">Admin Dashboard</h1>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white">{greeting}</h1>
+        <p className="text-slate-400 mt-1">
+          {formatDate()} · Here&apos;s what&apos;s happening across your clients.
+        </p>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
