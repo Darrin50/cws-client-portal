@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { usePathname } from "next/navigation"
+import { useClerk } from "@clerk/nextjs"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { NotificationBell } from "@/components/notification-bell"
@@ -38,6 +39,7 @@ export function AdminLayout({
   userEmail,
 }: AdminLayoutProps) {
   const pathname = usePathname()
+  const { signOut } = useClerk()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -109,7 +111,7 @@ export function AdminLayout({
                   Settings
                 </DropdownItem>
                 <DropdownSeparator />
-                <DropdownItem onClick={() => {}}>
+                <DropdownItem onClick={() => signOut({ redirectUrl: '/login' })}>
                   Sign Out
                 </DropdownItem>
               </DropdownContent>

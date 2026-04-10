@@ -72,8 +72,8 @@ interface RevenueSettings {
 }
 
 export default function ClientDetailPage() {
-  const params = useParams<{ 'orgId/': string }>();
-  const orgId = params['orgId/'] ?? (params as Record<string, string>).orgId ?? '';
+  const params = useParams<{ orgId: string }>();
+  const orgId = params.orgId ?? '';
 
   const [activeTab, setActiveTab] = useState('overview');
   const [org, setOrg] = useState<OrgData | null>(null);
@@ -216,7 +216,6 @@ export default function ClientDetailPage() {
       const d = await res.json() as { data?: { sentTo: string }; error?: string };
       if (res.ok && d.data) {
         setBriefingResult({ sentTo: d.data.sentTo });
-        // Update lastBriefingSentAt in local state
         if (org) setOrg({ ...org, lastBriefingSentAt: new Date().toISOString() });
       } else {
         setBriefingResult({ error: d.error ?? 'Failed to send briefing' });
@@ -490,7 +489,6 @@ export default function ClientDetailPage() {
             </div>
           </Card>
 
-          {/* Current focus preview */}
           {org.weeklyFocus && (
             <Card className="bg-slate-800 border-[#0d9488] border p-5">
               <p className="text-xs font-semibold text-[#2563eb] mb-2 uppercase tracking-wider">Currently showing on client dashboard</p>
