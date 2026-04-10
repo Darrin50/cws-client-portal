@@ -404,6 +404,7 @@ export function ClientLayout({
   const [profilePic, setProfilePic] = useState<string | null>(null)
   const [avatarHovered, setAvatarHovered] = useState(false)
   const [bellOpen, setBellOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme, setTheme } = useTheme()
   const { config: wl } = useWhiteLabel()
@@ -680,11 +681,34 @@ export function ClientLayout({
                 )}
               </div>
 
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-[#2563eb] transition-all text-white text-xs font-bold flex-shrink-0"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {userInitials}
+              <div className="relative">
+                <button
+                  aria-label="Open user menu"
+                  aria-expanded={userMenuOpen}
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer ring-2 ring-offset-1 ring-transparent hover:ring-[#2563eb] transition-all text-white text-xs font-bold flex-shrink-0 focus-visible:outline-none focus-visible:ring-[#2563eb]"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {userInitials}
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-44 z-50 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+                      <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{userName}</p>
+                        <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
+                      </div>
+                      <button
+                        onClick={() => signOut({ redirectUrl: "/login" })}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
