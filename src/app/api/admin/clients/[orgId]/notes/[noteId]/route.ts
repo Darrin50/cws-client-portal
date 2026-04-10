@@ -10,8 +10,11 @@ import {
   forbiddenResponse,
 } from '@/lib/api-helpers';
 
-function isAdmin(sessionClaims: Record<string, unknown> | null) {
-  return (sessionClaims?.metadata as { role?: string } | undefined)?.role === 'admin';
+async function requireAdmin(userId: string, sessionClaims: Record<string, unknown> | null): Promise<boolean> {
+  const claimsRole = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+  if (claimsRole === 'admin') return true;
+  const rows = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.clerkUserId, userId)).limit(1);
+  return rows[0]?.role === 'admin';
 }
 
 // PATCH /api/admin/clients/[orgId]/notes/[noteId] — update body or pinned
@@ -22,7 +25,7 @@ export async function PATCH(
   try {
     const { userId, sessionClaims } = await auth();
     if (!userId) return unauthorizedResponse();
-    if (!isAdmin(sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
+    if (!await requireAdmin(userId, sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
 
     const { orgId, noteId } = await params;
 
@@ -77,7 +80,7 @@ export async function DELETE(
   try {
     const { userId, sessionClaims } = await auth();
     if (!userId) return unauthorizedResponse();
-    if (!isAdmin(sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
+    if (!await requireAdmin(userId, sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
 
     const { orgId, noteId } = await params;
 

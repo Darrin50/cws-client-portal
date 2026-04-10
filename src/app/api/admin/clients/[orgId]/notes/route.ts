@@ -10,8 +10,12 @@ import {
   forbiddenResponse,
 } from '@/lib/api-helpers';
 
-function isAdmin(sessionClaims: Record<string, unknown> | null) {
-  return (sessionClaims?.metadata as { role?: string } | undefined)?.role === 'admin';
+async function requireAdmin(userId: string, sessionClaims: Record<string, unknown> | null): Promise<boolean> {
+  const claimsRole = (sessionClaims?.metadata as { role?: string } | undefined)?.role;
+  if (claimsRole === 'admin') return true;
+  // Fallback: check DB (covers users whose Clerk metadata isn't set yet)
+  const rows = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.clerkUserId, userId)).limit(1);
+  return rows[0]?.role === 'admin';
 }
 
 // GET /api/admin/clients/[orgId]/notes — list notes for an org
@@ -22,7 +26,7 @@ export async function GET(
   try {
     const { userId, sessionClaims } = await auth();
     if (!userId) return unauthorizedResponse();
-    if (!isAdmin(sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
+    if (!await requireAdmin(userId, sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
 
     const { orgId } = await params;
 
@@ -59,7 +63,7 @@ export async function POST(
   try {
     const { userId, sessionClaims } = await auth();
     if (!userId) return unauthorizedResponse();
-    if (!isAdmin(sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
+    if (!await requireAdmin(userId, sessionClaims as Record<string, unknown> | null)) return forbiddenResponse();
 
     const { orgId } = await params;
 
