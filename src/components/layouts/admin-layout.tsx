@@ -2,8 +2,9 @@
 
 import React, { useState } from "react"
 import { usePathname } from "next/navigation"
-import { useClerk } from "@clerk/nextjs"
+import { useClerk, useUser } from "@clerk/nextjs"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { NotificationBell } from "@/components/notification-bell"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -18,8 +19,6 @@ import {
 interface AdminLayoutProps {
   children: React.ReactNode
   breadcrumbs?: { label: string; href?: string }[]
-  userInitials?: string
-  userEmail?: string
 }
 
 const navItems = [
@@ -35,12 +34,23 @@ const navItems = [
 export function AdminLayout({
   children,
   breadcrumbs,
-  userInitials = "AD",
-  userEmail,
 }: AdminLayoutProps) {
   const pathname = usePathname()
   const { signOut } = useClerk()
+  const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const firstName = user?.firstName ?? ""
+  const lastName = user?.lastName ?? ""
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? ""
+  const userInitials =
+    firstName && lastName
+      ? `${firstName[0]}${lastName[0]}`.toUpperCase()
+      : firstName
+        ? `${firstName[0]}${firstName[1] ?? ""}`.toUpperCase()
+        : userEmail
+          ? userEmail[0].toUpperCase()
+          : "AD"
 
   return (
     <div className="flex h-screen bg-slate-900">
@@ -53,11 +63,30 @@ export function AdminLayout({
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-6 py-4 border-b border-slate-700">
-            <div className="font-bold text-lg text-white">
-              CWS Admin
-            </div>
-            <div className="text-xs text-slate-400 mt-1">Admin Badge</div>
+          <div className="px-5 py-4 border-b border-slate-700">
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 group"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <div className="relative w-8 h-8 flex-shrink-0">
+                <Image
+                  src="/brand/logo-mark-nav.png"
+                  alt="Caliber Web Studio"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-white leading-tight group-hover:text-slate-200 transition-colors">
+                  Caliber Web Studio
+                </div>
+                <div className="text-[10px] font-semibold text-red-400 uppercase tracking-widest mt-0.5">
+                  Admin
+                </div>
+              </div>
+            </Link>
           </div>
 
           {/* Navigation */}
@@ -84,16 +113,40 @@ export function AdminLayout({
                 </Link>
               )
             })}
+
+            {/* Owner shortcut — view own client portal */}
+            <div className="pt-3 mt-3 border-t border-slate-700">
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+              >
+                <span className="text-lg">🏢</span>
+                My Client Portal
+              </Link>
+            </div>
           </nav>
 
           {/* User Menu */}
           <div className="border-t border-slate-700 p-4">
             <DropdownMenu>
               <DropdownTrigger>
-                <Avatar size="md">
-                  <AvatarImage src="/avatar.jpg" alt="Admin avatar" />
-                  <AvatarFallback name={userInitials} />
-                </Avatar>
+                <div className="flex items-center gap-3 cursor-pointer group">
+                  <Avatar size="md">
+                    <AvatarImage src="/avatar.jpg" alt="Admin avatar" />
+                    <AvatarFallback>
+                      <span className="text-sm font-bold text-white">{userInitials}</span>
+                    </AvatarFallback>
+                  </Avatar>
+                  {userEmail && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white truncate">
+                        {[firstName, lastName].filter(Boolean).join(" ") || "Admin"}
+                      </p>
+                      <p className="text-[10px] text-slate-500 truncate">{userEmail}</p>
+                    </div>
+                  )}
+                </div>
               </DropdownTrigger>
               <DropdownContent>
                 {userEmail && (
