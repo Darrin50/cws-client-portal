@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildVoiceScript } from '@/lib/voice-script';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await logCronRun('morning-brief', 'success');
     return jsonResponse({
       success: true,
       message: 'Morning briefs generated',
@@ -107,6 +109,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/morning-brief error:', err);
+    await logCronRun('morning-brief', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }

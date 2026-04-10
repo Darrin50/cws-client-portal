@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import React from "react";
 import { errorResponse, jsonResponse } from "@/lib/api-helpers";
+import { logCronRun } from "@/lib/cron-logger";
 import { db } from "@/db";
 import {
   organizationsTable,
@@ -220,6 +221,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await logCronRun("weekly-digest", errors.length > 0 ? "error" : "success", errors.length > 0 ? `${errors.length} org(s) failed` : undefined);
     return jsonResponse({
       success: true,
       message: "Weekly digest sent",
@@ -230,6 +232,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("POST /api/cron/weekly-digest error:", err);
+    await logCronRun("weekly-digest", "error", String(err));
     return errorResponse("Internal server error", 500);
   }
 }

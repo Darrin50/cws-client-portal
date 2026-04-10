@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { competitorsTable, competitorSnapshotsTable } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 import Anthropic from '@anthropic-ai/sdk';
 
 async function scrapeWithFirecrawl(url: string) {
@@ -75,5 +76,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const hasErrors = results.some((r) => r.status === 'error');
+  await logCronRun('competitor-scan', hasErrors ? 'error' : 'success', hasErrors ? 'One or more competitor scans failed' : undefined);
   return jsonResponse({ scanned: results.length, results });
 }

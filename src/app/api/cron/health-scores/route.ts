@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await logCronRun('health-scores', 'success');
     return jsonResponse({
       success: true,
       message: 'Health scores recalculated for all organizations',
@@ -108,6 +110,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/health-scores error:', err);
+    await logCronRun('health-scores', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }

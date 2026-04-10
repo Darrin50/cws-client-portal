@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -274,6 +275,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await logCronRun('calculate-streaks', 'success');
     return jsonResponse({
       success: true,
       weekStart,
@@ -285,6 +287,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/calculate-streaks error:', err);
+    await logCronRun('calculate-streaks', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import React from 'react';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -234,6 +235,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const hasErrors = results.some((r) => r.status === 'error');
+  await logCronRun('generate-strategy-briefs', hasErrors ? 'error' : 'success', hasErrors ? 'One or more strategy briefs failed' : undefined);
   return jsonResponse({
     success: true,
     month: monthLabel,

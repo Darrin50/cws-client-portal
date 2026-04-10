@@ -28,3 +28,5 @@ export * from './benchmark-snapshots';
 export * from './client-wins';
 export * from './referrals';
 export * from './case-studies';
+export * from './cron-runs';
+export * from './client-notes';

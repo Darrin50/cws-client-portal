@@ -3,6 +3,7 @@ import { db } from '@/db';
 import { siteAuditsTable, organizationsTable } from '@/db/schema';
 import { eq, isNotNull } from 'drizzle-orm';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 import Anthropic from '@anthropic-ai/sdk';
 
 async function crawlSite(websiteUrl: string) {
@@ -87,5 +88,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const hasErrors = results.some((r) => r.status === 'error');
+  await logCronRun('site-audit', hasErrors ? 'error' : 'success', hasErrors ? 'One or more org audits failed' : undefined);
   return jsonResponse({ audited: results.length, results });
 }

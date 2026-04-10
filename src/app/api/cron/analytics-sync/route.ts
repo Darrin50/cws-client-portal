@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,7 @@ export async function POST(request: NextRequest) {
     // TODO: Update analytics tables in database
     // TODO: Aggregate metrics for dashboard display
 
+    await logCronRun('analytics-sync', 'success');
     return jsonResponse({
       success: true,
       message: 'Analytics sync completed',
@@ -27,6 +29,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/analytics-sync error:', err);
+    await logCronRun('analytics-sync', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }

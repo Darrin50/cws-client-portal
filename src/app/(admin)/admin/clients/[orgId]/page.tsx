@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, Send, CheckCircle2, Loader2, DollarSign } from 'lucide-react';
+import { Save, Send, CheckCircle2, Loader2, DollarSign, Pin, PinOff, Pencil, Trash2, Plus } from 'lucide-react';
 
 interface OrgData {
   id: string;
@@ -60,6 +60,7 @@ const tabs = [
   { id: 'reports', label: 'Reports' },
   { id: 'billing', label: 'Billing' },
   { id: 'revenue', label: 'Revenue Settings' },
+  { id: 'notes', label: 'Internal Notes' },
   { id: 'settings', label: 'Settings' },
 ];
 
@@ -69,6 +70,19 @@ interface RevenueSettings {
   leadToCallRate: number;
   revenueGoal: number | null;
   currency: string;
+}
+
+interface ClientNote {
+  id: string;
+  orgId: string;
+  authorUserId: string;
+  body: string;
+  pinned: boolean;
+  createdAt: string;
+  updatedAt: string;
+  authorFirstName: string | null;
+  authorLastName: string | null;
+  authorAvatarUrl: string | null;
 }
 
 export default function ClientDetailPage() {
@@ -104,6 +118,15 @@ export default function ClientDetailPage() {
   const [revenueSaving, setRevenueSaving] = useState(false);
   const [revenueSaved, setRevenueSaved] = useState(false);
   const [revenueError, setRevenueError] = useState<string | null>(null);
+
+  // Internal Notes state
+  const [notes, setNotes] = useState<ClientNote[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [newNoteBody, setNewNoteBody] = useState('');
+  const [noteAdding, setNoteAdding] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editNoteBody, setEditNoteBody] = useState('');
+  const [noteSaving, setNoteSaving] = useState(false);
 
   useEffect(() => {
     if (!orgId) return;
@@ -206,6 +229,82 @@ export default function ClientDetailPage() {
     setFocusDesc('');
     setFocusStatus('in_progress');
     if (org) setOrg({ ...org, weeklyFocus: null });
+  }
+
+  async function loadNotes() {
+    setNotesLoading(true);
+    try {
+      const res = await fetch(`/api/admin/clients/${orgId}/notes`);
+      if (res.ok) {
+        const d = await res.json() as { data?: { notes: ClientNote[] } };
+        setNotes(d.data?.notes ?? []);
+      }
+    } finally {
+      setNotesLoading(false);
+    }
+  }
+
+  async function addNote() {
+    if (!newNoteBody.trim()) return;
+    setNoteAdding(true);
+    try {
+      const res = await fetch(`/api/admin/clients/${orgId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: newNoteBody.trim() }),
+      });
+      if (res.ok) {
+        setNewNoteBody('');
+        await loadNotes();
+      }
+    } finally {
+      setNoteAdding(false);
+    }
+  }
+
+  async function saveNoteEdit(noteId: string) {
+    if (!editNoteBody.trim()) return;
+    setNoteSaving(true);
+    try {
+      const res = await fetch(`/api/admin/clients/${orgId}/notes/${noteId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: editNoteBody.trim() }),
+      });
+      if (res.ok) {
+        setEditingNoteId(null);
+        setEditNoteBody('');
+        await loadNotes();
+      }
+    } finally {
+      setNoteSaving(false);
+    }
+  }
+
+  async function toggleNotePin(note: ClientNote) {
+    await fetch(`/api/admin/clients/${orgId}/notes/${note.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pinned: !note.pinned }),
+    });
+    await loadNotes();
+  }
+
+  async function deleteNote(noteId: string) {
+    if (!confirm('Delete this note?')) return;
+    await fetch(`/api/admin/clients/${orgId}/notes/${noteId}`, { method: 'DELETE' });
+    setNotes((prev) => prev.filter((n) => n.id !== noteId));
+  }
+
+  function noteTimeAgo(dateStr: string): string {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diffMs / 60_000);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
   async function sendBriefing() {
@@ -327,7 +426,10 @@ export default function ClientDetailPage() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                if (tab.id === 'notes' && notes.length === 0) void loadNotes();
+              }}
               className={`px-4 py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-white border-blue-600'
@@ -727,6 +829,131 @@ export default function ClientDetailPage() {
               using the lead-to-call rate if GBP data isn&apos;t connected).
             </p>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'notes' && (
+        <div className="max-w-2xl space-y-6">
+          <Card className="bg-slate-800 border-slate-700 p-6">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xl font-bold text-white">Internal Notes</h2>
+              <span className="text-xs bg-red-900/40 text-red-400 px-2 py-0.5 rounded font-medium">Admin only — never visible to client</span>
+            </div>
+            <p className="text-slate-400 text-sm mb-5">
+              Private notes about {org.name}. Only Darrin and other admins can see these.
+            </p>
+
+            {/* Add note */}
+            <div className="space-y-2 mb-6">
+              <textarea
+                value={newNoteBody}
+                onChange={(e) => setNewNoteBody(e.target.value)}
+                placeholder="Add a note… (e.g. 'Darrin spoke with owner 4/10, they want to upgrade next quarter')"
+                rows={3}
+                className="w-full bg-slate-700 border border-slate-600 text-white placeholder-slate-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              />
+              <button
+                onClick={() => void addNote()}
+                disabled={noteAdding || !newNoteBody.trim()}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+              >
+                {noteAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add Note
+              </button>
+            </div>
+
+            {/* Notes list */}
+            {notesLoading ? (
+              <p className="text-slate-400 text-sm">Loading notes…</p>
+            ) : notes.length === 0 ? (
+              <p className="text-slate-500 text-sm">No notes yet. Add the first one above.</p>
+            ) : (
+              <div className="space-y-4">
+                {notes.map((note) => {
+                  const authorName = [note.authorFirstName, note.authorLastName].filter(Boolean).join(' ') || 'Darrin';
+                  const isEditing = editingNoteId === note.id;
+                  return (
+                    <div
+                      key={note.id}
+                      className={`p-4 rounded-lg border ${note.pinned ? 'border-amber-600/40 bg-amber-900/10' : 'border-slate-700 bg-slate-700/50'}`}
+                    >
+                      {/* Note header */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            {note.authorFirstName?.[0] ?? 'D'}
+                          </div>
+                          <span className="text-sm font-medium text-slate-300">{authorName}</span>
+                          <span className="text-slate-500 text-xs">·</span>
+                          <span className="text-xs text-slate-500">{noteTimeAgo(note.updatedAt !== note.createdAt ? note.updatedAt : note.createdAt)}</span>
+                          {note.pinned && (
+                            <span className="text-xs text-amber-400 font-medium">Pinned</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => void toggleNotePin(note)}
+                            className="p-1.5 text-slate-400 hover:text-amber-400 transition-colors rounded"
+                            title={note.pinned ? 'Unpin' : 'Pin to top'}
+                          >
+                            {note.pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingNoteId(note.id);
+                              setEditNoteBody(note.body);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-blue-400 transition-colors rounded"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => void deleteNote(note.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Note body */}
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editNoteBody}
+                            onChange={(e) => setEditNoteBody(e.target.value)}
+                            rows={3}
+                            autoFocus
+                            className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => void saveNoteEdit(note.id)}
+                              disabled={noteSaving || !editNoteBody.trim()}
+                              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold rounded transition-colors"
+                            >
+                              {noteSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingNoteId(null); setEditNoteBody(''); }}
+                              className="px-3 py-1.5 bg-slate-600 hover:bg-slate-500 text-slate-300 text-xs rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-white text-sm whitespace-pre-wrap">{note.body}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
         </div>
       )}
 

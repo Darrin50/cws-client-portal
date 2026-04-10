@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
     // TODO: Trigger screenshot service for each page (e.g., Firecrawl)
     // TODO: Update page screenshot URLs in database
 
+    await logCronRun('screenshots', 'success');
     return jsonResponse({
       success: true,
       message: 'Screenshot refresh triggered for all pages',
@@ -21,6 +23,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/screenshots error:', err);
+    await logCronRun('screenshots', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }

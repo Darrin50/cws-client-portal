@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  await logCronRun('generate-recommendations', errors.length > 0 ? 'error' : 'success', errors.length > 0 ? errors[0] : undefined);
   return jsonResponse({
     success: true,
     orgsEligible: eligibleOrgs.length,

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { errorResponse, jsonResponse } from '@/lib/api-helpers';
+import { logCronRun } from '@/lib/cron-logger';
 import { db } from '@/db';
 import {
   organizationsTable,
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await logCronRun('calculate-benchmarks', 'success');
     return jsonResponse({
       success: true,
       snapshotDate,
@@ -168,6 +170,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('POST /api/cron/calculate-benchmarks error:', err);
+    await logCronRun('calculate-benchmarks', 'error', String(err));
     return errorResponse('Internal server error', 500);
   }
 }
